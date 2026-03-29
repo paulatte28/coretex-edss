@@ -1,0 +1,267 @@
+@model coretex_finalproj.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Executive Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-10">
+    <!-- KPI Summary Section -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Revenue Card -->
+        <div class="group bg-white p-7 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-secondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center justify-between mb-6">
+                <div class="p-4 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="flex items-center space-x-1 text-emerald-500 font-black text-xs bg-emerald-50 px-3 py-1 rounded-full">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    <span>@Model.RevenueGrowth%</span>
+                </div>
+            </div>
+            <div>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Revenue</p>
+                <h3 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">$@Model.TotalRevenue.ToString("N2")</h3>
+            </div>
+        </div>
+
+        <!-- Orders Card -->
+        <div class="group bg-white p-7 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center justify-between mb-6">
+                <div class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </div>
+            </div>
+            <div>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Orders</p>
+                <h3 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">@Model.TotalOrders</h3>
+            </div>
+        </div>
+
+        <!-- Inventory Card -->
+        <div class="group bg-white p-7 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center justify-between mb-6">
+                <div class="p-4 bg-red-50 text-red-600 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+                <div class="px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                    Critical
+                </div>
+            </div>
+            <div>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Low Stock</p>
+                <h3 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">@Model.LowStockItems</h3>
+            </div>
+        </div>
+
+        <!-- Profit Card -->
+        <div class="group bg-white p-7 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-secondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center justify-between mb-6">
+                <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+            </div>
+            <div>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Profit Margin</p>
+                <h3 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">@Model.ProfitMargin%</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <!-- Sales & Analytics Chart -->
+        <div class="lg:col-span-2 bg-white/80 backdrop-blur-md p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-white relative overflow-hidden">
+            <div class="flex items-center justify-between mb-10 relative z-10">
+                <div>
+                    <h4 class="text-xl font-black text-slate-900 tracking-tight">Revenue Analytics</h4>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Core Performance Metrics</p>
+                </div>
+                <div class="flex bg-slate-100 p-1 rounded-2xl">
+                    <button class="px-4 py-2 bg-white shadow-sm rounded-xl text-xs font-black text-slate-800">2026</button>
+                    <button class="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-600 transition">2025</button>
+                </div>
+            </div>
+            <div class="h-80 relative z-10">
+                <canvas id="revenueChart"></canvas>
+            </div>
+            <!-- Decorative blur -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-secondary/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- Predictive Trend Preview -->
+        <div class="bg-primary text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+            <div class="relative z-10">
+                <h4 class="text-lg font-bold">Predictive Analytics</h4>
+                <p class="text-indigo-200 text-sm mt-1">Powered by CORE Engine</p>
+                
+                <div class="mt-12 space-y-6">
+                    <div class="p-4 bg-white/10 rounded-2xl backdrop-blur-md">
+                        <p class="text-xs text-indigo-300 uppercase tracking-widest font-bold">Estimated Next Month</p>
+                        <p class="text-2xl font-bold mt-1">$28,450.00</p>
+                        <div class="flex items-center mt-2 space-x-2 text-emerald-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            <span class="text-xs font-bold font-sans">+12.5% Forecasted</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <p class="text-xs text-indigo-300 font-bold uppercase tracking-widest">Key Insights</p>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5"></div>
+                            <p class="text-sm text-indigo-100">High demand for Smart Electronics in Q2.</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-1.5 h-1.5 bg-accent rounded-full mt-1.5"></div>
+                            <p class="text-sm text-indigo-100">Optimizing inventory could save 15% on storage costs.</p>
+                        </div>
+                    </div>
+
+                    <button class="w-full py-4 bg-secondary text-white font-bold rounded-2xl hover:bg-teal-600 transition shadow-lg shadow-teal-900/50">
+                        View Full Analysis
+                    </button>
+                </div>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-secondary/10 rounded-full"></div>
+        </div>
+    </section>
+
+    <!-- Recent Transactions Section -->
+    <section class="bg-white rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+        <div class="p-10 border-b border-slate-50 flex items-center justify-between">
+            <div>
+                <h4 class="text-xl font-black text-slate-900 tracking-tight">Activity Stream</h4>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Real-time Transaction Logs</p>
+            </div>
+            <button class="px-6 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-secondary transition-all shadow-lg shadow-slate-900/20">
+                Export Ledger
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Identifier</th>
+                        <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Client</th>
+                        <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timeline</th>
+                        <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Valuation</th>
+                        <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @foreach (var item in Model.RecentTransactions)
+                    {
+                        <tr class="hover:bg-slate-50 transition-all duration-300 group">
+                            <td class="px-10 py-7 text-sm font-black text-slate-900 group-hover:text-secondary transition-colors">@item.OrderId</td>
+                            <td class="px-10 py-7 text-sm font-bold text-slate-600">@item.CustomerName</td>
+                            <td class="px-10 py-7 text-xs font-bold text-slate-400">@item.Date.ToString("MMM dd, yyyy")</td>
+                            <td class="px-10 py-7">
+                                <span class="text-sm font-black text-slate-900">$@item.Amount.ToString("N2")</span>
+                            </td>
+                            <td class="px-10 py-7">
+                                @if (item.Status == "Completed")
+                                {
+                                    <span class="inline-flex items-center px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">@item.Status</span>
+                                }
+                                else if (item.Status == "Pending")
+                                {
+                                    <span class="inline-flex items-center px-4 py-1.5 bg-amber-50 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100">@item.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">@item.Status</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        
+        // Custom Theme Colors
+        const primaryColor = '#001A4D'; // Navy
+        const secondaryColor = '#006D68'; // Teal
+        const gridColor = '#F1F5F9';
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Json.Serialize(Model.MonthlyLabels),
+                datasets: [
+                    {
+                        label: 'Revenue',
+                        data: @Json.Serialize(Model.RevenueData),
+                        borderColor: secondaryColor,
+                        backgroundColor: 'rgba(0, 109, 104, 0.1)',
+                        borderWidth: 4,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: secondaryColor,
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Expenses',
+                        data: @Json.Serialize(Model.ExpenseData),
+                        borderColor: '#E2E8F0',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: primaryColor,
+                        padding: 12,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        cornerRadius: 12,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#94A3B8',
+                            font: { size: 12, weight: '500' },
+                            callback: function(value) { return '$' + value.toLocaleString(); }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#94A3B8',
+                            font: { size: 12, weight: '500' }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
