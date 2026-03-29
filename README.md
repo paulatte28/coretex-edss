@@ -1,6 +1,6 @@
 # Coretex: Intelligent Executive Decision Support System
 
-> A multi-tenant web-based Executive Decision Support System (EDSS) built for small electronics businesses — centralizing KPI monitoring, financial analytics, predictive trends, and executive reporting into one secure, role-based platform.
+> A SaaS-based multi-tenant Executive Decision Support System (EDSS) designed for small to medium electronics businesses — centralizing KPI monitoring, financial analytics, predictive trends, and executive reporting into one secure, role-based platform.
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Overview
 
-Coretex is a multi-tenant EDSS where multiple small electronics companies can independently subscribe and use the platform. Each subscribed company operates within its own isolated environment — the Super Admin (system developer) can monitor all registered tenants but cannot access, edit, or interfere with any individual company's data.
+Coretex is a SaaS-based multi-tenant EDSS where multiple small to medium electronics companies can independently subscribe and use the platform. Each subscribed company operates within its own isolated environment — the Super Admin (Platform Manager) can monitor all registered tenants but cannot access, edit, or interfere with any individual company's data.
 
 **Subject:** IT15/L — Integrative Programming and Technologies  
 **Course Code:** 8448  
@@ -57,7 +57,7 @@ Exclusively for the Super Admin. Allows monitoring of all registered electronics
 
 | Role | Scope | Access |
 |---|---|---|
-| **Super Admin** | Platform-wide | Module 6 only — view-only monitoring of all tenants |
+| **Super Admin (Platform Manager)** | Platform-wide | Module 6 only — view-only monitoring of all tenants |
 | **Business Owner / CEO** | Own company | Modules 1–5 — full access to all EDSS features |
 | **Finance Officer** | Own company | Modules 3 & 4 — reports, budget validation, multi-currency conversion |
 | **System Administrator** | Own company | User management, system settings, report scheduling, activity logs, KPI alert rules |
