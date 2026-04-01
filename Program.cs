@@ -1,6 +1,6 @@
 using coretex_finalproj.Data;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using coretex_finalproj.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +10,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+// Register generic API services
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<CurrencyService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -33,11 +35,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
 
 app.Run();

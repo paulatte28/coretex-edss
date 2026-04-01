@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "Data Visualization & Insights";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Data Viz & Insights</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Interactive Financial Tracking with ExchangeRate API</p>
+        </div>
+        <div class="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+            <span class="px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">Base Currency</span>
+            <select class="text-sm font-bold bg-slate-50 border-none rounded-lg text-slate-800 py-1.5 pl-3 pr-8 focus:ring-secondary/30 focus:border-secondary transition-all">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="JPY">JPY (¥)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Live Conversion Banner -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-indigo-100 rounded-2xl p-4 flex items-center justify-between shadow-inner">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center animate-pulse">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Live Exchange Rates Active</p>
+                <p class="text-sm font-bold text-slate-700">1 USD = 0.92 EUR | 0.79 GBP</p>
+            </div>
+        </div>
+        <p class="text-xs text-slate-400 font-medium italic">Last updated: 5 mins ago</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Chart 1: Revenue by Region -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
+            <h3 class="font-black text-slate-800 text-lg mb-1">Global Revenue Distribution</h3>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">Values auto-converted to USD</p>
+            
+            <div class="h-64 relative z-10 flex justify-center">
+                <canvas id="regionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Product Performance -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="flex justify-between items-center mb-6 z-10 relative">
+                <div>
+                    <h3 class="font-black text-slate-800 text-lg mb-1">Top Selling Electronics</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">Unit sales vs Revenue</p>
+                </div>
+            </div>
+            
+            <div class="h-64 relative z-10">
+                <canvas id="productChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Doughnut Chart
+            const ctxRegion = document.getElementById('regionChart').getContext('2d');
+            new Chart(ctxRegion, {
+                type: 'doughnut',
+                data: {
+                    labels: ['North America', 'Europe', 'Asia Pacific', 'Latin America'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: ['#001A4D', '#006D68', '#3B82F6', '#10B981'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { usePointStyle: true, font: {family: 'Inter', weight: 'bold'} } },
+                        tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.parsed + '%'; } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Bar Chart
+            const ctxProduct = document.getElementById('productChart').getContext('2d');
+            new Chart(ctxProduct, {
+                type: 'bar',
+                data: {
+                    labels: ['Smartphones', 'Laptops', 'Tablets', 'Smart Watches', 'Audio'],
+                    datasets: [{
+                        label: 'Revenue (k)',
+                        data: [120, 95, 60, 45, 30],
+                        backgroundColor: '#006D68',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#F1F5F9' },
+                            ticks: { font: {size: 10}, callback: function(value) { return '$' + value + 'k'; } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: {size: 10, weight: 'bold'} }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

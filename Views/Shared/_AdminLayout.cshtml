@@ -89,26 +89,41 @@
             </div>
             
             <nav class="flex-1 px-6 py-8 space-y-3">
-                <a href="/Dashboard" class="flex items-center space-x-3 p-4 bg-secondary active-glow rounded-2xl transition-all duration-300 transform scale-[1.02]">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                    <span class="font-bold tracking-tight">KPI Dashboard</span>
+                <a href="/Dashboard" class="flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard" || Context.Request.Path == "/" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard" || Context.Request.Path == "/" ? "scale-[1.02]" : "")">
+                    <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard" || Context.Request.Path == "/" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span class="font-bold tracking-tight text-sm">KPI Dashboard</span>
                 </a>
                 
-                <a href="#" class="group flex items-center space-x-3 p-4 text-slate-400 hover:bg-white/5 hover:text-white rounded-2xl transition-all duration-300">
-                    <svg class="w-5 h-5 group-hover:text-secondary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                    <span class="font-semibold text-sm">Trend Analysis</span>
+                <a href="/Dashboard/TrendAnalysis" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/TrendAnalysis" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/TrendAnalysis" ? "scale-[1.02]" : "")">
+                    <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard/TrendAnalysis" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    <span class="font-semibold tracking-tight text-sm">Predictive Trend</span>
                 </a>
                 
-                <a href="#" class="group flex items-center space-x-3 p-4 text-slate-400 hover:bg-white/5 hover:text-white rounded-2xl transition-all duration-300">
-                    <svg class="w-5 h-5 group-hover:text-secondary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
-                    <span class="font-semibold text-sm">Data Insights</span>
+                <a href="/Dashboard/ExecutiveReporting" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/ExecutiveReporting" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/ExecutiveReporting" ? "scale-[1.02]" : "")">
+                    <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard/ExecutiveReporting" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
+                    <span class="font-semibold tracking-tight text-sm">Exec Reporting</span>
                 </a>
 
-                <div class="pt-12">
-                    <p class="px-4 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-4">Modules</p>
-                    <a href="#" class="group flex items-center space-x-3 p-4 text-slate-400 hover:bg-white/5 hover:text-white rounded-2xl transition-all duration-300">
-                        <svg class="w-5 h-5 group-hover:text-secondary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                        <span class="font-semibold text-sm">Strategic Analytics</span>
+                <a href="/Dashboard/DataVisualization" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/DataVisualization" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/DataVisualization" ? "scale-[1.02]" : "")">
+                    <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard/DataVisualization" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                    <span class="font-semibold tracking-tight text-sm">Data Viz & Insights</span>
+                </a>
+
+                <a href="/Dashboard/DecisionSupport" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/DecisionSupport" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/DecisionSupport" ? "scale-[1.02]" : "")">
+                    <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard/DecisionSupport" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    <span class="font-semibold tracking-tight text-sm">Decision Analytics</span>
+                </a>
+
+                <div class="pt-8">
+                    <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Platform Administration</p>
+                    <a href="/Dashboard/TenantManagement" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/TenantManagement" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/TenantManagement" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard/TenantManagement" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Tenant Management</span>
+                    </a>
+                    
+                    <a href="/Dashboard/Subscription" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/Subscription" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/Subscription" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Dashboard/Subscription" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Subscription Plans</span>
                     </a>
                 </div>
             </nav>

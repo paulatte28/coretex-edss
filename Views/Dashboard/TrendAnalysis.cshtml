@@ -1,0 +1,140 @@
+@{
+    ViewData["Title"] = "Predictive Trend Analysis";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Predictive Trend Analysis</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">AI-Powered Revenue & Demand Forecasting</p>
+        </div>
+        <div class="flex space-x-3">
+            <button class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50 transition-all shadow-sm">
+                Export Forecast
+            </button>
+            <button class="px-5 py-2.5 bg-secondary text-white font-bold rounded-xl text-xs hover:bg-teal-600 transition-all shadow-lg shadow-teal-900/30 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                <span>Recalibrate Model</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Forecast Chart -->
+        <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="flex justify-between items-center mb-8 relative z-10">
+                <div>
+                    <h3 class="font-black text-slate-800 text-lg">6-Month Revenue Projection</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Based on historical & seasonal data</p>
+                </div>
+                <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <button class="px-4 py-1.5 bg-white shadow-sm rounded-lg text-[10px] font-black text-slate-800">Conservative</button>
+                    <button class="px-4 py-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition">Optimistic</button>
+                </div>
+            </div>
+            <div class="h-[300px] relative z-10">
+                <canvas id="trendChart"></canvas>
+            </div>
+            <!-- Decorative blur -->
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50 z-0"></div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="bg-gradient-to-br from-primary to-[#002873] p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
+            
+            <div>
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                        <svg class="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">CORE Engine Insights</h4>
+                        <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest">Active Analysis</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6 relative z-10">
+                    <div class="border-l-2 border-indigo-400 pl-4 py-1">
+                        <p class="text-xs text-indigo-200 font-bold uppercase tracking-widest mb-1">Demand Surge Expected</p>
+                        <p class="text-sm font-medium leading-relaxed">Smartphones category expected to spike by 18% in mid-Q3 due to seasonal back-to-school trends.</p>
+                    </div>
+                    <div class="border-l-2 border-secondary pl-4 py-1">
+                        <p class="text-xs text-teal-200 font-bold uppercase tracking-widest mb-1">Inventory Alert</p>
+                        <p class="text-sm font-medium leading-relaxed">Consider increasing 'OLED Monitors' stock by 50 units before next month to prevent stockouts.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm relative z-10">
+                <p class="text-[10px] text-indigo-200 uppercase font-bold tracking-widest">Next Quarter Expected</p>
+                <div class="flex items-baseline space-x-2 mt-1">
+                    <span class="text-3xl font-black">$342,500</span>
+                    <span class="text-emerald-400 text-sm font-bold flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                        11.2%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul (Est)', 'Aug (Est)'],
+                    datasets: [
+                        {
+                            label: 'Actual Revenue',
+                            data: [120000, 135000, 128000, 145000, 160000, 155000, null, null],
+                            borderColor: '#001A4D',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#001A4D'
+                        },
+                        {
+                            label: 'Forecast',
+                            data: [null, null, null, null, null, 155000, 172000, 185000],
+                            borderColor: '#006D68',
+                            borderWidth: 3,
+                            borderDash: [5, 5],
+                            backgroundColor: 'rgba(0, 109, 104, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#006D68'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6 } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { font: { size: 11 }, callback: function(value) { return '$' + (value/1000) + 'k'; } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
