@@ -114,6 +114,11 @@
                     <span class="font-semibold tracking-tight text-sm">Decision Analytics</span>
                 </a>
 
+                <a href="/DataEntry" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/DataEntry" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/DataEntry" ? "scale-[1.02]" : "")">
+                    <svg class="w-5 h-5 @(Context.Request.Path == "/DataEntry" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span class="font-semibold tracking-tight text-sm">Record Business Data</span>
+                </a>
+
                 <div class="pt-8">
                     <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Platform Administration</p>
                     <a href="/Dashboard/TenantManagement" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Dashboard/TenantManagement" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Dashboard/TenantManagement" ? "scale-[1.02]" : "")">
