@@ -11,11 +11,11 @@ namespace coretex_finalproj.Data
         {
         }
 
-        public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Sale> Sales { get; set; }
-        public DbSet<Expense> Expenses { get; set; }
-        public DbSet<Info> Infos { get; set; }
+        public DbSet<Tenant> Tenants { get; set; } = null!;
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Sale> Sales { get; set; } = null!;
+        public DbSet<Expense> Expenses { get; set; } = null!;
+        public DbSet<Info> Infos { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

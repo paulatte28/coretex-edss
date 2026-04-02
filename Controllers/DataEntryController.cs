@@ -45,21 +45,10 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitExpense(Expense expense)
+        public IActionResult SubmitMonthlyData(IFormCollection form)
         {
-            if (ModelState.IsValid)
-            {
-                var tenant = _context.Tenants.FirstOrDefault();
-                
-                if (tenant != null)
-                {
-                    expense.TenantId = tenant.Id;
-                    expense.Date = DateTime.UtcNow;
-                    _context.Expenses.Add(expense);
-                    await _context.SaveChangesAsync();
-                }
-                TempData["SuccessMessage"] = "Expense recorded successfully.";
-            }
+            // Frontend-only implementation: Just return success redirect
+            TempData["SuccessMessage"] = "Monthly business data recorded successfully.";
             return RedirectToAction(nameof(Index));
         }
     }
