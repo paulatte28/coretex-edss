@@ -1,66 +1,87 @@
 @{
-    ViewData["Title"] = "Coretex | Decision Intelligence for Electronics Manufacturers";
+    ViewData["Title"] = "CORETEX | Decision Engine";
 }
 
-<div class="relative overflow-hidden min-h-screen flex items-center justify-center bg-white px-6">
-    <!-- Background Accents -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none">
-        <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-50"></div>
-        <div class="absolute top-1/2 -right-32 w-96 h-96 bg-slate-50 rounded-full blur-3xl opacity-50"></div>
+<div class="relative min-h-[80vh] flex flex-col items-center justify-center px-6 overflow-hidden">
+    <!-- Abstract Shapes -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-full -z-10 opacity-40">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-blue-400/20 blur-[120px] rounded-full animate-pulse"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400/20 blur-[120px] rounded-full animate-pulse" style="animation-delay: 2s"></div>
     </div>
 
-    <div class="relative z-10 max-w-4xl text-center space-y-10">
-        <!-- Badge -->
-        <div class="inline-flex items-center space-x-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-700">
-            <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Now Powering 2,500+ Manufacturers</span>
+    <div class="max-w-5xl w-full text-center space-y-12 relative z-10">
+        <!-- Brand Badge -->
+        <div class="inline-flex items-center space-x-3 px-5 py-2 bg-white/50 backdrop-blur-md border border-white/50 rounded-full shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <span class="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Enterprise Edition 2.0</span>
         </div>
 
-        <!-- Main Title -->
-        <h1 class="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-            Scale Your <br/>
-            <span class="text-blue-600">Decision Intelligence.</span>
+        <!-- Main Headline -->
+        <h1 class="text-6xl md:text-9xl font-black text-slate-900 tracking-[-0.05em] leading-[0.85] animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            Precision <br/>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-emerald-500 to-blue-600 bg-[length:200%_auto] animate-text-gradient">Intelligence.</span>
         </h1>
 
-        <!-- Subtitle -->
-        <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-500 font-medium leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            The next-generation EDSS platform built specifically for electronics manufacturers. Unified analytics, AI forecasting, and multi-tenant management—all in one place.
+        <!-- Expanded Subtitle -->
+        <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-500 font-semibold leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+            Redefining how electronics manufacturers manage data. Coretex provides a unified, multi-tenant EDSS with AI-driven predictive insights.
         </p>
 
-        <!-- CTA Buttons -->
-        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-            <a href="/Home/Onboarding" class="px-10 py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/20 flex items-center space-x-3 group">
-                <span>Start Free Onboarding</span>
-                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        <!-- Premium CTAs -->
+        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 pt-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+            <a href="/Home/Onboarding" class="group relative px-12 py-6 bg-slate-900 text-white font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_20px_50px_rgba(15,23,42,0.2)] flex items-center space-x-4">
+                <span class="relative z-10">Start Onboarding</span>
+                <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-emerald-600 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-500"></div>
             </a>
-            <a href="/Dashboard" class="px-10 py-5 bg-white text-slate-600 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
-                Access Portal
+            
+            <a href="/Dashboard" class="px-12 py-6 bg-white/80 backdrop-blur-md text-slate-600 font-black rounded-2xl border border-white hover:bg-white hover:text-slate-900 hover:shadow-xl hover:shadow-slate-200/50 transition-all active:scale-95">
+                Executive Portal
             </a>
         </div>
+    </div>
 
-        <!-- Social Proof -->
-        <div class="pt-16 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-30 animate-in fade-in duration-1000 delay-500">
-            <div class="flex items-center justify-center space-x-2 grayscale font-black text-xl italic">NEXUS</div>
-            <div class="flex items-center justify-center space-x-2 grayscale font-black text-xl">QUANTUM</div>
-            <div class="flex items-center justify-center space-x-2 grayscale font-black text-xl italic">VERTEX</div>
-            <div class="flex items-center justify-center space-x-2 grayscale font-black text-xl uppercase tracking-widest">Helix</div>
+    <!-- Stats / Trust Section -->
+    <div class="mt-32 grid grid-cols-2 md:grid-cols-4 gap-x-16 gap-y-8 opacity-20 animate-in fade-in duration-1000 delay-500">
+        <div class="text-center">
+            <p class="text-3xl font-black text-slate-900">99.9%</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Reliability</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-black text-slate-900">45ms</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Latency</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-black text-slate-900">128-bit</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Encryption</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-black text-slate-900">24/7</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">AI Monitoring</p>
         </div>
     </div>
 </div>
 
 <style>
+    @@keyframes text-gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    .animate-text-gradient {
+        animation: text-gradient 6s ease infinite;
+    }
+
     @@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-    @@keyframes slide-in-from-bottom-2 { from { transform: translateY(0.5rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @@keyframes slide-in-from-bottom-4 { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    
-    .animate-in { animation: 0.5s ease-out forwards; }
+    @@keyframes slide-in-from-bottom-2 { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @@keyframes slide-in-from-bottom-6 { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @@keyframes slide-in-from-bottom-8 { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .animate-in { animation: 1s ease-out forwards; }
     .fade-in { animation-name: fade-in; }
     .slide-in-from-bottom-2 { animation-name: slide-in-from-bottom-2; }
-    .slide-in-from-bottom-4 { animation-name: slide-in-from-bottom-4; }
-    .delay-100 { animation-delay: 0.1s; }
+    .slide-in-from-bottom-6 { animation-name: slide-in-from-bottom-6; }
+    .slide-in-from-bottom-8 { animation-name: slide-in-from-bottom-8; }
     .delay-200 { animation-delay: 0.2s; }
     .delay-300 { animation-delay: 0.3s; }
     .delay-500 { animation-delay: 0.5s; }
