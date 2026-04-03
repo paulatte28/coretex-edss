@@ -18,6 +18,11 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
+        public IActionResult Onboarding()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

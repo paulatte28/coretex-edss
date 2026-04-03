@@ -78,53 +78,101 @@
                         <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @foreach (var tenant in Model)
-                    {
-                        var statusClass = tenant.Status == "Active" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-100 text-slate-500 border-slate-200";
-                        var dotClass = tenant.Status == "Active" ? "bg-emerald-500" : "bg-slate-400";
-                        var initials = string.Join("", tenant.CompanyName.Split(' ').Take(2).Select(s => s.Substring(0, 1))).ToUpper();
-                    <tr class="hover:bg-slate-50 transition-all duration-300">
-                        <td class="px-10 py-6">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 font-black text-xs">
-                                    @initials
+                    <tbody id="tenant-table-body" class="divide-y divide-slate-50">
+                        @foreach (var tenant in Model)
+                        {
+                            var statusClass = tenant.Status == "Active" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-100 text-slate-500 border-slate-200";
+                            var dotClass = tenant.Status == "Active" ? "bg-emerald-500" : "bg-slate-400";
+                            var initials = string.Join("", tenant.CompanyName.Split(' ').Take(2).Select(s => s.Substring(0, 1))).ToUpper();
+                        <tr class="hover:bg-slate-50 transition-all duration-300">
+                            <td class="px-10 py-6">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 font-black text-xs">
+                                        @initials
+                                    </div>
+                                    <div>
+                                        <p class="font-black text-slate-900 text-sm">@tenant.CompanyName</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="font-black text-slate-900 text-sm">@tenant.CompanyName</p>
+                            </td>
+                            <td class="px-10 py-6">
+                                <span class="text-xs font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-full">@tenant.PlanType</span>
+                            </td>
+                            <td class="px-10 py-6 text-xs text-slate-500 font-medium">@tenant.JoinedDate.ToString("MMM dd, yyyy")</td>
+                            <td class="px-10 py-6">
+                                <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border @statusClass">
+                                    <span class="w-1.5 h-1.5 rounded-full @dotClass"></span>
+                                    <span>@tenant.Status</span>
+                                </span>
+                            </td>
+                            <td class="px-10 py-6 text-right">
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-lg text-xs hover:bg-slate-50 shadow-sm">View Details</button>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-10 py-6">
-                            <span class="text-xs font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-full">@tenant.PlanType</span>
-                        </td>
-                        <td class="px-10 py-6 text-xs text-slate-500 font-medium">@tenant.JoinedDate.ToString("MMM dd, yyyy")</td>
-                        <td class="px-10 py-6">
-                            <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border @statusClass">
-                                <span class="w-1.5 h-1.5 rounded-full @dotClass"></span>
-                                <span>@tenant.Status</span>
-                            </span>
-                        </td>
-                        <td class="px-10 py-6 text-right">
-                            <div class="flex items-center justify-end space-x-2">
-                                <button class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-lg text-xs hover:bg-slate-50 shadow-sm">View Details</button>
-                                @if(tenant.Status == "Active") {
-                                    <button class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded-lg text-xs hover:bg-red-100 border border-red-100 transition-colors">Deactivate</button>
-                                } else {
-                                    <button class="px-3 py-1.5 bg-emerald-50 text-emerald-600 font-bold rounded-lg text-xs hover:bg-emerald-100 border border-emerald-100 transition-colors">Activate</button>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                    }
-                    @if (!Model.Any())
-                    {
-                        <tr>
-                            <td colspan="5" class="px-10 py-8 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">No tenants registered yet.</td>
+                            </td>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableBody = document.getElementById('tenant-table-body');
+        const localTenants = JSON.parse(localStorage.getItem('coretex_tenants') || '[]');
+        
+        if (localTenants.length > 0) {
+            // Remove "No tenants" message if it exists
+            const emptyMsg = tableBody.querySelector('tr td[colspan]');
+            if (emptyMsg) tableBody.removeChild(emptyMsg.parentElement);
+
+            localTenants.forEach(tenant => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-blue-50/30 transition-all duration-300 bg-blue-50/10 border-l-4 border-blue-500';
+                
+                const initials = tenant.companyName.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase();
+                const joinedDate = new Date(tenant.registrationDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                
+                row.innerHTML = `
+                    <td class="px-10 py-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-xs">
+                                ${initials}
+                            </div>
+                            <div>
+                                <p class="font-black text-slate-900 text-sm">${tenant.companyName}</p>
+                                <p class="text-[9px] text-blue-500 font-black uppercase tracking-widest mt-0.5">Newly Onboarded</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-10 py-6">
+                        <span class="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full">${tenant.plan}</span>
+                    </td>
+                    <td class="px-10 py-6 text-xs text-slate-500 font-medium">${joinedDate}</td>
+                    <td class="px-10 py-6">
+                        <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-emerald-50 text-emerald-600 border-emerald-100">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>Active</span>
+                        </span>
+                    </td>
+                    <td class="px-10 py-6 text-right">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button class="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 font-bold rounded-lg text-xs hover:bg-blue-50 shadow-sm">View Details</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.prepend(row);
+            });
+
+            // Update Total Tenants Count
+            const activeCountEl = document.querySelector('h3.text-3xl.font-black.text-slate-900');
+            if (activeCountEl) {
+                const currentCount = parseInt(activeCountEl.innerText);
+                activeCountEl.innerText = currentCount + localTenants.length;
+            }
+        }
+    });
+</script>
