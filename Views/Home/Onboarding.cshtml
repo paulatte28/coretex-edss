@@ -33,9 +33,14 @@
             
             <!-- STEP 1: IDENTITY -->
             <div id="step-1" class="step-content glass-card p-10 md:p-16 space-y-12 animate-in fade-in scale-in duration-500">
-                <div class="space-y-3">
-                    <h2 class="text-4xl font-black text-slate-900 tracking-[-0.03em]">Business Identity</h2>
-                    <p class="text-slate-500 font-semibold italic opacity-60">Step 1 — Tell us about your electronics manufacturing hub.</p>
+                <div class="space-y-6">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-slate-200 overflow-hidden p-1 mb-4">
+                        <img src="/images/logo.png" alt="Coretex Logo" class="w-full h-full object-contain" />
+                    </div>
+                    <div class="space-y-3">
+                        <h2 class="text-4xl font-black text-slate-900 tracking-[-0.03em]">Business Identity</h2>
+                        <p class="text-slate-600 font-semibold italic">Step 1 — Tell us about your electronics manufacturing hub.</p>
+                    </div>
                 </div>
                 
                 <form id="reg-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
@@ -160,32 +165,37 @@
             <div id="step-3" class="step-content hidden animate-in fade-in scale-in duration-500">
                 <div class="text-center mb-16 space-y-3">
                     <h2 class="text-4xl font-black text-slate-900 tracking-[-0.03em]">Financial Bridge</h2>
-                    <p class="text-slate-500 font-semibold italic opacity-60">Step 3 — Secure authorization via PayMongo portal.</p>
+                    <p class="text-slate-600 font-semibold italic">Step 3 — Secure authorization via PayMongo portal.</p>
                 </div>
 
-                <div class="max-w-md mx-auto glass-card overflow-hidden !p-0 shadow-[0_50px_100px_rgba(0,0,0,0.1)]">
-                    <div class="bg-slate-900 p-8 text-white flex justify-between items-center border-b border-white/5">
+                <div class="max-w-md mx-auto glass-card overflow-hidden !p-0 shadow-[0_50px_100px_rgba(0,0,0,0.15)] border-2 border-slate-200">
+                    <div class="bg-black p-8 text-white flex justify-between items-center border-b border-white/10">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-xl flex items-center justify-center font-black">P</div>
-                            <span class="font-black tracking-tighter text-lg uppercase italic">PayMongo</span>
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1 shadow-inner">
+                                <img src="/images/logo.png" alt="Coretex Logo" class="w-full h-full object-contain" />
+                            </div>
+                            <span class="font-black tracking-tighter text-lg uppercase italic text-slate-100">PayMongo Checkout</span>
                         </div>
-                        <div id="payment-amount" class="text-2xl font-black tracking-tighter">$149.00</div>
+                        <div id="payment-amount" class="text-2xl font-black tracking-tighter text-emerald-400">$149.00</div>
                     </div>
                     
-                    <div class="p-10 space-y-8">
+                    <div class="p-10 space-y-8 bg-white">
                         <div class="space-y-4">
-                            <div class="group-input space-y-2">
-                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-2">Payment Instrument</label>
-                                <div class="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-between opacity-60">
-                                    <span class="text-sm font-bold text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-2">•••• •••• •••• 4242</span>
-                                    <span class="num h-6 w-6 bg-emerald-500 text-[10px] flex items-center justify-center rounded-full text-white">✓</span>
+                            <div class="group-input space-y-3">
+                                <label class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Debit / Credit Card</label>
+                                <div class="w-full px-6 py-5 bg-slate-50 border-2 border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
+                                    <span class="text-sm font-black text-slate-900 tracking-wider">•••• •••• •••• 4242</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-[9px] font-black text-emerald-600 uppercase">Verified</span>
+                                        <span class="h-6 w-6 bg-emerald-500 text-[10px] flex items-center justify-center rounded-full text-white shadow-lg">✓</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <button id="pay-btn" onclick="startPayment()" class="btn-premium group w-full py-6 bg-slate-900 text-white font-black rounded-3xl flex items-center justify-center space-x-4">
-                            <span>Finalize Transaction</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <button id="pay-btn" onclick="startPayment()" class="btn-premium group w-full py-6 bg-black text-white font-black rounded-3xl flex items-center justify-center space-x-4 shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
+                            <span>Authorize Payment</span>
+                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </button>
                     </div>
 
@@ -287,31 +297,31 @@
     .premium-input {
         width: 100%;
         background: #fff;
-        border: 2px solid #f1f5f9;
+        border: 2px solid #e2e8f0; /* Slate-200 for visibility */
         padding: 1.25rem 1.5rem;
         border-radius: 1.5rem;
         font-weight: 700;
-        color: #1e293b;
+        color: #0f172a; /* Darker Slate-900 */
         transition: all 0.3s ease;
     }
     .premium-input:focus {
         outline: none;
         border-color: #0f172a;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
     }
     .input-label {
-        font-size: [10px];
+        font-size: 10px;
         font-weight: 900;
         text-transform: uppercase;
         letter-spacing: 0.2em;
-        color: #94a3b8;
+        color: #475569; /* Darker Slate-600 */
         padding-left: 0.5rem;
     }
 
     .plan-glass-card {
-        background: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.6);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.8);
+        border: 2px solid #e2e8f0; /* Visible border */
         border-radius: 2.5rem;
         padding: 2.5rem;
         cursor: pointer;
@@ -321,11 +331,12 @@
     .plan-glass-card:hover {
         background: #fff;
         transform: translateY(-5px);
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+        border-color: #0f172a;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
     }
     .plan-btn {
         background: #f1f5f9;
-        color: #64748b;
+        color: #475569;
         font-weight: 800;
         padding: 1rem;
         border-radius: 1.25rem;
@@ -336,9 +347,9 @@
         color: #fff;
     }
 
-    .badge-blue { background: #eff6ff; color: #2563eb; font-size: 9px; font-weight: 900; padding: 0.25rem 1rem; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
-    .badge-emerald { background: #ecfdf5; color: #10b981; font-size: 9px; font-weight: 900; padding: 0.25rem 1rem; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
-    .badge-indigo { background: #eef2ff; color: #4f46e5; font-size: 9px; font-weight: 900; padding: 0.25rem 1rem; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .badge-blue { background: #dbeafe; color: #1e40af; font-size: 9px; font-weight: 900; padding: 0.25rem 1rem; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .badge-emerald { background: #d1fae5; color: #065f46; font-size: 9px; font-weight: 900; padding: 0.25rem 1rem; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .badge-indigo { background: #e0e7ff; color: #3730a3; font-size: 9px; font-weight: 900; padding: 0.25rem 1rem; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.1em; }
 
     /* Animations */
     @@keyframes scale-in { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
