@@ -168,44 +168,104 @@
                     <p class="text-slate-600 font-semibold italic">Step 3 — Secure authorization via PayMongo portal.</p>
                 </div>
 
-                <div class="max-w-md mx-auto glass-card overflow-hidden !p-0 shadow-[0_50px_100px_rgba(0,0,0,0.15)] border-2 border-slate-200">
-                    <div class="bg-black p-8 text-white flex justify-between items-center border-b border-white/10">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1 shadow-inner">
-                                <img src="/images/logo.png" alt="Coretex Logo" class="w-full h-full object-contain" />
-                            </div>
-                            <span class="font-black tracking-tighter text-lg uppercase italic text-slate-100">PayMongo Checkout</span>
+                <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <!-- Invoice Details -->
+                    <div class="glass-card p-10 space-y-8 order-2 md:order-1 border-2 border-slate-200">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-6">
+                            <h3 class="text-xl font-black text-slate-900 tracking-tight">Review Order</h3>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">INV-2026-001</span>
                         </div>
-                        <div id="payment-amount" class="text-2xl font-black tracking-tighter text-emerald-400">$149.00</div>
+                        
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p id="summary-plan-name" class="font-black text-slate-800 text-sm">Predictive Hub Subscription</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">Monthly Billing</p>
+                                </div>
+                                <span id="summary-plan-price" class="font-black text-slate-900">$149.00</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center text-slate-500">
+                                <p class="text-xs font-bold">Platform Environment Fee</p>
+                                <span class="text-xs font-black">$5.00</span>
+                            </div>
+
+                            <div class="flex justify-between items-center text-slate-500">
+                                <p class="text-xs font-bold">Service Tax (VAT)</p>
+                                <span class="text-xs font-black">$0.00</span>
+                            </div>
+
+                            <div class="h-px bg-slate-200 w-full pt-2"></div>
+
+                            <div class="flex justify-between items-center pt-2">
+                                <p class="text-sm font-black text-slate-900 uppercase tracking-tighter">Total Due Today</p>
+                                <span id="summary-total" class="text-2xl font-black text-blue-600 tracking-tighter">$154.00</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 flex items-start space-x-4">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <p class="text-[10px] font-bold text-blue-700 leading-relaxed italic">Your isolated manufacturing hub will be provisioned immediately upon successful authorization.</p>
+                        </div>
                     </div>
-                    
-                    <div class="p-10 space-y-8 bg-white">
-                        <div class="space-y-4">
-                            <div class="group-input space-y-3">
-                                <label class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Debit / Credit Card</label>
-                                <div class="w-full px-6 py-5 bg-slate-50 border-2 border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
-                                    <span class="text-sm font-black text-slate-900 tracking-wider">•••• •••• •••• 4242</span>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-[9px] font-black text-emerald-600 uppercase">Verified</span>
-                                        <span class="h-6 w-6 bg-emerald-500 text-[10px] flex items-center justify-center rounded-full text-white shadow-lg">✓</span>
+
+                    <!-- Payment Portal -->
+                    <div class="glass-card overflow-hidden !p-0 shadow-[0_50px_100px_rgba(0,0,0,0.15)] border-2 border-slate-200 order-1 md:order-2 relative">
+                        <div class="bg-black p-8 text-white flex justify-between items-center border-b border-white/10">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1 shadow-inner">
+                                    <img src="/images/logo.png" alt="Coretex Logo" class="w-full h-full object-contain" />
+                                </div>
+                                <span class="font-black tracking-tighter text-lg uppercase italic text-slate-100">PayMongo Checkout</span>
+                            </div>
+                            <div class="flex h-8 w-8 bg-white/10 rounded-full items-center justify-center">
+                                <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM5 12a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path></svg>
+                            </div>
+                        </div>
+                        
+                        <div class="p-10 space-y-8 bg-white">
+                            <div class="space-y-4">
+                                <div class="group-input space-y-3">
+                                    <label class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Debit / Credit Card</label>
+                                    <div class="w-full px-6 py-5 bg-slate-50 border-2 border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
+                                        <span class="text-sm font-black text-slate-900 tracking-wider">•••• •••• •••• 4242</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-[9px] font-black text-emerald-600 uppercase">Verified</span>
+                                            <span class="h-6 w-6 bg-emerald-500 text-[10px] flex items-center justify-center rounded-full text-white shadow-lg">✓</span>
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <button id="pay-btn" onclick="startPayment()" class="btn-premium group w-full py-6 bg-black text-white font-black rounded-3xl flex items-center justify-center space-x-4 shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
+                                <span>Authorize Payment</span>
+                                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            </button>
+
+                            <div class="flex items-center justify-center space-x-6 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                                    </div>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">SSL Secure</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    </div>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">PCI Compliant</span>
                                 </div>
                             </div>
                         </div>
 
-                        <button id="pay-btn" onclick="startPayment()" class="btn-premium group w-full py-6 bg-black text-white font-black rounded-3xl flex items-center justify-center space-x-4 shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
-                            <span>Authorize Payment</span>
-                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </button>
-                    </div>
-
-                    <!-- Portal Overlay -->
-                    <div id="payment-loading" class="hidden absolute inset-0 bg-white/60 backdrop-blur-xl z-20 flex flex-col items-center justify-center space-y-6">
-                        <div class="h-20 w-20 relative">
-                            <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
-                            <div class="absolute inset-0 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                        <!-- Portal Overlay -->
+                        <div id="payment-loading" class="hidden absolute inset-0 bg-white/60 backdrop-blur-xl z-20 flex flex-col items-center justify-center space-y-6">
+                            <div class="h-20 w-20 relative">
+                                <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-900 uppercase tracking-[0.4em] animate-pulse">Syncing Vault...</p>
                         </div>
-                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-[0.4em] animate-pulse">Syncing Vault...</p>
                     </div>
                 </div>
             </div>
@@ -261,16 +321,20 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        opacity: 0.3;
-        transition: all 0.5s ease;
+        opacity: 0.35;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
     .step-indicator.active {
         opacity: 1;
         transform: scale(1.1);
     }
+    .step-indicator.completed {
+        opacity: 0.8;
+    }
     .step-indicator .num {
-        width: 3rem;
-        height: 3rem;
+        width: 3.5rem;
+        height: 3.5rem;
         background: #fff;
         border-radius: 1.25rem;
         display: flex;
@@ -278,20 +342,32 @@
         justify-content: center;
         font-weight: 900;
         color: #0f172a;
-        margin-bottom: 0.75rem;
-        border: 2px solid #e2e8f0;
+        margin-bottom: 1rem;
+        border: 3px solid #e2e8f0;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     }
     .step-indicator.active .num {
         background: #0f172a;
         color: #fff;
         border-color: #0f172a;
+        box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2);
+    }
+    .step-indicator.completed .num {
+        background: #10b981;
+        color: #fff;
+        border-color: #10b981;
     }
     .step-indicator .label {
-        font-[9px];
-        font-weight: 800;
+        font-size: 10px;
+        font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        color: #64748b;
+        letter-spacing: 0.25em;
+        color: #475569; /* Slate-600 */
+        transition: all 0.3s ease;
+    }
+    .step-indicator.active .label {
+        color: #0f172a; /* Slate-900 */
     }
 
     .premium-input {
@@ -391,8 +467,21 @@
         document.getElementById(`step-${step}`).classList.remove('hidden');
         
         // Update Indicators
-        document.querySelectorAll('.step-indicator').forEach(el => el.classList.remove('active'));
-        document.getElementById(`ind-${step}`).classList.add('active');
+        document.querySelectorAll('.step-indicator').forEach((el, idx) => {
+            const stepNum = idx + 1;
+            el.classList.remove('active', 'completed');
+            const numSpan = el.querySelector('.num');
+            
+            if (stepNum < step) {
+                el.classList.add('completed');
+                numSpan.innerText = '✓';
+            } else if (stepNum === step) {
+                el.classList.add('active');
+                numSpan.innerText = stepNum;
+            } else {
+                numSpan.innerText = stepNum;
+            }
+        });
         
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -400,7 +489,12 @@
     function selectPlan(name, price) {
         onboardingData.plan = name;
         onboardingData.price = price;
-        document.getElementById('payment-amount').innerText = `$${price}.00`;
+        
+        // Update Checkout Details
+        document.getElementById('summary-plan-name').innerText = `${name} Subscription`;
+        document.getElementById('summary-plan-price').innerText = `$${price}.00`;
+        document.getElementById('summary-total').innerText = `$${price + 5}.00`;
+        
         nextStep(3);
     }
 
