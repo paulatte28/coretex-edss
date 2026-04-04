@@ -91,19 +91,22 @@
                     </div>
 
                     <!-- Imported Cost - PHP Automated Conversion -->
-                    <div class="space-y-3">
+                    <div class="space-y-3 min-w-0">
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 flex items-center space-x-2">
                             <svg class="w-3 h-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                            <span>Imported Product Cost (Foreign)</span>
+                            <span class="truncate">Imported Product Cost (Foreign)</span>
                         </label>
-                        <div class="flex space-x-3">
-                            <select id="currency" class="w-32 bg-slate-100 border-none rounded-2xl py-4 px-3 text-xs font-black text-slate-700 outline-none cursor-pointer">
-                                <option value="USD">USD ($)</option>
-                                <option value="CNY">CNY (¥)</option>
-                                <option value="EUR">EUR (€)</option>
-                                <option value="JPY">JPY (¥)</option>
-                            </select>
-                            <input type="number" id="imported-foreign" placeholder="0.00" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-lg font-black focus:border-orange-500 outline-none transition-all">
+                        <div class="flex items-center space-x-3 w-full">
+                            <div class="relative shrink-0">
+                                <select id="currency" class="w-28 bg-slate-100 border-none rounded-2xl py-4 px-3 text-[10px] font-black text-slate-700 outline-none cursor-pointer appearance-none">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="CNY">CNY (¥)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="JPY">JPY (¥)</option>
+                                </select>
+                                <svg class="w-3 h-3 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                            <input type="number" id="imported-foreign" placeholder="0.00" class="min-w-0 flex-1 bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-lg font-black focus:border-orange-500 outline-none transition-all">
                         </div>
                     </div>
                 </div>
