@@ -1,0 +1,153 @@
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-3 mb-2">
+                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Access Control</span>
+                <span class="px-3 py-1 bg-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-widest rounded-full">Provisioning</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">User Account Provisioning</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Initialize your executive and financial leadership accounts</p>
+        </div>
+        
+        <button onclick="document.getElementById('user-modal').classList.remove('hidden')" class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 transition-all shadow-lg flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+            <span>Create New Identity</span>
+        </button>
+    </div>
+
+    <!-- Users List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- System Admin Card (Static) -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center space-x-5 mb-8">
+                <div class="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transform -rotate-3">SA</div>
+                <div>
+                   <h3 class="text-lg font-black text-slate-900">System Admin</h3>
+                   <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Primary Administrator</span>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 font-medium italic border-l-2 border-slate-200 pl-4">Full access to system configuration and auditing.</p>
+        </div>
+
+        <!-- Dynamic User List Placeholder -->
+        <div id="user-cards-container" class="contents">
+            <!-- Business Owner & Finance Officer cards will appear here -->
+        </div>
+    </div>
+
+    <!-- Empty State Prompt -->
+    <div id="empty-state" class="hidden p-16 bg-slate-100/50 rounded-[3rem] border-2 border-dashed border-slate-200 text-center space-y-6">
+        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto text-slate-300 shadow-sm">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        </div>
+        <p class="text-sm font-bold text-slate-400 uppercase tracking-widest italic">No executive users provisioned yet. Start the setup flow.</p>
+    </div>
+</div>
+
+<!-- Modal Sidebar -->
+<div id="user-modal" class="hidden fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-sm">
+    <div class="absolute inset-y-0 right-0 max-w-full flex">
+        <div class="w-screen max-w-md animate-in slide-in-from-right duration-500">
+            <div class="h-full flex flex-col bg-white shadow-2xl rounded-l-[3rem] overflow-hidden">
+                <div class="px-8 py-10 bg-slate-50 border-b border-slate-100">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Provision Identity</h3>
+                        <button onclick="document.getElementById('user-modal').classList.add('hidden')" class="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Step 1 — Create Identity Credentials</p>
+                </div>
+                
+                <div class="p-10 space-y-8 flex-1 overflow-y-auto">
+                    <form id="user-form" class="space-y-8">
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Full Legal Name</label>
+                            <input type="text" id="fullName" placeholder="e.g. John Doe" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold focus:border-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Corporate Role</label>
+                            <select id="role" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold focus:border-slate-900 outline-none transition-all appearance-none cursor-pointer">
+                                <option value="Business Owner">Business Owner / CEO</option>
+                                <option value="Finance Officer">Finance Officer</option>
+                            </select>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Assigned Username</label>
+                            <input type="text" id="username" placeholder="johndoe_nexus" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold border-dashed">
+                        </div>
+                        <div class="space-y-3 border-t border-slate-100 pt-8">
+                            <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Initialize Password</label>
+                            <input type="password" id="password" value="********" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-black tracking-widest">
+                            <p class="text-[9px] font-bold text-slate-400 italic mt-1 ml-2">System will force reset upon first entry.</p>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="p-10 bg-slate-50 border-t border-slate-100">
+                    <button onclick="createUser()" class="w-full py-5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all">
+                        Deploy Identity Package
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function createUser() {
+            const fullName = document.getElementById('fullName').value;
+            const role = document.getElementById('role').value;
+            const username = document.getElementById('username').value;
+            
+            if(!fullName || !username) {
+                alert('Specify identity details.');
+                return;
+            }
+
+            const newUser = { fullName, role, username, initials: fullName.split(' ').map(n=>n[0]).join('').toUpperCase() };
+            let users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
+            users.push(newUser);
+            localStorage.setItem('coretex_users', JSON.stringify(users));
+
+            renderUsers();
+            document.getElementById('user-modal').classList.add('hidden');
+            document.getElementById('user-form').reset();
+        }
+
+        function renderUsers() {
+            const container = document.getElementById('user-cards-container');
+            const emptyState = document.getElementById('empty-state');
+            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
+            
+            if (users.length === 0) {
+                emptyState.classList.remove('hidden');
+                container.innerHTML = '';
+            } else {
+                emptyState.classList.add('hidden');
+                container.innerHTML = users.map(user => `
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group animate-in zoom-in-95 duration-500">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-` + (user.role === 'Business Owner' ? 'emerald' : 'blue') + `-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="flex items-center space-x-5 mb-8">
+                            <div class="w-16 h-16 bg-` + (user.role === 'Business Owner' ? 'emerald-500' : 'blue-500') + ` text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transform rotate-3">` + user.initials + `</div>
+                            <div>
+                               <h3 class="text-lg font-black text-slate-900">` + user.fullName + `</h3>
+                               <span class="text-[10px] font-black uppercase tracking-widest text-` + (user.role === 'Business Owner' ? 'emerald' : 'blue') + `-500">` + user.role + `</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium italic border-l-2 border-slate-200 pl-4">Account active. Password reset pending for @@` + user.username + `.</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderUsers);
+    </script>
+}
