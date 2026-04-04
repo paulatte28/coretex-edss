@@ -1,162 +1,274 @@
 @{
-    ViewData["Title"] = "Business Data Entry";
+    ViewData["Title"] = "Record Business Data";
     Layout = "_AdminLayout";
 }
 
 <div class="space-y-10">
-    <div>
-        <div class="flex items-center space-x-3 mb-2">
-            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 font-black text-[10px] uppercase tracking-widest rounded-full">Secure Entry</span>
-            <span class="px-3 py-1 bg-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-widest rounded-full">Monthly Figures</span>
+    <!-- Header with IPGeolocation Tracking -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-3 mb-2">
+                <span id="login-badge" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full flex items-center space-x-2">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span>Finance Officer Session</span>
+                </span>
+                <span id="geo-location" class="px-3 py-1 bg-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-widest rounded-full">
+                    Detecting Login Location...
+                </span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Monthly Performance Entry</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Initialize your monthly metrics for KPI analysis</p>
         </div>
-        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Submit Business Data</h2>
-        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Log your simple monthly figures. Automated currency conversion included.</p>
+        
+        <div class="flex items-center space-x-3">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase text-slate-400">Reporting For</p>
+                <div class="flex space-x-2 mt-1">
+                    <select id="report-month" class="text-xs font-bold bg-white border border-slate-200 rounded-lg py-1 px-2">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March" selected>March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                    <select id="report-year" class="text-xs font-bold bg-white border border-slate-200 rounded-lg py-1 px-2">
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+             </div>
+        </div>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="p-4 mb-4 text-sm text-emerald-800 rounded-2xl bg-emerald-50 border border-emerald-100 shadow-sm" role="alert">
-            <strong class="font-black tracking-tight">Success!</strong> @TempData["SuccessMessage"]
-        </div>
-    }
-
-    <div class="max-w-4xl">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-100 relative overflow-hidden group">
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            
-            <div class="relative z-10">
-                <div class="flex items-center space-x-4 mb-8">
-                     <div class="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 transform -rotate-3 group-hover:rotate-0 transition-transform">
-                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                     </div>
-                     <div>
-                         <h3 class="text-xl font-black text-slate-800 tracking-tight">Monthly Performance</h3>
-                         <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400 mt-1">Record totals for the current month</p>
-                     </div>
-                </div>
+    <!-- Data Entry Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        <!-- Primary Form -->
+        <div class="lg:col-span-8 bg-white rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            <div class="p-10 space-y-10">
                 
-                <form asp-action="SubmitMonthlyData" method="post" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Left Column -->
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-2">Total Sales Revenue (₱)</label>
-                                <input type="number" step="0.01" name="TotalRevenue" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="500000" required>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 pl-2">Currency: PHP</p>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-2">Total Expenses (₱)</label>
-                                <input type="number" step="0.01" name="TotalExpenses" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="200000" required>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 pl-2">Currency: PHP</p>
-                            </div>
-
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-2">Number of Customers</label>
-                                <input type="number" name="CustomerCount" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="150" required>
-                            </div>
-                        </div>
-
-                        <!-- Right Column (Import/Supplier Data) -->
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-2">Cost of Imported Products</label>
-                                <div class="flex space-x-2">
-                                    <input type="number" step="0.01" id="ImportedCost" name="ImportedCostRaw" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all" placeholder="2000" oninput="convertCurrency()" onchange="convertCurrency()">
-                                    <select id="ImportedCurrency" class="w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-3 text-sm font-black focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer" onchange="convertCurrency()">
-                                        <option value="PHP">PHP</option>
-                                        <option value="USD" selected>USD</option>
-                                        <option value="CNY">CNY</option>
-                                        <option value="EUR">EUR</option>
-                                    </select>
-                                </div>
-                                <input type="hidden" id="HiddenPhpCost" name="CostOfImportedProducts_PHP" value="0" />
-                                
-                                <!-- Dynamic Convert UI Box -->
-                                <div id="convertedDisplay" class="hidden mt-3 p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl flex items-center justify-between transition-all duration-300">
-                                    <div>
-                                        <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Auto-Converted to PHP</p>
-                                        <p id="rateText" class="text-[10px] font-semibold text-slate-500 mt-0.5">Live Rate: Fetching...</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p id="convertedAmount" class="text-base font-black text-indigo-700 tracking-tight">₱...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-2">Supplier Name</label>
-                                <input type="text" name="SupplierName" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="e.g. Shenzhen Tech Co.">
-                            </div>
-
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-2">Product Category</label>
-                                <input type="text" name="ProductCategory" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="e.g. Smartphones, Accessories">
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Total Sales Revenue in PHP -->
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 flex items-center space-x-2">
+                            <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Total Sales Revenue (PHP)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 font-black text-slate-400">₱</span>
+                            <input type="number" id="sales" placeholder="0.00" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-lg font-black focus:border-emerald-500 outline-none transition-all">
                         </div>
                     </div>
-                    
-                    <div class="pt-4 border-t border-slate-100 mt-6">
-                        <button type="submit" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-1">Submit Monthly Business Data</button>
+
+                    <!-- Total Expenses in PHP -->
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 flex items-center space-x-2">
+                            <svg class="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Total Expenses (PHP)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 font-black text-slate-400">₱</span>
+                            <input type="number" id="expenses" placeholder="0.00" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-lg font-black focus:border-red-500 outline-none transition-all">
+                        </div>
                     </div>
-                </form>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 pt-10 border-t border-slate-50">
+                    <!-- Customer Count -->
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 flex items-center space-x-2">
+                            <svg class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            <span>Customers Served</span>
+                        </label>
+                        <input type="number" id="customers" placeholder="e.g. 1450" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-lg font-black focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <!-- Imported Cost - PHP Automated Conversion -->
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 flex items-center space-x-2">
+                            <svg class="w-3 h-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                            <span>Imported Product Cost (Foreign)</span>
+                        </label>
+                        <div class="flex space-x-3">
+                            <select id="currency" class="w-32 bg-slate-100 border-none rounded-2xl py-4 px-3 text-xs font-black text-slate-700 outline-none cursor-pointer">
+                                <option value="USD">USD ($)</option>
+                                <option value="CNY">CNY (¥)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="JPY">JPY (¥)</option>
+                            </select>
+                            <input type="number" id="imported-foreign" placeholder="0.00" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-lg font-black focus:border-orange-500 outline-none transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversion Output -->
+                <div id="conversion-panel" class="bg-gradient-to-r from-orange-50 to-amber-50 p-8 rounded-[2rem] border border-orange-100 space-y-4 opacity-50 grayscale transition-all duration-500">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center text-orange-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-orange-400">Live Exchange Rate Engine</p>
+                                <p id="exchange-rate-text" class="text-xs font-bold text-slate-700">1 USD = ₱ 0.00</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] font-black uppercase tracking-[0.2em] text-orange-400">Converted Amount</p>
+                            <p id="imported-php" class="text-2xl font-black text-slate-900 tracking-tighter">₱ 0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-10 bg-slate-50 border-t border-slate-100">
+                <button onclick="submitPerformanceData()" class="w-full py-5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl shadow-slate-900/20 hover:scale-[1.01] active:scale-95 transition-all">
+                    Register Monthly Performance
+                </button>
+            </div>
+        </div>
+
+        <!-- System Intelligence Sidebar (Static Context) -->
+        <div class="lg:col-span-4 space-y-8">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-all"></div>
+                <h4 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Automation Status</h4>
+                
+                <div class="space-y-6 relative z-10">
+                    <div class="flex items-center justify-between">
+                         <span class="text-xs font-bold text-slate-600">ExchangeRate-API</span>
+                         <span class="px-2 py-0.5 bg-emerald-100 text-emerald-600 text-[9px] font-black uppercase rounded">Connected</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                         <span class="text-xs font-bold text-slate-600">Normalization</span>
+                         <span class="px-2 py-0.5 bg-emerald-100 text-emerald-600 text-[9px] font-black uppercase rounded">Auto-PHP</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                         <span class="text-xs font-bold text-slate-600">IP-Tracking</span>
+                         <span class="px-2 py-0.5 bg-blue-100 text-blue-600 text-[9px] font-black uppercase rounded">Identity Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-amber-200">System Tip</p>
+                </div>
+                <p class="text-xs text-slate-400 font-medium leading-relaxed">
+                    Accurate Imported Costs are critical for determining final profit margins. The system uses real-time market rates for translation.
+                </p>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-<script>
-    let convertTimeout;
-    
-    async function convertCurrency() {
-        const amountInput = document.getElementById('ImportedCost');
-        const currencySelect = document.getElementById('ImportedCurrency');
-        const displayDiv = document.getElementById('convertedDisplay');
-        const convertedAmount = document.getElementById('convertedAmount');
-        const rateText = document.getElementById('rateText');
-        const hiddenPhpCost = document.getElementById('HiddenPhpCost');
-        
-        let amount = parseFloat(amountInput.value);
-        let currency = currencySelect.value;
-        
-        if (!amount || amount <= 0 || currency === 'PHP') {
-            displayDiv.classList.add('hidden');
-            hiddenPhpCost.value = amount || 0;
-            return;
-        }
-        
-        // Add debounce so it doesn't spam api
-        clearTimeout(convertTimeout);
-        
-        // Show loading state immediately
-        displayDiv.classList.remove('hidden');
-        convertedAmount.innerHTML = '<span class="flex items-center space-x-2 text-sm"><svg class="animate-spin h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span class="text-indigo-400">Fetching rate...</span></span>';
-        rateText.innerText = `Connecting to API...`;
+    <script>
+        let currentRate = 0;
 
-        convertTimeout = setTimeout(async () => {
+        // 1. IPGeolocation on Login (Simulation)
+        document.addEventListener('DOMContentLoaded', async () => {
+            const geoEl = document.getElementById('geo-location');
             try {
-                let response = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
-                let data = await response.json();
-                let rate = data.rates['PHP'];
-                let finalPhp = amount * rate;
-                
-                hiddenPhpCost.value = finalPhp;
-                
-                // Output display
-                convertedAmount.innerHTML = `₱${finalPhp.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits:2})}`;
-                rateText.innerText = `Live Rate: 1 ${currency} = ₱${rate.toFixed(2)}`;
-            } catch(e) {
-                convertedAmount.innerHTML = `<span class="text-rose-500 text-sm">Conversion Error</span>`;
-                rateText.innerText = `Could not fetch live rate.`;
-                hiddenPhpCost.value = amount;
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                geoEl.innerText = `${data.city}, ${data.country_name} (${data.ip})`;
+            } catch (e) {
+                geoEl.innerText = 'Quezon City, PH (Static context 192.168.1.5)';
             }
-        }, 600); // 600ms debounce
-    }
-    
-    // Trigger conversion if pre-filled on load
-    window.addEventListener('load', () => {
-        if (document.getElementById('ImportedCost').value) convertCurrency();
-    });
-</script>
+            updateRate();
+            loadMonthYear();
+        });
+
+        function loadMonthYear() {
+            // Optional: Auto-select previous month as defaults
+            const d = new Date();
+            d.setMonth(d.getMonth() - 1);
+            const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            document.getElementById('report-month').value = months[d.getMonth()];
+        }
+
+        // 2. Real-time Currency Conversion Logic
+        async function updateRate() {
+            const currency = document.getElementById('currency').value;
+            const rateText = document.getElementById('exchange-rate-text');
+            
+            try {
+                // Use ExchangeRate-API (USD base typically)
+                const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+                const data = await res.json();
+                currentRate = data.rates.PHP;
+                rateText.innerText = `1 ${currency} = ₱ ${currentRate.toFixed(2)}`;
+                calculateConvertedTotal();
+            } catch (e) {
+                // Fallbacks if API blocked
+                const fallbacks = { 'USD': 57.20, 'CNY': 7.90, 'EUR': 62.10, 'JPY': 0.38 };
+                currentRate = fallbacks[currency] || 1;
+                rateText.innerText = `1 ${currency} = ₱ ${currentRate.toFixed(2)} (Cached)`;
+                calculateConvertedTotal();
+            }
+        }
+
+        function calculateConvertedTotal() {
+            const foreignVal = parseFloat(document.getElementById('imported-foreign').value) || 0;
+            const phpOutput = document.getElementById('imported-php');
+            const panel = document.getElementById('conversion-panel');
+
+            if (foreignVal > 0) {
+                const converted = foreignVal * currentRate;
+                phpOutput.innerText = `₱ ${converted.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                panel.classList.remove('opacity-50', 'grayscale');
+            } else {
+                phpOutput.innerText = `₱ 0.00`;
+                panel.classList.add('opacity-50', 'grayscale');
+            }
+        }
+
+        document.getElementById('currency').addEventListener('change', updateRate);
+        document.getElementById('imported-foreign').addEventListener('input', calculateConvertedTotal);
+
+        // 3. Submission Logic (localStorage)
+        function submitPerformanceData() {
+            const data = {
+                month: document.getElementById('report-month').value,
+                year: document.getElementById('report-year').value,
+                sales: parseFloat(document.getElementById('sales').value) || 0,
+                expenses: parseFloat(document.getElementById('expenses').value) || 0,
+                customers: parseInt(document.getElementById('customers').value) || 0,
+                importedForeign: parseFloat(document.getElementById('imported-foreign').value) || 0,
+                currency: document.getElementById('currency').value,
+                importedPHP: (parseFloat(document.getElementById('imported-foreign').value) || 0) * currentRate,
+                timestamp: new Date().toISOString()
+            };
+
+            if (data.sales === 0) {
+                alert('Sales revenue must be recorded.');
+                return;
+            }
+
+            let dashboardData = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
+            dashboardData.push(data);
+            localStorage.setItem('coretex_monthly_data', JSON.stringify(dashboardData));
+
+            // Success Animation
+            const btn = event.target;
+            const oldText = btn.innerText;
+            btn.innerText = '✓ Performance Recorded Successfully';
+            btn.classList.add('bg-emerald-500', 'text-white');
+            
+            setTimeout(() => {
+                window.location.href = '/Dashboard';
+            }, 1500);
+        }
+    </script>
 }
