@@ -26,7 +26,7 @@
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
             <div class="flex items-center space-x-5 mb-8">
-                <div class="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transform -rotate-3">SA</div>
+                <div class="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform hover:scale-105">SA</div>
                 <div>
                    <h3 class="text-lg font-black text-slate-900">System Admin</h3>
                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Primary Administrator</span>
@@ -136,7 +136,7 @@
                     <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group animate-in zoom-in-95 duration-500">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-` + (user.role === 'Business Owner' ? 'emerald' : 'blue') + `-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
                         <div class="flex items-center space-x-5 mb-8">
-                            <div class="w-16 h-16 bg-` + (user.role === 'Business Owner' ? 'emerald-500' : 'blue-500') + ` text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transform rotate-3">` + user.initials + `</div>
+                            <div class="w-16 h-16 bg-` + (user.role === 'Business Owner' ? 'emerald-500' : 'blue-500') + ` text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform hover:scale-105">` + user.initials + `</div>
                             <div>
                                <h3 class="text-lg font-black text-slate-900">` + user.fullName + `</h3>
                                <span class="text-[10px] font-black uppercase tracking-widest text-` + (user.role === 'Business Owner' ? 'emerald' : 'blue') + `-500">` + user.role + `</span>
