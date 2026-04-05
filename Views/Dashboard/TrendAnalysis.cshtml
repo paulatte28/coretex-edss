@@ -84,16 +84,35 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('trendChart').getContext('2d');
+            const history = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
             
+            // Labels and Data Preparation
+            let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            let actualData = [120000, 135000, 128000, 145000, 160000, 155000];
+            let forecastData = [null, null, null, null, null, 155000, 172000, 185000];
+            
+            if (history.length > 0) {
+                labels = history.map(h => h.month.substring(0, 3));
+                actualData = history.map(h => h.sales);
+                
+                const latest = history[history.length - 1];
+                if (latest.forecast) {
+                    labels.push(latest.month.substring(0, 3) + ' (Est)');
+                    forecastData = new Array(actualData.length - 1).fill(null);
+                    forecastData.push(latest.sales);
+                    forecastData.push(latest.forecast);
+                }
+            }
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul (Est)', 'Aug (Est)'],
+                    labels: labels.length > 8 ? labels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul (Est)', 'Aug (Est)'],
                     datasets: [
                         {
                             label: 'Actual Revenue',
-                            data: [120000, 135000, 128000, 145000, 160000, 155000, null, null],
+                            data: actualData,
                             borderColor: '#001A4D',
                             borderWidth: 3,
                             fill: false,
@@ -102,8 +121,8 @@
                             pointBackgroundColor: '#001A4D'
                         },
                         {
-                            label: 'Forecast',
-                            data: [null, null, null, null, null, 155000, 172000, 185000],
+                            label: 'Forecast Projection',
+                            data: forecastData,
                             borderColor: '#006D68',
                             borderWidth: 3,
                             borderDash: [5, 5],
@@ -119,22 +138,31 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6 } },
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { weight: 'bold' } } },
                         tooltip: { mode: 'index', intersect: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: { color: '#F1F5F9', drawBorder: false },
-                            ticks: { font: { size: 11 }, callback: function(value) { return '$' + (value/1000) + 'k'; } }
+                            ticks: { font: { size: 11 }, callback: function(value) { return '₱' + (value/1000) + 'k'; } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { font: { size: 11 } }
+                            ticks: { font: { size: 11, weight: 'bold' } }
                         }
                     }
                 }
             });
+
+            // Update AI Insight Cards if data exists
+            if (history.length > 0) {
+                const latest = history[history.length - 1];
+                const nextQ = document.querySelector('.text-3xl.font-black');
+                if (nextQ && latest.forecast) {
+                    nextQ.innerText = `₱${(latest.forecast * 3).toLocaleString()}`;
+                }
+            }
         });
     </script>
 }

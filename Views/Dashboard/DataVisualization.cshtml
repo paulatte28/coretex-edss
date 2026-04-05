@@ -35,27 +35,27 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Chart 1: Revenue by Region -->
+        <!-- Chart 1: Profit Trend -->
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
-            <h3 class="font-black text-slate-800 text-lg mb-1">Global Revenue Distribution</h3>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">Values auto-converted to USD</p>
+            <h3 class="font-black text-slate-800 text-lg mb-1">Net Profit Performance</h3>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">6-Month Trendline in PHP</p>
             
             <div class="h-64 relative z-10 flex justify-center">
-                <canvas id="regionChart"></canvas>
+                <canvas id="profitChart"></canvas>
             </div>
         </div>
 
-        <!-- Chart 2: Product Performance -->
+        <!-- Chart 2: Sales vs Expenses comparison -->
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex justify-between items-center mb-6 z-10 relative">
                 <div>
-                    <h3 class="font-black text-slate-800 text-lg mb-1">Top Selling Electronics</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">Unit sales vs Revenue</p>
+                    <h3 class="font-black text-slate-800 text-lg mb-1">Resource Utilization</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">Sales vs Total Expenses</p>
                 </div>
             </div>
             
             <div class="h-64 relative z-10">
-                <canvas id="productChart"></canvas>
+                <canvas id="comparisonChart"></canvas>
             </div>
         </div>
     </div>
@@ -64,54 +64,94 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Doughnut Chart
-            const ctxRegion = document.getElementById('regionChart').getContext('2d');
-            new Chart(ctxRegion, {
-                type: 'doughnut',
-                data: {
-                    labels: ['North America', 'Europe', 'Asia Pacific', 'Latin America'],
-                    datasets: [{
-                        data: [45, 25, 20, 10],
-                        backgroundColor: ['#001A4D', '#006D68', '#3B82F6', '#10B981'],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { usePointStyle: true, font: {family: 'Inter', weight: 'bold'} } },
-                        tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.parsed + '%'; } } }
-                    },
-                    cutout: '70%'
-                }
-            });
+            const history = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
+            
+            // Default mock data if history is empty
+            let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            let salesData = [120000, 135000, 128000, 145000, 160000, 155000];
+            let expenseData = [90000, 110000, 105000, 115000, 130000, 140000];
+            let profitData = salesData.map((s, i) => s - expenseData[i]);
 
-            // Bar Chart
-            const ctxProduct = document.getElementById('productChart').getContext('2d');
-            new Chart(ctxProduct, {
-                type: 'bar',
+            if (history.length > 0) {
+                // Get last 6 entries
+                const last6 = history.slice(-6);
+                labels = last6.map(h => h.month);
+                salesData = last6.map(h => h.sales);
+                expenseData = last6.map(h => h.expenses);
+                profitData = last6.map(h => h.profit || (h.sales - h.expenses));
+            }
+
+            // Chart 1: Profit Trend (Line Chart)
+            const ctxProfit = document.getElementById('profitChart').getContext('2d');
+            new Chart(ctxProfit, {
+                type: 'line',
                 data: {
-                    labels: ['Smartphones', 'Laptops', 'Tablets', 'Smart Watches', 'Audio'],
+                    labels: labels,
                     datasets: [{
-                        label: 'Revenue (k)',
-                        data: [120, 95, 60, 45, 30],
-                        backgroundColor: '#006D68',
-                        borderRadius: 6
+                        label: 'Net Profit',
+                        data: profitData,
+                        borderColor: '#006D68',
+                        backgroundColor: 'rgba(0, 109, 104, 0.1)',
+                        borderWidth: 4,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#006D68'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) { return 'Profit: ₱' + context.parsed.y.toLocaleString(); } } }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: { color: '#F1F5F9' },
-                            ticks: { font: {size: 10}, callback: function(value) { return '$' + value + 'k'; } }
+                            ticks: { font: {size: 10}, callback: function(value) { return '₱' + (value/1000) + 'k'; } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: {size: 10, weight: 'bold'} }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Sales vs Expenses (Bar Chart)
+            const ctxComp = document.getElementById('comparisonChart').getContext('2d');
+            new Chart(ctxComp, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales Revenue',
+                            data: salesData,
+                            backgroundColor: '#001A4D',
+                            borderRadius: 8
+                        },
+                        {
+                            label: 'Total Expenses',
+                            data: expenseData,
+                            backgroundColor: '#E2E8F0',
+                            borderRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, font: { weight: 'bold', size: 10 } } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#F1F5F9' },
+                            ticks: { font: {size: 10}, callback: function(value) { return '₱' + (value/1000) + 'k'; } }
                         },
                         x: {
                             grid: { display: false },

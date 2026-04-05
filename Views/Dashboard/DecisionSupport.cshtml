@@ -6,92 +6,175 @@
 <div class="space-y-10">
     <div>
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Decision Support Analytics</h2>
-        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">What-if Scenarios & Risk Evaluation</p>
+        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Executive Strategy & Risk Evaluation</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- What-If Scenario Builder -->
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
-            <div class="mb-8 border-b border-slate-100 pb-4">
-                <h3 class="font-black text-slate-800 text-xl font-sans">Scenario Engine</h3>
-                <p class="text-xs text-slate-500 font-medium">Adjust parameters to see forecasted impact</p>
-            </div>
-
-            <div class="space-y-6 flex-1">
-                <div>
-                    <label class="flex justify-between text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">
-                        <span>Price Adjustment</span>
-                        <span class="text-secondary font-black">+5.0%</span>
-                    </label>
-                    <input type="range" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-secondary" value="5" min="-20" max="20">
+        <!-- Strategic Risk Scoring -->
+        <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
+            <h3 class="font-black text-slate-800 text-xl">Strategic Risk Analysis</h3>
+            
+            <div class="flex items-center space-x-10 p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
+                <div class="relative w-32 h-32 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" stroke-width="4"></circle>
+                        <circle id="risk-circle" cx="18" cy="18" r="16" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="0, 100" stroke-linecap="round" class="transition-all duration-1000"></circle>
+                    </svg>
+                    <div class="absolute text-center">
+                        <span id="risk-score-text" class="text-3xl font-black text-slate-900">--</span>
+                    </div>
                 </div>
-
-                <div>
-                    <label class="flex justify-between text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">
-                        <span>Marketing Spend (Monthly)</span>
-                        <span class="text-secondary font-black">$12,500</span>
-                    </label>
-                    <input type="range" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-secondary" value="12500" min="5000" max="50000" step="500">
-                </div>
-
-                <div>
-                    <label class="flex justify-between text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">
-                        <span>Supplier Cost Increase</span>
-                        <span class="text-red-500 font-black">+2.0%</span>
-                    </label>
-                    <input type="range" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-red-500" value="2" min="0" max="15">
+                
+                <div class="space-y-2">
+                    <p id="risk-level-badge" class="text-xs font-black px-3 py-1 bg-slate-200 text-slate-600 rounded-lg inline-block uppercase tracking-widest">Calculating...</p>
+                    <p id="risk-explanation" class="text-xs text-slate-500 leading-relaxed font-medium">
+                        Analyzing latest performance data against configured risk thresholds...
+                    </p>
                 </div>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-100">
-                <button class="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-blue-900 transition-colors shadow-lg shadow-blue-900/30">
-                    Run Simulation
-                </button>
+            <div class="space-y-4">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">CORE AI Assessment</h4>
+                <div id="health-assessment-box" class="p-6 bg-slate-900 text-white rounded-[2rem] space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                    <p id="health-summary-text" class="text-sm font-medium leading-relaxed italic opacity-80">
+                        "The current financial trajectory indicates stable growth, but expense scaling needs careful monitoring to maintain optimal profit margins."
+                    </p>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <span id="health-status-subtext" class="text-[9px] font-black uppercase text-indigo-300 tracking-[0.2em]">System Status: Optimal</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Simulation Results / Risk Score -->
-        <div class="space-y-8">
-            <div class="bg-gradient-to-br from-slate-900 to-[#1e293b] p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-400/10 rounded-full blur-3xl"></div>
-                
-                <h3 class="font-black text-slate-100 text-lg relative z-10">Projected Outcomes</h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6 relative z-10">Based on Scenario Engine</p>
-
-                <div class="grid grid-cols-2 gap-4 relative z-10">
-                    <div class="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Est. Revenue Shift</p>
-                        <p class="text-2xl font-black mt-1 text-emerald-400">+$18,450</p>
-                    </div>
-                    <div class="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Margin Impact</p>
-                        <p class="text-2xl font-black mt-1 text-red-400">-1.2%</p>
-                    </div>
-                </div>
+        <!-- Branch Performance Comparison -->
+        <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
+            <div class="flex items-center justify-between">
+                <h3 class="font-black text-slate-800 text-xl">Branch Performance</h3>
+                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded-lg">Multi-Site Comparison</span>
             </div>
 
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                <h3 class="font-black text-slate-800 text-lg mb-4">Strategic Risk Scoring</h3>
-                
-                <div class="flex items-center space-x-6">
-                    <div class="relative w-24 h-24 flex items-center justify-center">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path class="text-slate-100" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path class="text-amber-500" stroke-dasharray="65, 100" stroke-width="4" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        </svg>
-                        <div class="absolute text-center">
-                            <span class="text-2xl font-black text-slate-800">65</span>
+            <div class="space-y-6" id="branch-container">
+                <!-- Branch 1 -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-500">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 font-black text-xs shadow-sm ring-1 ring-slate-100">HQ</div>
+                        <div>
+                            <p class="text-sm font-black text-slate-900">Main Branch</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Primary Operations</p>
                         </div>
                     </div>
-                    
-                    <div>
-                        <p class="text-sm font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block mb-2">Moderate Risk</p>
-                        <p class="text-xs text-slate-500 leading-relaxed font-medium">
-                            Price sensitivity among the target demographic might offset revenue gains. We recommend a phased price rollout.
-                        </p>
+                    <div class="text-right">
+                        <p id="branch-hq-val" class="text-lg font-black text-slate-900">--%</p>
+                        <p class="text-[9px] font-black text-emerald-500 uppercase">Margin</p>
+                    </div>
+                </div>
+
+                <!-- Branch 2 -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-500">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 font-black text-xs shadow-sm ring-1 ring-slate-100">EST</div>
+                        <div>
+                            <p class="text-sm font-black text-slate-900">East Sector</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Regional Hub</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p id="branch-east-val" class="text-lg font-black text-slate-900">--%</p>
+                        <p class="text-[9px] font-black text-amber-500 uppercase">Margin</p>
+                    </div>
+                </div>
+
+                <!-- Branch 3 -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-500">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 font-black text-xs shadow-sm ring-1 ring-slate-100">WST</div>
+                        <div>
+                            <p class="text-sm font-black text-slate-900">West Coast</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Expansion Point</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p id="branch-west-val" class="text-lg font-black text-slate-900">--%</p>
+                        <p class="text-[9px] font-black text-emerald-500 uppercase">Margin</p>
                     </div>
                 </div>
             </div>
+            
+            <p class="text-[10px] text-slate-400 font-medium italic text-center">Branch metrics are computed based on localized expense allocation.</p>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const history = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
+            const health = localStorage.getItem('coretex_business_health') || 'B';
+            const branchData = JSON.parse(localStorage.getItem('coretex_branch_latest') || '{"mainBranch": "24.5", "eastBranch": "21.2", "westBranch": "26.8"}');
+
+            if (history.length > 0) {
+                const latest = history[history.length - 1];
+                
+                // 1. Dynamic Risk Score Calculation
+                let score = 25; 
+                let explanation = "Optimal distribution. Revenue growth is outpacing expense scaling.";
+                
+                if (parseFloat(latest.expenseRatio) > 70) {
+                    score += 35;
+                    explanation = "Elevated expense ratio detected. High operational costs are compressing margins.";
+                }
+                if (latest.alerts && latest.alerts.length > 0) {
+                    score += 25;
+                    explanation = "Critical KPI breach detected. Multiple performance thresholds have been violated.";
+                }
+
+                // UI Update
+                const circle = document.getElementById('risk-circle');
+                const scoreText = document.getElementById('risk-score-text');
+                const levelBadge = document.getElementById('risk-level-badge');
+                const explanText = document.getElementById('risk-explanation');
+
+                scoreText.innerText = score;
+                circle.setAttribute('stroke-dasharray', `${score}, 100`);
+                explanText.innerText = explanation;
+
+                if (score < 40) {
+                    circle.setAttribute('stroke', '#10b981');
+                    levelBadge.innerText = 'Low Risk';
+                    levelBadge.className = 'text-xs font-black px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg inline-block uppercase tracking-widest';
+                } else if (score < 70) {
+                    circle.setAttribute('stroke', '#f59e0b');
+                    levelBadge.innerText = 'Moderate Risk';
+                    levelBadge.className = 'text-xs font-black px-3 py-1 bg-amber-100 text-amber-700 rounded-lg inline-block uppercase tracking-widest';
+                } else {
+                    circle.setAttribute('stroke', '#ef4444');
+                    levelBadge.innerText = 'High Risk';
+                    levelBadge.className = 'text-xs font-black px-3 py-1 bg-red-100 text-red-700 rounded-lg inline-block uppercase tracking-widest';
+                }
+
+                // 2. AI Assessment
+                const summaryText = document.getElementById('health-summary-text');
+                const statusSub = document.getElementById('health-status-subtext');
+                const healthBox = document.getElementById('health-assessment-box');
+
+                if (health.startsWith('A')) {
+                    summaryText.innerText = `"Elite financial vector. Your profit margin of ${latest.profitMargin}% is in the top 5% of your industry segment. Suggest scaling expansion."`;
+                    statusSub.innerText = "System Status: Exceptional";
+                    healthBox.classList.add('ring-2', 'ring-emerald-500/20');
+                } else if (health.startsWith('C')) {
+                    summaryText.innerText = `"Warning: Liquidity pressure detected. The current health grade of ${health} suggest immediate intervention in expense management."`;
+                    statusSub.innerText = "System Status: Intervention Required";
+                    statusSub.className = "text-[9px] font-black uppercase text-red-300 tracking-[0.2em]";
+                    healthBox.classList.add('ring-2', 'ring-red-500/20');
+                }
+            }
+
+            // 3. Branch Performance
+            document.getElementById('branch-hq-val').innerText = `${branchData.mainBranch}%`;
+            document.getElementById('branch-east-val').innerText = `${branchData.eastBranch}%`;
+            document.getElementById('branch-west-val').innerText = `${branchData.westBranch}%`;
+        });
+    </script>
+}
