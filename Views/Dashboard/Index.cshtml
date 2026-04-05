@@ -69,10 +69,13 @@
                 <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-500">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </div>
+                <div id="health-badge" class="px-3 py-1 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest hidden">
+                    Health: <span id="health-grade">-</span>
+                </div>
             </div>
             <div>
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Profit Margin</p>
-                <h3 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">@Model.ProfitMargin%</h3>
+                <h3 id="stat-profit-margin" class="text-3xl font-black text-slate-900 mt-2 tracking-tight">@Model.ProfitMargin%</h3>
             </div>
         </div>
     </section>
@@ -198,7 +201,7 @@
         const secondaryColor = '#006D68'; // Teal
         const gridColor = '#F1F5F9';
         
-        new Chart(ctx, {
+        const mainChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: @Json.Serialize(Model.MonthlyLabels),
@@ -254,7 +257,7 @@
                         ticks: {
                             color: '#94A3B8',
                             font: { size: 12, weight: '500' },
-                            callback: function(value) { return '$' + value.toLocaleString(); }
+                            callback: function(value) { return '₱' + value.toLocaleString(); }
                         }
                     },
                     x: {
@@ -265,6 +268,49 @@
                             color: '#94A3B8',
                             font: { size: 12, weight: '500' }
                         }
+                    }
+                }
+            }
+        });
+
+        // PHASE 4: Override with LocalStorage Computations
+        document.addEventListener('DOMContentLoaded', () => {
+            const history = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
+            if (history.length > 0) {
+                const latest = history[history.length - 1];
+                
+                // Update Top Tiles
+                if (latest.sales) {
+                    const salesEls = document.querySelectorAll('h3.text-3xl.font-black.text-slate-900.tracking-tight');
+                    if (salesEls.length > 0) salesEls[0].innerText = `₱${latest.sales.toLocaleString()}`;
+                }
+                if (latest.profitMargin) document.getElementById('stat-profit-margin').innerText = `${latest.profitMargin}%`;
+                
+                // Update Forecast Preview
+                if (latest.forecast) {
+                    const forecastVal = document.querySelector('.text-2xl.font-bold.mt-1');
+                    if (forecastVal) forecastVal.innerText = `₱${latest.forecast.toLocaleString()}`;
+                    
+                    const forecastTrend = document.querySelector('.text-emerald-400 span');
+                    if (forecastTrend && latest.trend) {
+                        forecastTrend.innerText = `${latest.trend} Forecasted`;
+                    }
+                }
+
+                // Update Health Summary
+                const health = localStorage.getItem('coretex_business_health');
+                if (health) {
+                    const badge = document.getElementById('health-badge');
+                    const grade = document.getElementById('health-grade');
+                    badge.classList.remove('hidden');
+                    grade.innerText = health;
+                    if (health.startsWith('A')) {
+                        badge.classList.add('bg-emerald-500');
+                        badge.classList.remove('bg-slate-900');
+                    }
+                    if (health.startsWith('C')) {
+                        badge.classList.add('bg-red-500');
+                        badge.classList.remove('bg-slate-900');
                     }
                 }
             }
