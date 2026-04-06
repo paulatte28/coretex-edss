@@ -58,31 +58,67 @@
                         <td class="px-10 py-6">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                <p id="geo-location-log" class="text-xs font-bold text-slate-600">Detecting location...</p>
-                            </div>
-                        </td>
-                        <td class="px-10 py-6">
-                            <p class="text-xs text-slate-500 font-medium">Just now</p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Placeholder Historical Log -->
-                    <tr class="opacity-40 grayscale group hover:opacity-100 hover:grayscale-0 transition-all">
-                        <td class="px-10 py-6">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center font-black text-xs">SA</div>
                                 <div>
-                                    <p class="font-black text-slate-900 text-sm">System Administrator</p>
+                                    <p id="geo-location-log" class="text-xs font-bold text-slate-600">Detecting location...</p>
+                                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">ISP: PLDT HOME FIBR</p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-10 py-6">
-                            <span class="text-xs font-black text-slate-400">Logout Triggered</span>
+                            <p class="text-xs text-slate-500 font-medium tracking-tight">Just now</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Tenant Activity -->
+                    <tr class="hover:bg-slate-50/50 transition-all">
+                        <td class="px-10 py-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center font-black text-xs italic">ED</div>
+                                <div>
+                                    <p class="font-black text-slate-900 text-sm">EcoDynamic CEO</p>
+                                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Enterprise Tenant</p>
+                                </div>
+                            </div>
                         </td>
                         <td class="px-10 py-6">
-                            <p class="text-xs font-bold text-slate-400">Manila, PH (112.201.XX.XX)</p>
+                            <span class="text-xs font-black text-slate-500">Report Exported</span>
                         </td>
-                        <td class="px-10 py-6 text-xs text-slate-400 font-medium">Apr 03, 2026 11:24 PM</td>
+                        <td class="px-10 py-6">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-500">Cebu City, PH (112.204.XX.XX)</p>
+                                    <p class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">ISP: Globe Telecom</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-10 py-6 text-xs text-slate-400 font-medium">Apr 05, 2026 04:32 PM</td>
+                    </tr>
+
+                    <!-- Suspicious Entry Simulation -->
+                    <tr class="bg-red-50 hover:bg-red-100 transition-all border-l-4 border-red-500 group animate-pulse">
+                        <td class="px-10 py-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center font-black text-xs">??</div>
+                                <div>
+                                    <p class="font-black text-red-900 text-sm">Unknown Access</p>
+                                    <p class="text-[9px] text-red-500 font-black uppercase mt-0.5">Credential Failure</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-10 py-6">
+                            <span class="text-xs font-black text-red-700 bg-red-100 px-3 py-1 rounded-full uppercase">Brute Force Alert</span>
+                        </td>
+                        <td class="px-10 py-6">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <div>
+                                    <p class="text-xs font-bold text-red-900">Frankfurt, DE (84.19.XX.XX)</p>
+                                    <p class="text-[9px] text-red-400 font-bold uppercase mt-0.5">ISP: Hetzner Online</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-10 py-6 text-xs text-red-900 font-bold">12 mins ago</td>
                     </tr>
                 </tbody>
             </table>

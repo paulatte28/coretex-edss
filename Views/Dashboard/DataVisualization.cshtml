@@ -34,6 +34,59 @@
         <p class="text-xs text-slate-400 font-medium italic">Last updated: 5 mins ago</p>
     </div>
 
+    <!-- Multi-Currency Conversion Widget (Phase 7) -->
+    <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8 animate-slide-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="font-black text-slate-800 text-xl tracking-tight">Supplier Cost Auditor</h3>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Real-time Multi-Currency Conversion (ExchangeRate API)</p>
+            </div>
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Imported Amount</label>
+                <div class="relative">
+                    <input id="import-amount" type="number" placeholder="5,000.00" class="w-full bg-slate-50 border-slate-100 rounded-2xl py-4 pl-6 pr-12 text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 transition-all" />
+                    <span id="target-currency-label" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 font-black text-xs">CNY</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Source Currency</label>
+                <select id="source-currency" class="w-full bg-slate-50 border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                    <option value="CNY">CNY (Chinese Yuan)</option>
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                    <option value="JPY">JPY (Japanese Yen)</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button onclick="simulateConversion()" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 uppercase tracking-widest text-xs">
+                    Calculate PHP Equivalent
+                </button>
+            </div>
+        </div>
+
+        <div id="conversion-result" class="hidden animate-slide-in">
+            <div class="p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] text-emerald-600 font-black uppercase tracking-widest">Normalized Exchange Value (PHP)</p>
+                    <h4 id="converted-value" class="text-3xl font-black text-emerald-800 mt-1">₱0.00</h4>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Rate Precision</p>
+                    <p id="conversion-meta" class="text-xs font-bold text-emerald-700">1 CNY = 7.82 PHP</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Chart 1: Profit Trend -->
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
@@ -63,13 +116,48 @@
 
 @section Scripts {
     <script>
+        function simulateConversion() {
+            const amount = document.getElementById('import-amount').value;
+            const source = document.getElementById('source-currency').value;
+            const resultDiv = document.getElementById('conversion-result');
+            const convertedVal = document.getElementById('converted-value');
+            const meta = document.getElementById('conversion-meta');
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+
+            // Simulated Rates (Today's Mock Rates)
+            const rates = {
+                'CNY': 7.82,
+                'USD': 56.45,
+                'EUR': 61.12,
+                'JPY': 0.37
+            };
+
+            const rate = rates[source];
+            const phpValue = amount * rate;
+
+            convertedVal.innerText = `₱${phpValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            meta.innerText = `1 ${source} = ${rate} PHP`;
+            
+            resultDiv.classList.remove('hidden');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Update currency label on select change
+            document.getElementById('source-currency').addEventListener('change', (e) => {
+                document.getElementById('target-currency-label').innerText = e.target.value;
+            });
+
             const history = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
             
             // Default mock data if history is empty
             let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-            let salesData = [120000, 135000, 128000, 145000, 160000, 155000];
-            let expenseData = [90000, 110000, 105000, 115000, 130000, 140000];
+            let salesData = [12000000, 13500000, 12800000, 14500000, 16000000, 15500000];
+            let expenseData = [9000000, 11000000, 10500000, 11500000, 13000000, 14000000];
             let profitData = salesData.map((s, i) => s - expenseData[i]);
 
             if (history.length > 0) {
@@ -110,7 +198,7 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: '#F1F5F9' },
-                            ticks: { font: {size: 10}, callback: function(value) { return '₱' + (value/1000) + 'k'; } }
+                            ticks: { font: {size: 10}, callback: function(value) { return '₱' + (value/1000).toLocaleString() + 'k'; } }
                         },
                         x: {
                             grid: { display: false },
@@ -151,7 +239,7 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: '#F1F5F9' },
-                            ticks: { font: {size: 10}, callback: function(value) { return '₱' + (value/1000) + 'k'; } }
+                            ticks: { font: {size: 10}, callback: function(value) { return '₱' + (value/1000).toLocaleString() + 'k'; } }
                         },
                         x: {
                             grid: { display: false },

@@ -1,0 +1,182 @@
+@{
+    ViewData["Title"] = "System Health";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">System Infrastructure</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Real-time Node Status & Network Latency Monitoring</p>
+        </div>
+        <div class="flex items-center space-x-3">
+             <div class="px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center space-x-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-black text-indigo-700 uppercase tracking-widest text-xs">Platform Core: Operational</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- CPU Card -->
+        <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                   <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compute Load</h4>
+                   <h3 class="text-2xl font-black text-slate-900 mt-1">CPU Cluster</h3>
+                </div>
+                <div id="cpu-percent" class="text-xl font-bold text-indigo-600">--%</div>
+            </div>
+            <div class="h-24">
+                <canvas id="cpuChart"></canvas>
+            </div>
+            <div class="mt-8 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                <span class="text-slate-400">Status</span>
+                <span class="text-emerald-500">Optimal Range</span>
+            </div>
+        </div>
+
+        <!-- Memory Card -->
+        <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden">
+             <div class="flex justify-between items-center mb-6">
+                <div>
+                   <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Memory Allocation</h4>
+                   <h3 class="text-2xl font-black text-slate-900 mt-1">RAM Pools</h3>
+                </div>
+                <div id="mem-percent" class="text-xl font-bold text-blue-600">--%</div>
+            </div>
+            <div class="h-24">
+                <canvas id="memChart"></canvas>
+            </div>
+            <div class="mt-8 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                <span class="text-slate-400">Available</span>
+                <span class="text-slate-900">12.4 GB Free</span>
+            </div>
+        </div>
+
+        <!-- Latency Card -->
+        <div class="bg-slate-900 p-8 rounded-[3rem] shadow-xl text-white relative overflow-hidden">
+            <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
+             <div class="flex justify-between items-center mb-6">
+                <div>
+                   <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Network Edge</h4>
+                   <h3 class="text-2xl font-black text-white mt-1">Latency (ms)</h3>
+                </div>
+                <div id="ms-value" class="text-xl font-bold text-emerald-400">--ms</div>
+            </div>
+             <div class="h-24">
+                <canvas id="pingChart"></canvas>
+            </div>
+              <div class="mt-8 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                <span class="text-slate-500">Node</span>
+                <span class="text-white">PH-MAIN-ASIA-1</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Events & Logs -->
+    <div class="bg-white border border-slate-100 rounded-[3rem] shadow-sm overflow-hidden flex flex-col">
+        <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/10">
+            <h3 class="font-black text-slate-800 text-lg">Platform Critical Events</h3>
+            <div class="flex items-center space-x-2 text-[10px] font-black tracking-widest uppercase text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Streaming Logs</span>
+            </div>
+        </div>
+        <div class="divide-y divide-slate-50 overflow-y-auto max-h-[400px] bg-slate-50/10 custom-scrollbar" id="log-container">
+            <!-- Dynamic Logs -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } },
+                elements: { point: { radius: 0 } }
+            };
+
+            // CPU Chart
+            const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+            const cpuChart = new Chart(cpuCtx, {
+                type: 'line',
+                data: { labels: new Array(20).fill(''), datasets: [{ data: new Array(20).fill(12), borderColor: '#4F46E5', borderWidth: 3, tension: 0.4 }] },
+                options: chartOptions
+            });
+
+            // Memory Chart
+            const memCtx = document.getElementById('memChart').getContext('2d');
+            const memChart = new Chart(memCtx, {
+                type: 'line',
+                data: { labels: new Array(20).fill(''), datasets: [{ data: new Array(20).fill(45), borderColor: '#3B82F6', borderWidth: 3, tension: 0.4 }] },
+                options: chartOptions
+            });
+
+            // Ping Chart
+            const pingCtx = document.getElementById('pingChart').getContext('2d');
+            const pingChart = new Chart(pingCtx, {
+                type: 'line',
+                data: { labels: new Array(20).fill(''), datasets: [{ data: new Array(20).fill(18), borderColor: '#10B981', borderWidth: 3, tension: 0.3 }] },
+                options: chartOptions
+            });
+
+            // Update Simulation
+            setInterval(() => {
+                const cpuVal = 12 + Math.random() * 8;
+                const memVal = 42 + Math.random() * 5;
+                const pingVal = 14 + Math.random() * 6;
+
+                document.getElementById('cpu-percent').innerText = cpuVal.toFixed(1) + '%';
+                document.getElementById('mem-percent').innerText = memVal.toFixed(1) + '%';
+                document.getElementById('ms-value').innerText = pingVal.toFixed(0) + 'ms';
+
+                cpuChart.data.datasets[0].data.shift();
+                cpuChart.data.datasets[0].data.push(cpuVal);
+                cpuChart.update('none');
+
+                memChart.data.datasets[0].data.shift();
+                memChart.data.datasets[0].data.push(memVal);
+                memChart.update('none');
+
+                pingChart.data.datasets[0].data.shift();
+                pingChart.data.datasets[0].data.push(pingVal);
+                pingChart.update('none');
+
+                if (Math.random() > 0.8) {
+                    addLog();
+                }
+            }, 1000);
+
+            function addLog() {
+                const logs = [
+                    "Tenant ID: 824-XT-129 Authenticated via Session Token.",
+                    "PayMongo Webhook: Subscription payment processed for NexGen Electronics.",
+                    "System Flush: Redis cache cleared for global reporting module.",
+                    "Security Audit: IP 112.201.22.41 login verified via IPGeolocation.",
+                    "Platform Maintenance: Background worker completed scheduled task cleanup.",
+                    "Tenant Data Sync: EcoDynamic Electronics sales records normalized successfully."
+                ];
+                const container = document.getElementById('log-container');
+                const log = document.createElement('div');
+                log.className = 'p-6 flex items-center justify-between group hover:bg-white transition-all bg-white/30';
+                log.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                        <p class="text-[11px] font-bold text-slate-800 tracking-tight">${logs[Math.floor(Math.random() * logs.length)]}</p>
+                    </div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${new Date().toLocaleTimeString()}</span>
+                `;
+                container.prepend(log);
+                if (container.children.length > 50) container.removeChild(container.lastChild);
+            }
+            
+            // Initial logs
+            for (let i = 0; i < 5; i++) addLog();
+        });
+    </script>
+}
