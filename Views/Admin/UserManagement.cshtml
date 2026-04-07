@@ -1,0 +1,441 @@
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-3 mb-2">
+                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <span class="px-3 py-1 bg-purple-100 text-purple-700 font-black text-[10px] uppercase tracking-widest rounded-full">User Setup</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">User Management</h2>
+            <p class="text-sm text-slate-500 mt-1">Create and manage system users (CEO, Finance Officers)</p>
+        </div>
+        <button onclick="openModal()" class="px-6 py-3 bg-purple-600 text-white font-bold text-sm rounded-xl hover:bg-purple-700 transition-colors flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Add User</span>
+        </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Total Users</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="total-users">0</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Business Owner</p>
+                    <p class="text-3xl font-black text-emerald-600 mt-1" id="ceo-count">0</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Finance Officers</p>
+                    <p class="text-3xl font-black text-blue-600 mt-1" id="fo-count">0</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Active</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="active-users">0</p>
+                </div>
+                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center space-x-4">
+        <div class="relative flex-1 max-w-md">
+            <input type="text" id="search-input" placeholder="Search users..." class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all">
+            <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <select id="role-filter" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+            <option value="">All Roles</option>
+            <option value="ceo">Business Owner / CEO</option>
+            <option value="finance_officer">Finance Officer</option>
+        </select>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-slate-50 border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Branch</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-list" class="divide-y divide-slate-100">
+                <!-- Users will be rendered here -->
+            </tbody>
+        </table>
+        <div id="empty-state" class="hidden p-12 text-center">
+            <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">No users yet</h3>
+            <p class="text-sm text-slate-500 mt-1">Add your first user to get started</p>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div id="user-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-slate-100">
+            <h3 id="modal-title" class="text-xl font-black text-slate-900">Add User</h3>
+        </div>
+        <form id="user-form" class="p-6 space-y-6">
+            <input type="hidden" id="user-id">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Full Name</label>
+                    <input type="text" id="user-name" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Email</label>
+                    <input type="email" id="user-email" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Role</label>
+                    <select id="user-role" required onchange="toggleBranchField()" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+                        <option value="">Select Role</option>
+                        <option value="ceo">Business Owner / CEO</option>
+                        <option value="finance_officer">Finance Officer</option>
+                    </select>
+                </div>
+                <div id="branch-field">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Branch</label>
+                    <select id="user-branch" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+                        <option value="">All Branches (CEO)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Phone</label>
+                    <input type="tel" id="user-phone" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500" placeholder="+63 XXX XXX XXXX">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Status</label>
+                    <select id="user-status" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-span-2" id="password-section">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Password</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="user-password" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500" placeholder="Auto-generated">
+                        <button type="button" onclick="generatePassword()" class="px-4 py-3 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-colors">Generate</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="closeModal()" class="flex-1 px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
+                <button type="submit" class="flex-1 px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-colors">Save User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 p-6">
+        <div class="text-center">
+            <div class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 mb-2">Delete User?</h3>
+            <p class="text-sm text-slate-500 mb-6">This action cannot be undone. The user will lose access to the system.</p>
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteModal()" class="flex-1 px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
+                <button onclick="confirmDelete()" class="flex-1 px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
+    let branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+    let deleteUserId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderUsers();
+        updateStats();
+        populateBranches();
+
+        document.getElementById('search-input').addEventListener('input', renderUsers);
+        document.getElementById('role-filter').addEventListener('change', renderUsers);
+        document.getElementById('user-form').addEventListener('submit', saveUser);
+    });
+
+    function populateBranches() {
+        const select = document.getElementById('user-branch');
+        select.innerHTML = '<option value="">All Branches (CEO)</option>';
+        branches.filter(b => b.status === 'active').forEach(branch => {
+            select.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+        });
+    }
+
+    function toggleBranchField() {
+        const role = document.getElementById('user-role').value;
+        const branchField = document.getElementById('branch-field');
+        const branchSelect = document.getElementById('user-branch');
+        
+        if (role === 'finance_officer') {
+            branchField.style.opacity = '1';
+            branchSelect.required = true;
+            // Reset to show only unassigned branches
+            populateBranches();
+        } else {
+            branchField.style.opacity = '0.5';
+            branchSelect.required = false;
+            branchSelect.value = '';
+        }
+    }
+
+    function renderUsers() {
+        const search = document.getElementById('search-input').value.toLowerCase();
+        const roleFilter = document.getElementById('role-filter').value;
+        const list = document.getElementById('users-list');
+        const emptyState = document.getElementById('empty-state');
+
+        let filtered = users.filter(user => {
+            const matchesSearch = user.name.toLowerCase().includes(search) || user.email.toLowerCase().includes(search);
+            const matchesRole = !roleFilter || user.role === roleFilter;
+            return matchesSearch && matchesRole;
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = '';
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        emptyState.classList.add('hidden');
+        list.innerHTML = filtered.map(user => {
+            const branch = branches.find(b => b.id === user.branchId);
+            const roleLabel = user.role === 'ceo' ? 'Business Owner / CEO' : 'Finance Officer';
+            const roleBadge = user.role === 'ceo' 
+                ? 'bg-emerald-100 text-emerald-700' 
+                : 'bg-blue-100 text-blue-700';
+            const statusBadge = user.status === 'active'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-slate-100 text-slate-500';
+
+            return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center font-bold text-sm">
+                                ${user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-900">${user.name}</p>
+                                <p class="text-xs text-slate-500">${user.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 ${roleBadge} text-xs font-bold rounded-full">${roleLabel}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600">
+                        ${branch ? branch.name : '<span class="text-slate-400">All Branches</span>'}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 ${statusBadge} text-xs font-bold rounded-full capitalize">${user.status}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button onclick="editUser('${user.id}')" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </button>
+                            <button onclick="resetPassword('${user.id}')" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Reset Password">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                            </button>
+                            <button onclick="deleteUser('${user.id}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updateStats() {
+        document.getElementById('total-users').textContent = users.length;
+        document.getElementById('ceo-count').textContent = users.filter(u => u.role === 'ceo').length;
+        document.getElementById('fo-count').textContent = users.filter(u => u.role === 'finance_officer').length;
+        document.getElementById('active-users').textContent = users.filter(u => u.status === 'active').length;
+    }
+
+    function openModal(userId = null) {
+        const modal = document.getElementById('user-modal');
+        const title = document.getElementById('modal-title');
+        const form = document.getElementById('user-form');
+        const passwordSection = document.getElementById('password-section');
+
+        form.reset();
+        populateBranches();
+
+        if (userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                title.textContent = 'Edit User';
+                document.getElementById('user-id').value = user.id;
+                document.getElementById('user-name').value = user.name;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-role').value = user.role;
+                document.getElementById('user-branch').value = user.branchId || '';
+                document.getElementById('user-phone').value = user.phone || '';
+                document.getElementById('user-status').value = user.status;
+                passwordSection.classList.add('hidden');
+                toggleBranchField();
+            }
+        } else {
+            title.textContent = 'Add User';
+            document.getElementById('user-id').value = '';
+            passwordSection.classList.remove('hidden');
+            generatePassword();
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('user-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function generatePassword() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        let password = '';
+        for (let i = 0; i < 12; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('user-password').value = password;
+    }
+
+    function saveUser(e) {
+        e.preventDefault();
+
+        const id = document.getElementById('user-id').value;
+        const userData = {
+            id: id || 'user_' + Date.now(),
+            name: document.getElementById('user-name').value,
+            email: document.getElementById('user-email').value,
+            role: document.getElementById('user-role').value,
+            branchId: document.getElementById('user-branch').value || null,
+            phone: document.getElementById('user-phone').value,
+            status: document.getElementById('user-status').value,
+            updatedAt: new Date().toISOString()
+        };
+
+        if (id) {
+            const index = users.findIndex(u => u.id === id);
+            if (index !== -1) {
+                users[index] = { ...users[index], ...userData };
+                logActivity('user_updated', `Updated user: ${userData.name}`);
+            }
+        } else {
+            userData.createdAt = new Date().toISOString();
+            userData.password = document.getElementById('user-password').value;
+            users.push(userData);
+            logActivity('user_created', `Created user: ${userData.name} (${userData.role})`);
+        }
+
+        localStorage.setItem('coretex_users', JSON.stringify(users));
+        closeModal();
+        renderUsers();
+        updateStats();
+    }
+
+    function editUser(id) {
+        openModal(id);
+    }
+
+    function deleteUser(id) {
+        deleteUserId = id;
+        const modal = document.getElementById('delete-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('delete-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        deleteUserId = null;
+    }
+
+    function confirmDelete() {
+        if (deleteUserId) {
+            const user = users.find(u => u.id === deleteUserId);
+            users = users.filter(u => u.id !== deleteUserId);
+            localStorage.setItem('coretex_users', JSON.stringify(users));
+            logActivity('user_deleted', `Deleted user: ${user?.name}`);
+            closeDeleteModal();
+            renderUsers();
+            updateStats();
+        }
+    }
+
+    function resetPassword(id) {
+        const user = users.find(u => u.id === id);
+        if (user) {
+            generatePassword();
+            const newPassword = document.getElementById('user-password').value;
+            user.password = newPassword;
+            user.updatedAt = new Date().toISOString();
+            localStorage.setItem('coretex_users', JSON.stringify(users));
+            logActivity('password_reset', `Reset password for: ${user.name}`);
+            alert(`New password for ${user.name}: ${newPassword}\n\nPlease share this securely with the user.`);
+        }
+    }
+
+    function logActivity(action, description) {
+        const activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
+        activities.unshift({
+            id: 'act_' + Date.now(),
+            action: action,
+            description: description,
+            type: 'user',
+            timestamp: new Date().toISOString(),
+            user: 'System Admin'
+        });
+        localStorage.setItem('coretex_activities', JSON.stringify(activities.slice(0, 100)));
+    }
+</script>
