@@ -1,80 +1,107 @@
-@{
-    ViewData["Title"] = "Predictive Trend Analysis";
-    Layout = "_AdminLayout";
-}
-
-<div class="space-y-10">
+<div class="space-y-12">
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Predictive Trend Analysis</h2>
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">AI-Powered Revenue & Demand Forecasting</p>
+            <div class="flex items-center space-x-3 mb-4">
+                <span class="px-4 py-1.5 bg-indigo-50 text-indigo-700 font-black text-[9px] uppercase tracking-widest rounded-xl border border-indigo-100 shadow-sm italic">AI Engine: active</span>
+                <span class="px-4 py-1.5 bg-slate-50 text-slate-500 font-black text-[9px] uppercase tracking-widest rounded-xl border border-slate-100">Neural Forecasting</span>
+            </div>
+            <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Trend Projection</h2>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-2 italic">Predictive Financial Modeling & Algorithmic Extrapolation</p>
         </div>
-        <div class="flex space-x-3">
-            <button class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50 transition-all shadow-sm">
-                Export Forecast
+        <div class="flex space-x-4">
+            <button class="px-8 py-4 bg-white border-2 border-slate-100 text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-[0.3em] hover:bg-slate-50 transition-all shadow-xl shadow-slate-200/50 flex items-center space-x-3 group italic">
+                <span>Export Model</span>
             </button>
-            <button class="px-5 py-2.5 bg-secondary text-white font-bold rounded-xl text-xs hover:bg-teal-600 transition-all shadow-lg shadow-teal-900/30 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                <span>Recalibrate Model</span>
+            <button class="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-2xl shadow-blue-900/40 flex items-center space-x-3 group italic">
+                <svg class="w-4 h-4 group-hover:rotate-180 transition-transform duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                <span>Recalibrate Engine</span>
             </button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <!-- Main Forecast Chart -->
-        <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
-            <div class="flex justify-between items-center mb-8 relative z-10">
+        <div class="lg:col-span-2 bg-white p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden group">
+            <div class="flex justify-between items-center mb-10 relative z-10">
                 <div>
-                    <h3 class="font-black text-slate-800 text-lg">6-Month Revenue Projection</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Based on historical & seasonal data</p>
+                    <h3 class="font-black text-slate-900 text-2xl tracking-tighter uppercase italic">Strategic Trajectory</h3>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-1 italic">6-Month Automated Revenue Extrapolation</p>
                 </div>
-                <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
-                    <button class="px-4 py-1.5 bg-white shadow-sm rounded-lg text-[10px] font-black text-slate-800">Conservative</button>
-                    <button class="px-4 py-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition">Optimistic</button>
+                <div class="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100 shadow-inner">
+                    <button class="px-6 py-2 bg-white shadow-xl rounded-xl text-[9px] font-black text-slate-900 uppercase tracking-widest italic">Conservative</button>
+                    <button class="px-6 py-2 text-[9px] font-black text-slate-400 hover:text-slate-600 transition uppercase tracking-widest italic">Optimistic</button>
                 </div>
             </div>
-            <div class="h-[300px] relative z-10">
+            
+            <div class="h-[350px] relative z-10">
                 <canvas id="trendChart"></canvas>
             </div>
-            <!-- Decorative blur -->
-            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50 z-0"></div>
+            
+            <!-- Statistical Metadata -->
+            <div class="mt-10 pt-8 border-t border-slate-50 flex items-center justify-between relative z-10">
+                <div class="flex items-center space-x-8">
+                    <div class="text-center">
+                        <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">R-Squared Score</p>
+                        <p class="text-xs font-black text-slate-900 italic">0.984 [High Precision]</p>
+                    </div>
+                    <div class="w-px h-8 bg-slate-100"></div>
+                    <div class="text-center">
+                        <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">Confidence Interval</p>
+                        <p class="text-xs font-black text-emerald-500 italic">95.0% Variance</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                    <span>Live Modeling Active</span>
+                </div>
+            </div>
+
+            <!-- Background logic decoration -->
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-50/50 rounded-full blur-3xl -z-10 group-hover:bg-indigo-100/50 transition-colors"></div>
         </div>
 
         <!-- AI Insights -->
-        <div class="bg-gradient-to-br from-primary to-[#002873] p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden flex flex-col justify-between">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
+        <div class="bg-primary p-12 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl -mr-32 -mt-32"></div>
             
-            <div>
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
-                        <svg class="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            <div class="relative z-10">
+                <div class="flex items-center space-x-5 mb-10">
+                    <div class="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                        <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     </div>
                     <div>
-                        <h4 class="font-bold">CORE Engine Insights</h4>
-                        <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest">Active Analysis</p>
+                        <h4 class="font-black text-xl tracking-tighter uppercase italic">Logic Engine</h4>
+                        <p class="text-[10px] text-indigo-300 font-black uppercase tracking-[0.2em] mt-1">Core-Analytics Insight v4.2</p>
                     </div>
                 </div>
 
-                <div class="space-y-6 relative z-10">
-                    <div class="border-l-2 border-indigo-400 pl-4 py-1">
-                        <p class="text-xs text-indigo-200 font-bold uppercase tracking-widest mb-1">Demand Surge Expected</p>
-                        <p class="text-sm font-medium leading-relaxed">Smartphones category expected to spike by 18% in mid-Q3 due to seasonal back-to-school trends.</p>
+                <div class="space-y-8">
+                    <div class="group/item cursor-default">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                            <p class="text-[10px] text-indigo-200 font-black uppercase tracking-[0.3em]">Trajectory Analysis</p>
+                        </div>
+                        <p class="text-sm font-black leading-relaxed italic pr-4">Smartphone segments projected to scale +18.4% by Q3 based on velocity trends.</p>
                     </div>
-                    <div class="border-l-2 border-secondary pl-4 py-1">
-                        <p class="text-xs text-teal-200 font-bold uppercase tracking-widest mb-1">Inventory Alert</p>
-                        <p class="text-sm font-medium leading-relaxed">Consider increasing 'OLED Monitors' stock by 50 units before next month to prevent stockouts.</p>
+                    
+                    <div class="group/item cursor-default">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <p class="text-[10px] text-indigo-200 font-black uppercase tracking-[0.3em]">Resource Optimization</p>
+                        </div>
+                        <p class="text-sm font-black leading-relaxed italic pr-4">OLED Monitor parity suggests immediate restock. Target +50 units for peak window.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8 bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm relative z-10">
-                <p class="text-[10px] text-indigo-200 uppercase font-bold tracking-widest">Next Quarter Expected</p>
-                <div class="flex items-baseline space-x-2 mt-1">
-                    <span class="text-3xl font-black">₱---</span>
-                    <span class="text-emerald-400 text-sm font-bold flex items-center">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                        11.2%
-                    </span>
+            <div class="mt-12 bg-white/5 border border-white/10 p-8 rounded-[2.5rem] backdrop-blur-xl relative z-10 shadow-2xl group-hover:-translate-y-2 transition-transform duration-500">
+                <p class="text-[10px] text-indigo-200 uppercase font-black tracking-[0.4em] italic mb-3">Projected Quota [Q3]</p>
+                <div class="flex items-baseline justify-between">
+                    <h5 class="text-4xl font-black tracking-tighter italic">₱--</h5>
+                    <div class="flex items-center space-x-1 text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-xl border border-emerald-400/20">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                        <span class="text-xs font-black italic">11.2%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,18 +113,17 @@
         document.addEventListener('DOMContentLoaded', function() {
             const history = JSON.parse(localStorage.getItem('coretex_monthly_data') || '[]');
             
-            // Labels and Data Preparation
-            let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-            let actualData = [120000, 135000, 128000, 145000, 160000, 155000];
-            let forecastData = [null, null, null, null, null, 155000, 172000, 185000];
+            let labels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'];
+            let actualData = [12000000, 13500000, 12800000, 14500000, 16000000, 15500000];
+            let forecastData = [null, null, null, null, null, 15500000, 17200000, 18500000];
             
             if (history.length > 0) {
-                labels = history.map(h => h.month.substring(0, 3));
+                labels = history.map(h => h.month.toUpperCase());
                 actualData = history.map(h => h.sales);
                 
                 const latest = history[history.length - 1];
                 if (latest.forecast) {
-                    labels.push(latest.month.substring(0, 3) + ' (Est)');
+                    labels.push(latest.month.toUpperCase() + ' [EST]');
                     forecastData = new Array(actualData.length - 1).fill(null);
                     forecastData.push(latest.sales);
                     forecastData.push(latest.forecast);
@@ -111,29 +137,31 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Actual Revenue',
+                            label: 'HISTORICAL',
                             data: actualData,
                             borderColor: '#001A4D',
-                            borderWidth: 3,
-                            fill: false,
+                            backgroundColor: 'transparent',
+                            borderWidth: 6,
                             tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#001A4D',
-                            pointHoverRadius: 6,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#001A4D',
+                            pointBorderWidth: 3,
                             spanGaps: true
                         },
                         {
-                            label: 'Forecast Projection',
+                            label: 'PROJECTION',
                             data: forecastData,
-                            borderColor: '#10b981',
-                            borderWidth: 3,
-                            borderDash: [6, 4],
-                            backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                            borderColor: '#00D1C1',
+                            borderWidth: 6,
+                            borderDash: [10, 5],
+                            backgroundColor: 'rgba(0, 209, 193, 0.05)',
                             fill: true,
                             tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#10b981',
-                            pointHoverRadius: 6,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#00D1C1',
+                            pointBorderWidth: 3,
                             spanGaps: true
                         }
                     ]
@@ -149,17 +177,18 @@
                             labels: { 
                                 usePointStyle: true, 
                                 boxWidth: 6,
-                                padding: 20,
-                                font: { weight: '700', size: 11, family: 'Inter' } 
+                                padding: 30,
+                                font: { weight: '900', size: 10, family: 'Inter' },
+                                color: '#94A3B8'
                             } 
                         },
                         tooltip: {
                             backgroundColor: '#001A4D',
-                            padding: 12,
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 12 },
-                            cornerRadius: 8,
-                            displayColors: true,
+                            padding: 20,
+                            titleFont: { size: 14, weight: '900' },
+                            bodyFont: { size: 13, weight: '700' },
+                            cornerRadius: 20,
+                            displayColors: false,
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': ₱' + context.parsed.y.toLocaleString();
@@ -170,27 +199,26 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#F1F5F9', drawBorder: false },
+                            grid: { color: '#F8FAFC', drawBorder: false },
                             ticks: { 
-                                font: { size: 10, weight: '600' }, 
-                                color: '#64748b',
+                                font: { size: 11, weight: '600' }, 
+                                color: '#94A3B8',
                                 callback: function(value) { return '₱' + (value/1000).toLocaleString() + 'k'; } 
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { font: { size: 10, weight: '700' }, color: '#64748b' }
+                            ticks: { font: { size: 11, weight: '900' }, color: '#94A3B8' }
                         }
                     }
                 }
             });
 
-            // Update AI Insight Cards if data exists
             if (history.length > 0) {
                 const latest = history[history.length - 1];
-                const nextQ = document.querySelector('.text-3xl.font-black');
+                const nextQ = document.querySelector('.text-4xl.font-black.italic');
                 if (nextQ && latest.forecast) {
-                    nextQ.innerText = `₱${(latest.forecast * 3).toLocaleString()}`;
+                    nextQ.innerText = `₱${((latest.forecast || 0) * 3).toLocaleString()}`;
                 }
             }
         });

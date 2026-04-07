@@ -1,108 +1,133 @@
-@{
-    ViewData["Title"] = "Decision Support Analytics";
-    Layout = "_AdminLayout";
-}
-
-<div class="space-y-10">
-    <div>
-        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Decision Support Analytics</h2>
-        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Executive Strategy & Risk Evaluation</p>
+<div class="space-y-12">
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-3 mb-4">
+                <span class="px-4 py-1.5 bg-indigo-50 text-indigo-700 font-black text-[9px] uppercase tracking-widest rounded-xl border border-indigo-100 shadow-sm italic">Strategy Engine: online</span>
+                <span class="px-4 py-1.5 bg-slate-50 text-slate-500 font-black text-[9px] uppercase tracking-widest rounded-xl border border-slate-100 uppercase">Executive Support</span>
+            </div>
+            <h2 class="text-4xl font-black text-slate-900 tracking-tighter uppercase text-slate-900">Advisory Center</h2>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-2 italic">High-Fidelity Strategic Risk Evaluation & AI-Driven Insights</p>
+        </div>
+        <div class="flex items-center space-x-3">
+             <div class="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center text-slate-400 shadow-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <!-- Strategic Risk Scoring -->
-        <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
-            <h3 class="font-black text-slate-800 text-xl">Strategic Risk Analysis</h3>
+        <div class="bg-white p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 space-y-10 group">
+            <div class="flex justify-between items-center relative z-10">
+                <div>
+                     <h3 class="font-black text-slate-900 text-2xl tracking-tighter uppercase italic">Integrity Audit</h3>
+                     <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-2 italic">Cross-Vector Risk Coefficient</p>
+                </div>
+                <div class="w-14 h-14 bg-slate-50 border border-slate-100 rounded-3xl flex items-center justify-center text-slate-900 shadow-sm">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+            </div>
             
-            <div class="flex items-center space-x-10 p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
-                <div class="relative w-32 h-32 flex items-center justify-center">
+            <div class="flex items-center space-x-12 p-10 bg-slate-50/50 rounded-[2.5rem] border border-slate-100 group-hover:bg-white group-hover:shadow-xl transition-all duration-700">
+                <div class="relative w-40 h-40 flex items-center justify-center group-hover:scale-105 transition-transform">
                     <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                        <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" stroke-width="4"></circle>
-                        <circle id="risk-circle" cx="18" cy="18" r="16" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="0, 100" stroke-linecap="round" class="transition-all duration-1000"></circle>
+                        <circle cx="18" cy="18" r="16" fill="none" stroke="#e2e8f0" stroke-width="4"></circle>
+                        <circle id="risk-circle" cx="18" cy="18" r="16" fill="none" stroke="#00D1C1" stroke-width="4" stroke-dasharray="0, 100" stroke-linecap="round" class="transition-all duration-1000"></circle>
                     </svg>
                     <div class="absolute text-center">
-                        <span id="risk-score-text" class="text-3xl font-black text-slate-900">--</span>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Index</p>
+                        <span id="risk-score-text" class="text-5xl font-black text-slate-900 tracking-tighter">--</span>
                     </div>
                 </div>
                 
-                <div class="space-y-2">
-                    <p id="risk-level-badge" class="text-xs font-black px-3 py-1 bg-slate-200 text-slate-600 rounded-lg inline-block uppercase tracking-widest">Calculating...</p>
-                    <p id="risk-explanation" class="text-xs text-slate-500 leading-relaxed font-medium">
-                        Analyzing latest performance data against configured risk thresholds...
+                <div class="space-y-4">
+                    <p id="risk-level-badge" class="text-[10px] font-black px-6 py-2 bg-slate-900 text-white rounded-2xl inline-block uppercase tracking-[0.2em] italic shadow-xl shadow-slate-900/20">Initializing System...</p>
+                    <p id="risk-explanation" class="text-xs text-slate-500 leading-relaxed font-black italic pr-10 uppercase tracking-tight opacity-70">
+                        Synthesizing multidimensional data vectors to determine optimal strategy paths...
                     </p>
                 </div>
             </div>
 
-            <div class="space-y-4">
-                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">CORE AI Assessment</h4>
-                <div id="health-assessment-box" class="p-6 bg-slate-900 text-white rounded-[2rem] space-y-3 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
-                    <p id="health-summary-text" class="text-sm font-medium leading-relaxed italic opacity-80">
-                        "The current financial trajectory indicates stable growth, but expense scaling needs careful monitoring to maintain optimal profit margins."
+            <div class="space-y-6">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] px-2 italic">Neural Network Synthesis</h4>
+                <div id="health-assessment-box" class="p-10 bg-primary text-white rounded-[3rem] space-y-6 relative overflow-hidden shadow-2xl shadow-blue-900/40 group-hover:-translate-y-2 transition-transform duration-500">
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -mr-24 -mt-24"></div>
+                    <p id="health-summary-text" class="text-base font-black leading-relaxed italic opacity-90 tracking-tight">
+                        "The logic core is analyzing historical variance. Awaiting comprehensive data stream synchronization."
                     </p>
-                    <div class="flex items-center space-x-2">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span id="health-status-subtext" class="text-[9px] font-black uppercase text-indigo-300 tracking-[0.2em]">System Status: Optimal</span>
+                    <div class="flex items-center justify-between pt-6 border-t border-white/10 relative z-10">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping"></span>
+                            <span id="health-status-subtext" class="text-[10px] font-black uppercase text-indigo-200 tracking-[0.3em] italic">System Integrity: Standard</span>
+                        </div>
+                        <span class="text-[10px] font-black uppercase text-white/40 tracking-widest">CORETEX v4.0</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Branch Performance Comparison -->
-        <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
+        <!-- Branch Performance -->
+        <div class="bg-white p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 space-y-10">
             <div class="flex items-center justify-between">
-                <h3 class="font-black text-slate-800 text-xl">Branch Performance</h3>
-                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded-lg">Multi-Site Comparison</span>
+                <div>
+                    <h3 class="font-black text-slate-900 text-2xl tracking-tighter uppercase italic">Regional Nodes</h3>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-2 italic">Multi-Site Revenue Propagation</p>
+                </div>
+                 <div class="w-14 h-14 bg-indigo-50 border border-indigo-100 rounded-3xl flex items-center justify-center text-primary shadow-sm italic font-black text-xs">GLOBAL</div>
             </div>
 
-            <div class="space-y-6" id="branch-container">
+            <div class="space-y-4" id="branch-container">
                 <!-- Branch 1 -->
-                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-500">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 font-black text-xs shadow-sm ring-1 ring-slate-100">HQ</div>
-                        <div>
-                            <p class="text-sm font-black text-slate-900">Main Branch</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Primary Operations</p>
+                <div class="p-8 bg-slate-50/50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-500">
+                    <div class="flex items-center space-x-6">
+                        <div class="w-16 h-16 bg-white rounded-[1.75rem] flex items-center justify-center text-slate-900 font-black text-sm shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform italic border border-slate-50">HQ</div>
+                        <div class="space-y-1">
+                            <p class="text-base font-black text-slate-900 tracking-tight italic">Central Hub</p>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white inline-block px-2 py-0.5 rounded italic">Primary Node</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p id="branch-hq-val" class="text-lg font-black text-slate-900">--%</p>
-                        <p class="text-[9px] font-black text-emerald-500 uppercase">Margin</p>
+                        <p id="branch-hq-val" class="text-3xl font-black text-slate-900 tracking-tighter italic">--%</p>
+                        <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1">Efficiency Delta</p>
                     </div>
                 </div>
 
                 <!-- Branch 2 -->
-                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-500">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 font-black text-xs shadow-sm ring-1 ring-slate-100">EST</div>
-                        <div>
-                            <p class="text-sm font-black text-slate-900">East Sector</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Regional Hub</p>
+                <div class="p-8 bg-slate-50/50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-500">
+                    <div class="flex items-center space-x-6">
+                        <div class="w-16 h-16 bg-white rounded-[1.75rem] flex items-center justify-center text-slate-900 font-black text-sm shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform italic border border-slate-50">EST</div>
+                        <div class="space-y-1">
+                            <p class="text-base font-black text-slate-900 tracking-tight italic">Eastern Sector</p>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white inline-block px-2 py-0.5 rounded italic">Logistics Hub</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p id="branch-east-val" class="text-lg font-black text-slate-900">--%</p>
-                        <p class="text-[9px] font-black text-amber-500 uppercase">Margin</p>
+                        <p id="branch-east-val" class="text-3xl font-black text-slate-900 tracking-tighter italic">--%</p>
+                        <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mt-1">Efficiency Delta</p>
                     </div>
                 </div>
 
                 <!-- Branch 3 -->
-                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-500">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 font-black text-xs shadow-sm ring-1 ring-slate-100">WST</div>
-                        <div>
-                            <p class="text-sm font-black text-slate-900">West Coast</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Expansion Point</p>
+                <div class="p-8 bg-slate-50/50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-500">
+                    <div class="flex items-center space-x-6">
+                        <div class="w-16 h-16 bg-white rounded-[1.75rem] flex items-center justify-center text-slate-900 font-black text-sm shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform italic border border-slate-50">WST</div>
+                        <div class="space-y-1">
+                            <p class="text-base font-black text-slate-900 tracking-tight italic">Western Front</p>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white inline-block px-2 py-0.5 rounded italic">Market Incursion</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p id="branch-west-val" class="text-lg font-black text-slate-900">--%</p>
-                        <p class="text-[9px] font-black text-emerald-500 uppercase">Margin</p>
+                        <p id="branch-west-val" class="text-3xl font-black text-slate-900 tracking-tighter italic">--%</p>
+                        <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1">Efficiency Delta</p>
                     </div>
                 </div>
             </div>
             
-            <p class="text-[10px] text-slate-400 font-medium italic text-center">Branch metrics are computed based on localized expense allocation.</p>
+            <div class="p-8 bg-indigo-50/30 rounded-[2rem] border-2 border-dashed border-indigo-100">
+                <p class="text-[10px] text-indigo-400 font-black italic text-center uppercase tracking-[0.2em] leading-relaxed">
+                    Regional metrics are computed via neural allocation based on local operational overhead and inventory velocity.
+                </p>
+            </div>
         </div>
     </div>
 </div>
@@ -117,20 +142,18 @@
             if (history.length > 0) {
                 const latest = history[history.length - 1];
                 
-                // 1. Dynamic Risk Score Calculation
                 let score = 25; 
-                let explanation = "Optimal distribution. Revenue growth is outpacing expense scaling.";
+                let explanation = "Optimal architectural distribution. Revenue velocity is effectively dampening operational drag.";
                 
                 if (parseFloat(latest.expenseRatio) > 70) {
                     score += 35;
-                    explanation = "Elevated expense ratio detected. High operational costs are compressing margins.";
+                    explanation = "Operational friction detected. High burn rates are compressing margin buffers across all nodes.";
                 }
                 if (latest.alerts && latest.alerts.length > 0) {
                     score += 25;
-                    explanation = "Critical KPI breach detected. Multiple performance thresholds have been violated.";
+                    explanation = "Critical threshold violation. System state requires immediate strategic recalibration.";
                 }
 
-                // UI Update
                 const circle = document.getElementById('risk-circle');
                 const scoreText = document.getElementById('risk-score-text');
                 const levelBadge = document.getElementById('risk-level-badge');
@@ -142,36 +165,35 @@
 
                 if (score < 40) {
                     circle.setAttribute('stroke', '#10b981');
-                    levelBadge.innerText = 'Low Risk';
-                    levelBadge.className = 'text-xs font-black px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg inline-block uppercase tracking-widest';
+                    levelBadge.innerText = 'STABLE RISK';
+                    levelBadge.className = 'text-[10px] font-black px-6 py-2 bg-emerald-50 text-emerald-600 rounded-2xl inline-block uppercase tracking-[0.2em] italic border border-emerald-100';
                 } else if (score < 70) {
                     circle.setAttribute('stroke', '#f59e0b');
-                    levelBadge.innerText = 'Moderate Risk';
-                    levelBadge.className = 'text-xs font-black px-3 py-1 bg-amber-100 text-amber-700 rounded-lg inline-block uppercase tracking-widest';
+                    levelBadge.innerText = 'CAUTION ADVISED';
+                    levelBadge.className = 'text-[10px] font-black px-6 py-2 bg-amber-50 text-amber-600 rounded-2xl inline-block uppercase tracking-[0.2em] italic border border-amber-100';
                 } else {
                     circle.setAttribute('stroke', '#ef4444');
-                    levelBadge.innerText = 'High Risk';
-                    levelBadge.className = 'text-xs font-black px-3 py-1 bg-red-100 text-red-700 rounded-lg inline-block uppercase tracking-widest';
+                    levelBadge.innerText = 'CRITICAL ALERT';
+                    levelBadge.className = 'text-[10px] font-black px-6 py-2 bg-red-50 text-red-600 rounded-2xl inline-block uppercase tracking-[0.2em] italic border border-red-100 shadow-xl shadow-red-900/10';
                 }
 
-                // 2. AI Assessment
+                // AI Assessment
                 const summaryText = document.getElementById('health-summary-text');
                 const statusSub = document.getElementById('health-status-subtext');
                 const healthBox = document.getElementById('health-assessment-box');
 
                 if (health.startsWith('A')) {
-                    summaryText.innerText = `"Elite financial vector. Your profit margin of ${latest.profitMargin}% is in the top 5% of your industry segment. Suggest scaling expansion."`;
-                    statusSub.innerText = "System Status: Exceptional";
-                    healthBox.classList.add('ring-2', 'ring-emerald-500/20');
+                    summaryText.innerText = `"Elite financial trajectory confirmed. Your current margin of ${latest.profitMargin}% represents peak performance in your sector. Suggest aggressive capital deployment."`;
+                    statusSub.innerText = "Logic Core: Exceptional State";
+                    healthBox.classList.add('ring-8', 'ring-emerald-400/5');
                 } else if (health.startsWith('C')) {
-                    summaryText.innerText = `"Warning: Liquidity pressure detected. The current health grade of ${health} suggest immediate intervention in expense management."`;
-                    statusSub.innerText = "System Status: Intervention Required";
-                    statusSub.className = "text-[9px] font-black uppercase text-red-300 tracking-[0.2em]";
-                    healthBox.classList.add('ring-2', 'ring-red-500/20');
+                    summaryText.innerText = `"System alert: Terminal liquidity pressure detected. Health grade ${health} indicates localized failure points in operational strategy. Urgent mitigation required."`;
+                    statusSub.innerText = "Logic Core: Intervention Required";
+                    statusSub.className = "text-[10px] font-black uppercase text-red-300 tracking-[0.3em]";
+                    healthBox.className = healthBox.className.replace('bg-primary', 'bg-red-900') + ' ring-8 ring-red-400/10';
                 }
             }
 
-            // 3. Branch Performance
             document.getElementById('branch-hq-val').innerText = `${branchData.mainBranch}%`;
             document.getElementById('branch-east-val').innerText = `${branchData.eastBranch}%`;
             document.getElementById('branch-west-val').innerText = `${branchData.westBranch}%`;

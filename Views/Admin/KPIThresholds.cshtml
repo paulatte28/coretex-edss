@@ -1,0 +1,442 @@
+@{
+    ViewData["Title"] = "KPI Thresholds";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-3 mb-2">
+                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <span class="px-3 py-1 bg-amber-100 text-amber-700 font-black text-[10px] uppercase tracking-widest rounded-full">Alert Config</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">KPI Thresholds</h2>
+            <p class="text-sm text-slate-500 mt-1">Configure alert thresholds for KPIs. SMS alerts sent via Twilio when breached.</p>
+        </div>
+        <button onclick="openThresholdModal()" class="px-6 py-3 bg-amber-600 text-white font-bold text-sm rounded-xl hover:bg-amber-700 transition-colors flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Add Threshold</span>
+        </button>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6">
+        <div class="flex items-start space-x-4">
+            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-amber-900">How KPI Alerts Work</h4>
+                <p class="text-sm text-amber-700 mt-1">When a Finance Officer submits data that breaches a threshold, the Business Owner receives an instant SMS alert via Twilio. Global thresholds apply to all branches unless overridden.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex space-x-2 border-b border-slate-200">
+        <button onclick="switchTab('global')" id="tab-global" class="px-6 py-3 font-bold text-sm border-b-2 border-amber-600 text-amber-600 -mb-px">
+            Global Thresholds
+        </button>
+        <button onclick="switchTab('branch')" id="tab-branch" class="px-6 py-3 font-bold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 -mb-px">
+            Branch Overrides
+        </button>
+    </div>
+
+    <!-- Global Thresholds Section -->
+    <div id="section-global">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50">
+                <h3 class="font-bold text-slate-900">Global KPI Thresholds</h3>
+                <p class="text-xs text-slate-500 mt-1">These thresholds apply to ALL branches unless overridden.</p>
+            </div>
+            
+            <div id="global-threshold-list" class="divide-y divide-slate-100">
+                <!-- Thresholds will be rendered here -->
+            </div>
+
+            <div id="global-empty-state" class="hidden p-12 text-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h4 class="font-bold text-slate-900 mb-2">No thresholds configured</h4>
+                <p class="text-sm text-slate-500 mb-4">Add KPI thresholds to enable automated alerts.</p>
+                <button onclick="openThresholdModal()" class="px-4 py-2 bg-amber-600 text-white font-bold text-sm rounded-xl hover:bg-amber-700 transition-colors">Add First Threshold</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Overrides Section -->
+    <div id="section-branch" class="hidden">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900">Branch-Specific Overrides</h3>
+                        <p class="text-xs text-slate-500 mt-1">Override global thresholds for specific branches.</p>
+                    </div>
+                    <select id="branch-filter" onchange="renderBranchThresholds()" class="px-4 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="branch-threshold-list" class="divide-y divide-slate-100">
+                <!-- Branch thresholds will be rendered here -->
+            </div>
+
+            <div id="branch-empty-state" class="hidden p-12 text-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+                <h4 class="font-bold text-slate-900 mb-2">No branch overrides</h4>
+                <p class="text-sm text-slate-500 mb-4">All branches use global thresholds. Add overrides for specific branches.</p>
+                <button onclick="openThresholdModal('branch')" class="px-4 py-2 bg-amber-600 text-white font-bold text-sm rounded-xl hover:bg-amber-700 transition-colors">Add Branch Override</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Threshold Modal -->
+<div id="threshold-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl transform transition-all">
+        <div class="p-6 border-b border-slate-100">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-black text-slate-900" id="modal-title">Add KPI Threshold</h3>
+                <button onclick="closeThresholdModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        <form id="threshold-form" class="p-6 space-y-5">
+            <input type="hidden" id="threshold-id">
+            
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">KPI Metric <span class="text-red-500">*</span></label>
+                <select id="threshold-metric" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+                    <option value="">Select KPI</option>
+                    <option value="profit">Net Profit (₱)</option>
+                    <option value="profit_margin">Profit Margin (%)</option>
+                    <option value="revenue">Total Revenue (₱)</option>
+                    <option value="expense_ratio">Expense Ratio (%)</option>
+                    <option value="customer_count">Customer Count</option>
+                    <option value="revenue_per_customer">Revenue per Customer (₱)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Condition <span class="text-red-500">*</span></label>
+                <select id="threshold-condition" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+                    <option value="below">Falls Below (Less Than)</option>
+                    <option value="above">Exceeds (Greater Than)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Threshold Value <span class="text-red-500">*</span></label>
+                <input type="number" id="threshold-value" required step="0.01" placeholder="e.g., 50000" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+            </div>
+
+            <div id="branch-select-field" class="hidden">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Branch (for override)</label>
+                <select id="threshold-branch" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+                    <option value="">Global (All Branches)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Alert Severity</label>
+                <select id="threshold-severity" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+                    <option value="warning">⚠️ Warning (Yellow)</option>
+                    <option value="critical">🔴 Critical (Red)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Status</label>
+                <select id="threshold-status" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="closeThresholdModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">Cancel</button>
+                <button type="submit" class="flex-1 px-4 py-3 bg-amber-600 text-white font-bold rounded-xl hover:bg-amber-700 transition-colors">Save Threshold</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl p-6">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-xl font-black text-center text-slate-900 mb-2">Delete Threshold?</h3>
+        <p class="text-sm text-slate-500 text-center mb-6">This threshold rule will be permanently removed.</p>
+        <input type="hidden" id="delete-threshold-id">
+        <div class="flex space-x-3">
+            <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">Cancel</button>
+            <button onclick="confirmDelete()" class="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">Delete</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let thresholds = JSON.parse(localStorage.getItem('coretex_thresholds') || '[]');
+        let branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+        let currentTab = 'global';
+
+        const metricLabels = {
+            'profit': 'Net Profit',
+            'profit_margin': 'Profit Margin',
+            'revenue': 'Total Revenue',
+            'expense_ratio': 'Expense Ratio',
+            'customer_count': 'Customer Count',
+            'revenue_per_customer': 'Revenue per Customer'
+        };
+
+        const metricUnits = {
+            'profit': '₱',
+            'profit_margin': '%',
+            'revenue': '₱',
+            'expense_ratio': '%',
+            'customer_count': '',
+            'revenue_per_customer': '₱'
+        };
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.getElementById('tab-global').className = tab === 'global' 
+                ? 'px-6 py-3 font-bold text-sm border-b-2 border-amber-600 text-amber-600 -mb-px'
+                : 'px-6 py-3 font-bold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 -mb-px';
+            document.getElementById('tab-branch').className = tab === 'branch'
+                ? 'px-6 py-3 font-bold text-sm border-b-2 border-amber-600 text-amber-600 -mb-px'
+                : 'px-6 py-3 font-bold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 -mb-px';
+            
+            // Show/hide sections
+            document.getElementById('section-global').classList.toggle('hidden', tab !== 'global');
+            document.getElementById('section-branch').classList.toggle('hidden', tab !== 'branch');
+            
+            if (tab === 'branch') {
+                renderBranchThresholds();
+            }
+        }
+
+        function populateBranchFilter() {
+            const select = document.getElementById('branch-filter');
+            const branchSelect = document.getElementById('threshold-branch');
+            
+            select.innerHTML = '<option value="">All Branches</option>';
+            branchSelect.innerHTML = '<option value="">Global (All Branches)</option>';
+            
+            branches.forEach(branch => {
+                select.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+            });
+        }
+
+        function renderGlobalThresholds() {
+            const container = document.getElementById('global-threshold-list');
+            const emptyState = document.getElementById('global-empty-state');
+            const globalThresholds = thresholds.filter(t => !t.branchId);
+
+            if (globalThresholds.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = globalThresholds.map(t => renderThresholdItem(t)).join('');
+        }
+
+        function renderBranchThresholds() {
+            const container = document.getElementById('branch-threshold-list');
+            const emptyState = document.getElementById('branch-empty-state');
+            const filterBranch = document.getElementById('branch-filter').value;
+            
+            let branchThresholds = thresholds.filter(t => t.branchId);
+            if (filterBranch) {
+                branchThresholds = branchThresholds.filter(t => t.branchId === filterBranch);
+            }
+
+            if (branchThresholds.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = branchThresholds.map(t => renderThresholdItem(t, true)).join('');
+        }
+
+        function renderThresholdItem(threshold, showBranch = false) {
+            const branch = showBranch ? branches.find(b => b.id === threshold.branchId) : null;
+            const conditionText = threshold.condition === 'below' ? 'Falls Below' : 'Exceeds';
+            const unit = metricUnits[threshold.metric] || '';
+            const valueDisplay = unit === '₱' 
+                ? `₱${Number(threshold.value).toLocaleString()}`
+                : unit === '%' 
+                    ? `${threshold.value}%`
+                    : threshold.value;
+
+            return `
+                <div class="p-6 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 ${threshold.severity === 'critical' ? 'bg-red-100' : 'bg-amber-100'} rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 ${threshold.severity === 'critical' ? 'text-red-600' : 'text-amber-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-bold text-slate-900">${metricLabels[threshold.metric]}</h4>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${threshold.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${threshold.status}</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${threshold.severity === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">${threshold.severity}</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mt-1">
+                                    Alert when <span class="font-bold text-slate-700">${conditionText}</span> <span class="font-bold ${threshold.severity === 'critical' ? 'text-red-600' : 'text-amber-600'}">${valueDisplay}</span>
+                                    ${branch ? ` • <span class="text-blue-600">${branch.name}</span>` : ''}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="editThreshold('${threshold.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-amber-100 hover:text-amber-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </button>
+                            <button onclick="deleteThreshold('${threshold.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openThresholdModal(type = 'global') {
+            const modal = document.getElementById('threshold-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('threshold-form');
+            const branchField = document.getElementById('branch-select-field');
+            
+            form.reset();
+            document.getElementById('threshold-id').value = '';
+            populateBranchFilter();
+
+            title.textContent = 'Add KPI Threshold';
+            branchField.classList.toggle('hidden', type !== 'branch');
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeThresholdModal() {
+            document.getElementById('threshold-modal').classList.add('hidden');
+        }
+
+        function editThreshold(id) {
+            const threshold = thresholds.find(t => t.id === id);
+            if (!threshold) return;
+
+            const modal = document.getElementById('threshold-modal');
+            const title = document.getElementById('modal-title');
+            const branchField = document.getElementById('branch-select-field');
+            
+            populateBranchFilter();
+
+            title.textContent = 'Edit Threshold';
+            document.getElementById('threshold-id').value = threshold.id;
+            document.getElementById('threshold-metric').value = threshold.metric;
+            document.getElementById('threshold-condition').value = threshold.condition;
+            document.getElementById('threshold-value').value = threshold.value;
+            document.getElementById('threshold-severity').value = threshold.severity;
+            document.getElementById('threshold-status').value = threshold.status;
+            
+            if (threshold.branchId) {
+                branchField.classList.remove('hidden');
+                document.getElementById('threshold-branch').value = threshold.branchId;
+            } else {
+                branchField.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function deleteThreshold(id) {
+            document.getElementById('delete-threshold-id').value = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDelete() {
+            const id = document.getElementById('delete-threshold-id').value;
+            const threshold = thresholds.find(t => t.id === id);
+            thresholds = thresholds.filter(t => t.id !== id);
+            localStorage.setItem('coretex_thresholds', JSON.stringify(thresholds));
+            closeDeleteModal();
+            renderGlobalThresholds();
+            renderBranchThresholds();
+            logActivity('Threshold Deleted', `Removed threshold: ${metricLabels[threshold?.metric]}`, 'threshold');
+        }
+
+        function logActivity(action, description, type) {
+            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
+            activities.unshift({
+                id: Date.now(),
+                action,
+                description,
+                type,
+                timestamp: new Date().toISOString(),
+                user: 'System Administrator'
+            });
+            activities = activities.slice(0, 100);
+            localStorage.setItem('coretex_activities', JSON.stringify(activities));
+        }
+
+        document.getElementById('threshold-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('threshold-id').value;
+            const thresholdData = {
+                id: id || 'threshold_' + Date.now(),
+                metric: document.getElementById('threshold-metric').value,
+                condition: document.getElementById('threshold-condition').value,
+                value: parseFloat(document.getElementById('threshold-value').value),
+                branchId: document.getElementById('threshold-branch').value || null,
+                severity: document.getElementById('threshold-severity').value,
+                status: document.getElementById('threshold-status').value,
+                createdAt: id ? thresholds.find(t => t.id === id)?.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (id) {
+                const index = thresholds.findIndex(t => t.id === id);
+                thresholds[index] = thresholdData;
+                logActivity('Threshold Updated', `Updated threshold: ${metricLabels[thresholdData.metric]}`, 'threshold');
+            } else {
+                thresholds.push(thresholdData);
+                logActivity('Threshold Created', `Added threshold: ${metricLabels[thresholdData.metric]} ${thresholdData.condition} ${thresholdData.value}`, 'threshold');
+            }
+
+            localStorage.setItem('coretex_thresholds', JSON.stringify(thresholds));
+            closeThresholdModal();
+            renderGlobalThresholds();
+            renderBranchThresholds();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            populateBranchFilter();
+            renderGlobalThresholds();
+        });
+    </script>
+}

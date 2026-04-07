@@ -1,0 +1,531 @@
+@{
+    ViewData["Title"] = "Report Schedule";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-3 mb-2">
+                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <span class="px-3 py-1 bg-rose-100 text-rose-700 font-black text-[10px] uppercase tracking-widest rounded-full">Auto Reports</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Report Schedule</h2>
+            <p class="text-sm text-slate-500 mt-1">Schedule automated PDF reports to be emailed via SendGrid.</p>
+        </div>
+        <button onclick="openScheduleModal()" class="px-6 py-3 bg-rose-600 text-white font-bold text-sm rounded-xl hover:bg-rose-700 transition-colors flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Add Schedule</span>
+        </button>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-2xl p-6">
+        <div class="flex items-start space-x-4">
+            <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-rose-900">How Automated Reports Work</h4>
+                <p class="text-sm text-rose-700 mt-1">Configure schedules to automatically generate and email PDF reports. SendGrid sends the reports to specified recipients. Reports include KPI summaries, charts, and performance data.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Total Schedules</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="total-schedules">0</p>
+                </div>
+                <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Active Schedules</p>
+                    <p class="text-3xl font-black text-emerald-600 mt-1" id="active-schedules">0</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Weekly Reports</p>
+                    <p class="text-3xl font-black text-blue-600 mt-1" id="weekly-schedules">0</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest">Monthly Reports</p>
+                    <p class="text-3xl font-black text-purple-600 mt-1" id="monthly-schedules">0</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule List -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-900">Report Schedules</h3>
+                <div class="flex items-center space-x-3">
+                    <select id="filter-frequency" onchange="renderSchedules()" class="px-4 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                        <option value="">All Frequencies</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="schedule-list" class="divide-y divide-slate-100">
+            <!-- Schedules will be rendered here -->
+        </div>
+
+        <div id="empty-state" class="hidden p-12 text-center">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <h4 class="font-bold text-slate-900 mb-2">No schedules configured</h4>
+            <p class="text-sm text-slate-500 mb-4">Add report schedules to automate report delivery.</p>
+            <button onclick="openScheduleModal()" class="px-4 py-2 bg-rose-600 text-white font-bold text-sm rounded-xl hover:bg-rose-700 transition-colors">Add First Schedule</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Schedule Modal -->
+<div id="schedule-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-slate-100 sticky top-0 bg-white">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-black text-slate-900" id="modal-title">Add Report Schedule</h3>
+                <button onclick="closeScheduleModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        <form id="schedule-form" class="p-6 space-y-5">
+            <input type="hidden" id="schedule-id">
+            
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Schedule Name <span class="text-red-500">*</span></label>
+                <input type="text" id="schedule-name" required placeholder="e.g., Weekly Executive Report" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Report Type <span class="text-red-500">*</span></label>
+                <select id="schedule-type" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="">Select Report Type</option>
+                    <option value="executive_summary">Executive Summary Report</option>
+                    <option value="financial_report">Financial Report</option>
+                    <option value="kpi_dashboard">KPI Dashboard Report</option>
+                    <option value="branch_comparison">Branch Comparison Report</option>
+                    <option value="trend_analysis">Trend Analysis Report</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Frequency <span class="text-red-500">*</span></label>
+                <select id="schedule-frequency" required onchange="toggleFrequencyOptions()" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="daily">Daily</option>
+                    <option value="weekly" selected>Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+
+            <div id="weekly-options">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Day of Week <span class="text-red-500">*</span></label>
+                <select id="schedule-day" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="0">Sunday</option>
+                    <option value="1" selected>Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                </select>
+            </div>
+
+            <div id="monthly-options" class="hidden">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Day of Month <span class="text-red-500">*</span></label>
+                <select id="schedule-date" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="1">1st</option>
+                    <option value="5">5th</option>
+                    <option value="10">10th</option>
+                    <option value="15">15th</option>
+                    <option value="20">20th</option>
+                    <option value="25">25th</option>
+                    <option value="last">Last day of month</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Time <span class="text-red-500">*</span></label>
+                <input type="time" id="schedule-time" required value="08:00" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Scope</label>
+                <select id="schedule-scope" onchange="toggleBranchSelect()" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="all">All Branches</option>
+                    <option value="specific">Specific Branch</option>
+                </select>
+            </div>
+
+            <div id="branch-select-container" class="hidden">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Select Branch <span class="text-red-500">*</span></label>
+                <select id="schedule-branch" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="">Select Branch</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Recipients (Email) <span class="text-red-500">*</span></label>
+                <textarea id="schedule-recipients" required rows="2" placeholder="Enter email addresses, one per line" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none resize-none"></textarea>
+                <p class="text-xs text-slate-400 mt-1">Separate multiple emails with new lines.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Status</label>
+                <select id="schedule-status" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none">
+                    <option value="active">Active</option>
+                    <option value="paused">Paused</option>
+                </select>
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="closeScheduleModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">Cancel</button>
+                <button type="submit" class="flex-1 px-4 py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition-colors">Save Schedule</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl p-6">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-xl font-black text-center text-slate-900 mb-2">Delete Schedule?</h3>
+        <p class="text-sm text-slate-500 text-center mb-6">This report schedule will be permanently removed.</p>
+        <input type="hidden" id="delete-schedule-id">
+        <div class="flex space-x-3">
+            <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">Cancel</button>
+            <button onclick="confirmDelete()" class="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">Delete</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let schedules = JSON.parse(localStorage.getItem('coretex_schedules') || '[]');
+        let branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+
+        const reportTypeLabels = {
+            'executive_summary': 'Executive Summary Report',
+            'financial_report': 'Financial Report',
+            'kpi_dashboard': 'KPI Dashboard Report',
+            'branch_comparison': 'Branch Comparison Report',
+            'trend_analysis': 'Trend Analysis Report'
+        };
+
+        const frequencyLabels = {
+            'daily': 'Daily',
+            'weekly': 'Weekly',
+            'monthly': 'Monthly'
+        };
+
+        const dayLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        function updateStats() {
+            document.getElementById('total-schedules').textContent = schedules.length;
+            document.getElementById('active-schedules').textContent = schedules.filter(s => s.status === 'active').length;
+            document.getElementById('weekly-schedules').textContent = schedules.filter(s => s.frequency === 'weekly').length;
+            document.getElementById('monthly-schedules').textContent = schedules.filter(s => s.frequency === 'monthly').length;
+        }
+
+        function toggleFrequencyOptions() {
+            const frequency = document.getElementById('schedule-frequency').value;
+            document.getElementById('weekly-options').classList.toggle('hidden', frequency !== 'weekly');
+            document.getElementById('monthly-options').classList.toggle('hidden', frequency !== 'monthly');
+        }
+
+        function toggleBranchSelect() {
+            const scope = document.getElementById('schedule-scope').value;
+            const container = document.getElementById('branch-select-container');
+            const select = document.getElementById('schedule-branch');
+            
+            if (scope === 'specific') {
+                container.classList.remove('hidden');
+                select.required = true;
+                populateBranches();
+            } else {
+                container.classList.add('hidden');
+                select.required = false;
+                select.value = '';
+            }
+        }
+
+        function populateBranches() {
+            const select = document.getElementById('schedule-branch');
+            select.innerHTML = '<option value="">Select Branch</option>';
+            
+            branches.filter(b => b.status === 'active').forEach(branch => {
+                select.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+            });
+        }
+
+        function getScheduleDescription(schedule) {
+            let desc = '';
+            
+            switch(schedule.frequency) {
+                case 'daily':
+                    desc = `Daily at ${schedule.time}`;
+                    break;
+                case 'weekly':
+                    desc = `Every ${dayLabels[schedule.dayOfWeek]} at ${schedule.time}`;
+                    break;
+                case 'monthly':
+                    const dateStr = schedule.dateOfMonth === 'last' ? 'last day' : `${schedule.dateOfMonth}th`;
+                    desc = `Monthly on the ${dateStr} at ${schedule.time}`;
+                    break;
+            }
+            
+            return desc;
+        }
+
+        function renderSchedules() {
+            const container = document.getElementById('schedule-list');
+            const emptyState = document.getElementById('empty-state');
+            const frequencyFilter = document.getElementById('filter-frequency').value;
+
+            let filteredSchedules = schedules.filter(s => {
+                return !frequencyFilter || s.frequency === frequencyFilter;
+            });
+
+            updateStats();
+
+            if (filteredSchedules.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = filteredSchedules.map(schedule => {
+                const branch = schedule.branchId ? branches.find(b => b.id === schedule.branchId) : null;
+                const recipientCount = schedule.recipients.split('\n').filter(r => r.trim()).length;
+
+                return `
+                    <div class="p-6 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 ${schedule.status === 'active' ? 'bg-rose-100' : 'bg-slate-100'} rounded-xl flex items-center justify-center">
+                                    <svg class="w-6 h-6 ${schedule.status === 'active' ? 'text-rose-600' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h4 class="font-bold text-slate-900">${schedule.name}</h4>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${schedule.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${schedule.status}</span>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-rose-100 text-rose-700">${frequencyLabels[schedule.frequency]}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3 mt-1">
+                                        <span class="text-sm text-slate-600">${reportTypeLabels[schedule.type]}</span>
+                                        ${branch ? `<span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">${branch.name}</span>` : '<span class="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">All Branches</span>'}
+                                    </div>
+                                    <div class="flex items-center space-x-3 mt-2 text-xs text-slate-400">
+                                        <span class="flex items-center space-x-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>${getScheduleDescription(schedule)}</span>
+                                        </span>
+                                        <span class="flex items-center space-x-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                            <span>${recipientCount} recipient${recipientCount !== 1 ? 's' : ''}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleScheduleStatus('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-amber-100 hover:text-amber-600 transition-colors" title="${schedule.status === 'active' ? 'Pause' : 'Activate'}">
+                                    ${schedule.status === 'active' 
+                                        ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                                        : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                                    }
+                                </button>
+                                <button onclick="editSchedule('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-rose-100 hover:text-rose-600 transition-colors" title="Edit">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                </button>
+                                <button onclick="deleteSchedule('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors" title="Delete">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleScheduleStatus(id) {
+            const schedule = schedules.find(s => s.id === id);
+            if (schedule) {
+                schedule.status = schedule.status === 'active' ? 'paused' : 'active';
+                schedule.updatedAt = new Date().toISOString();
+                localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
+                renderSchedules();
+                logActivity('Schedule Updated', `${schedule.status === 'active' ? 'Activated' : 'Paused'}: ${schedule.name}`, 'schedule');
+            }
+        }
+
+        function openScheduleModal(scheduleId = null) {
+            const modal = document.getElementById('schedule-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('schedule-form');
+            
+            form.reset();
+            document.getElementById('schedule-id').value = '';
+            document.getElementById('branch-select-container').classList.add('hidden');
+            toggleFrequencyOptions();
+
+            if (scheduleId) {
+                const schedule = schedules.find(s => s.id === scheduleId);
+                if (schedule) {
+                    title.textContent = 'Edit Schedule';
+                    document.getElementById('schedule-id').value = schedule.id;
+                    document.getElementById('schedule-name').value = schedule.name;
+                    document.getElementById('schedule-type').value = schedule.type;
+                    document.getElementById('schedule-frequency').value = schedule.frequency;
+                    document.getElementById('schedule-time').value = schedule.time;
+                    document.getElementById('schedule-scope').value = schedule.branchId ? 'specific' : 'all';
+                    document.getElementById('schedule-recipients').value = schedule.recipients;
+                    document.getElementById('schedule-status').value = schedule.status;
+                    
+                    toggleFrequencyOptions();
+                    
+                    if (schedule.frequency === 'weekly') {
+                        document.getElementById('schedule-day').value = schedule.dayOfWeek;
+                    } else if (schedule.frequency === 'monthly') {
+                        document.getElementById('schedule-date').value = schedule.dateOfMonth;
+                    }
+                    
+                    if (schedule.branchId) {
+                        document.getElementById('branch-select-container').classList.remove('hidden');
+                        populateBranches();
+                        document.getElementById('schedule-branch').value = schedule.branchId;
+                    }
+                }
+            } else {
+                title.textContent = 'Add Report Schedule';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('schedule-modal').classList.add('hidden');
+        }
+
+        function editSchedule(id) {
+            openScheduleModal(id);
+        }
+
+        function deleteSchedule(id) {
+            document.getElementById('delete-schedule-id').value = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDelete() {
+            const id = document.getElementById('delete-schedule-id').value;
+            const schedule = schedules.find(s => s.id === id);
+            schedules = schedules.filter(s => s.id !== id);
+            localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
+            closeDeleteModal();
+            renderSchedules();
+            logActivity('Schedule Deleted', `Removed schedule: ${schedule?.name}`, 'schedule');
+        }
+
+        function logActivity(action, description, type) {
+            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
+            activities.unshift({
+                id: Date.now(),
+                action,
+                description,
+                type,
+                timestamp: new Date().toISOString(),
+                user: 'System Administrator'
+            });
+            activities = activities.slice(0, 100);
+            localStorage.setItem('coretex_activities', JSON.stringify(activities));
+        }
+
+        document.getElementById('schedule-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('schedule-id').value;
+            const frequency = document.getElementById('schedule-frequency').value;
+            const scope = document.getElementById('schedule-scope').value;
+            
+            // Validate branch for specific scope
+            if (scope === 'specific' && !document.getElementById('schedule-branch').value) {
+                alert('Please select a branch.');
+                return;
+            }
+
+            const scheduleData = {
+                id: id || 'schedule_' + Date.now(),
+                name: document.getElementById('schedule-name').value,
+                type: document.getElementById('schedule-type').value,
+                frequency: frequency,
+                time: document.getElementById('schedule-time').value,
+                dayOfWeek: frequency === 'weekly' ? parseInt(document.getElementById('schedule-day').value) : null,
+                dateOfMonth: frequency === 'monthly' ? document.getElementById('schedule-date').value : null,
+                branchId: scope === 'specific' ? document.getElementById('schedule-branch').value : null,
+                recipients: document.getElementById('schedule-recipients').value,
+                status: document.getElementById('schedule-status').value,
+                createdAt: id ? schedules.find(s => s.id === id)?.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (id) {
+                const index = schedules.findIndex(s => s.id === id);
+                schedules[index] = scheduleData;
+                logActivity('Schedule Updated', `Updated schedule: ${scheduleData.name}`, 'schedule');
+            } else {
+                schedules.push(scheduleData);
+                logActivity('Schedule Created', `Added schedule: ${scheduleData.name}`, 'schedule');
+            }
+
+            localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
+            closeScheduleModal();
+            renderSchedules();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', renderSchedules);
+    </script>
+}

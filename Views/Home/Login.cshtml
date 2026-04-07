@@ -1,0 +1,101 @@
+@{
+    Layout = null; // No global layout for the login splash
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CORETEX | Persona Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#001A4D', secondary: '#006D68' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #fafafa; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .mesh-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(210,100%,15%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(180,100%,10%,1) 0, transparent 40%);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen">
+    <div class="mesh-bg"></div>
+
+    <div class="max-w-5xl w-full px-6 space-y-12 animate-in fade-in duration-1000">
+        <div class="text-center space-y-4">
+            <h1 class="text-white text-5xl font-black tracking-tighter uppercase">Persona Gateway</h1>
+            <p class="text-blue-200/60 font-bold uppercase tracking-[0.3em] text-xs">Select your demonstration context</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Business Owner Persona -->
+            <button onclick="setPersona('CEO', '/Dashboard')" class="group p-10 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[3rem] text-left hover:bg-white/20 transition-all hover:scale-[1.05] shadow-2xl">
+                <div class="w-16 h-16 bg-blue-500 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 class="text-white text-2xl font-black">Business Executive</h3>
+                <p class="text-blue-100/60 mt-3 text-xs leading-relaxed font-medium">Strategic oversight, AI trends, and decision analytics for the business owner.</p>
+                <div class="mt-8 flex items-center text-blue-300 text-[10px] font-black uppercase tracking-widest group-hover:text-white">
+                    <span>Enter Terminal</span>
+                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+            </button>
+
+            <!-- Finance Officer Persona -->
+            <button onclick="setPersona('FINANCE', '/Dashboard/ExecutiveReporting')" class="group p-10 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[3rem] text-left hover:bg-white/20 transition-all hover:scale-[1.05] shadow-2xl">
+                <div class="w-16 h-16 bg-emerald-500 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
+                </div>
+                <h3 class="text-white text-2xl font-black">Finance Officer</h3>
+                <p class="text-emerald-100/60 mt-3 text-xs leading-relaxed font-medium">Monthly audits, currency normalization, and detailed P&L verification.</p>
+                <div class="mt-8 flex items-center text-emerald-300 text-[10px] font-black uppercase tracking-widest group-hover:text-white">
+                    <span>Audit Data</span>
+                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+            </button>
+
+            <!-- Super Admin Persona -->
+            <button onclick="setPersona('ADMIN', '/Admin')" class="group p-10 bg-slate-900 border border-white/10 rounded-[3rem] text-left hover:bg-slate-800 transition-all hover:scale-[1.05] shadow-2xl">
+                <div class="w-16 h-16 bg-white/10 text-white rounded-3xl flex items-center justify-center mb-6 shadow-lg border border-white/10">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <h3 class="text-white text-2xl font-black">Super Admin</h3>
+                <p class="text-slate-400 mt-3 text-xs leading-relaxed font-medium">SaaS Platform monitoring, tenant tracking, and system health audits.</p>
+                <div class="mt-8 flex items-center text-slate-500 text-[10px] font-black uppercase tracking-widest group-hover:text-white">
+                    <span>Manage Platform</span>
+                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+            </button>
+        </div>
+
+        <div class="text-center">
+            <a href="/" class="text-blue-300/40 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-colors">Return to Landing Page</a>
+        </div>
+    </div>
+
+    <script>
+        function setPersona(role, redirect) {
+            localStorage.setItem('coretex_user_role', role);
+            
+            // Auto-Seeding: If selecting Owner, potentially seed data for a better demo
+            if (role === 'CEO' && !localStorage.getItem('coretex_monthly_data')) {
+                // Future seeding logic goes here
+            }
+            
+            window.location.href = redirect;
+        }
+    </script>
+</body>
+</html>

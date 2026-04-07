@@ -18,7 +18,13 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
+        // OBSOLETE - Onboarding is no longer needed (single company, not multi-tenant SaaS)
         public IActionResult Onboarding()
+        {
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Login()
         {
             return View();
         }

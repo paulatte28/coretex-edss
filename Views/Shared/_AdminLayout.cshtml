@@ -135,38 +135,45 @@
                 </a>
 
                 <div class="pt-8">
-                    <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Platform Administration</p>
+                    <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">System Administration</p>
                     
                     <a href="/Admin" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">Platform Overview</span>
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
+                        <span class="font-semibold tracking-tight text-sm">Admin Dashboard</span>
                     </a>
 
-                    <a href="/Admin/TenantManagement" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/TenantManagement" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/TenantManagement" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/TenantManagement" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                        <span class="font-semibold tracking-tight text-sm">Tenant Monitoring</span>
+                    <a href="/Admin/BranchManagement" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/BranchManagement" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/BranchManagement" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/BranchManagement" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Branch Management</span>
                     </a>
-                    
-                    <a href="/Admin/SystemHealth" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/SystemHealth" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/SystemHealth" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/SystemHealth" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">System Health</span>
+
+                    <a href="/Admin/UserManagement" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/UserManagement" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/UserManagement" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/UserManagement" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <span class="font-semibold tracking-tight text-sm">User Management</span>
                     </a>
 
                     <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
                         <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/ActivityLog" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">Security Audit</span>
+                        <span class="font-semibold tracking-tight text-sm">Activity Log</span>
                     </a>
                 </div>
 
                 <div class="pt-8 mb-10">
-                    <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Business Setup</p>
-                    <a href="/Admin/UserManagement" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/UserManagement" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/UserManagement" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/UserManagement" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">Team Provisioning</span>
+                    <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Configuration</p>
+
+                    <a href="/Admin/KPIThresholds" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/KPIThresholds" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/KPIThresholds" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/KPIThresholds" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">KPI Thresholds</span>
                     </a>
-                    <a href="/Admin/SystemSetup" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/SystemSetup" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/SystemSetup" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/SystemSetup" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">Intelligence Setup</span>
+
+                    <a href="/Admin/GoalsTargets" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/GoalsTargets" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/GoalsTargets" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/GoalsTargets" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Goals & Targets</span>
+                    </a>
+
+                    <a href="/Admin/ReportSchedule" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ReportSchedule" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ReportSchedule" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5 @(Context.Request.Path == "/Admin/ReportSchedule" ? "text-white" : "group-hover:text-secondary transition-colors")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Report Schedules</span>
                     </a>
                 </div>
             </nav>
@@ -187,26 +194,49 @@
             <!-- Header -->
             <header class="h-20 glass-header flex items-center justify-between px-10 z-20 sticky top-0 border-b border-slate-200/50">
                 <div class="flex items-center space-x-4">
-                     <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">EDSS Dashboard</span>
+                     <span id="role-badge" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-lg">CEO Mode</span>
                      <span class="text-slate-300 text-lg">/</span>
-                     <span class="font-black text-slate-900 tracking-tight">EXECUTIVE OVERVIEW</span>
+                     <span id="page-crumb" class="font-black text-slate-900 tracking-tight uppercase">Dashboard Overview</span>
                 </div>
                 
                 <div class="flex items-center space-x-8">
+                    <!-- Demo Seeder (Only shown if data is missing) -->
+                    <button id="seed-btn" onclick="seedDemoData()" class="hidden px-4 py-2 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm">
+                        Seed Demo Data
+                    </button>
+
                     <div class="relative group">
                         <input type="text" placeholder="Search insights..." class="bg-slate-100/50 border-none rounded-2xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 transition-all w-64" />
                         <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <button class="relative text-slate-400 hover:text-secondary transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    </button>
-                    <div class="flex items-center space-x-3 cursor-pointer group">
-                        <div class="text-right">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Admin</p>
-                            <p class="text-sm font-black text-slate-800 group-hover:text-secondary transition-colors">Core Dynamic</p>
+
+                    <!-- Notification Toggle -->
+                    <div class="relative">
+                        <button onclick="toggleNotifications()" class="relative text-slate-400 hover:text-secondary transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            <span id="notif-dot" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+                        <!-- Notif Dropdown -->
+                        <div id="notif-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-white border border-slate-100 shadow-2xl rounded-[2rem] p-6 text-left animate-in fade-in slide-in-from-top-2">
+                            <h4 class="font-black text-slate-800 text-sm mb-4">Command Center Alerts</h4>
+                            <div class="space-y-4" id="notif-list">
+                                <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-2xl border border-red-100">
+                                    <div class="w-2 h-2 bg-red-500 rounded-full mt-1.5 animate-pulse"></div>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-red-900 leading-tight">Strategic Risk Detected: High operational expense ratio in South Branch.</p>
+                                        <p class="text-[9px] text-red-500 font-black uppercase mt-1">2 mins ago</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-blue-900/40 transition-all hover:scale-105">
+                    </div>
+
+                    <div class="flex items-center space-x-3 cursor-pointer group" onclick="window.location.href='/Home/Login'">
+                        <div class="text-right">
+                            <p id="user-role-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Admin</p>
+                            <p id="user-name-label" class="text-sm font-black text-slate-800 group-hover:text-secondary transition-colors">Core Dynamic</p>
+                        </div>
+                        <div id="user-avatar" class="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-blue-900/40 transition-all hover:scale-105">
                             CD
                         </div>
                     </div>
@@ -224,6 +254,74 @@
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notif-dropdown');
+            dropdown.classList.toggle('hidden');
+            document.getElementById('notif-dot').classList.add('hidden');
+        }
+
+        function seedDemoData() {
+            const history = [
+                { month: 'Oct 2025', sales: 1250000, expenses: 1100000, importedCostPHP: 450000, currency: 'CNY', profit: 150000 },
+                { month: 'Nov 2025', sales: 1420000, expenses: 1050000, importedCostPHP: 380000, currency: 'USD', profit: 370000 },
+                { month: 'Dec 2025', sales: 2100000, expenses: 1200000, importedCostPHP: 520000, currency: 'CNY', profit: 900000 },
+                { month: 'Jan 2026', sales: 1650000, expenses: 1150000, importedCostPHP: 410000, currency: 'USD', profit: 500000 },
+                { month: 'Feb 2026', sales: 1800000, expenses: 1250000, importedCostPHP: 480000, currency: 'JPY', profit: 550000 },
+                { month: 'Mar 2026', sales: 1950000, expenses: 1300000, importedCostPHP: 500000, currency: 'EUR', profit: 650000 }
+            ];
+            localStorage.setItem('coretex_monthly_data', JSON.stringify(history));
+            alert("Demo Database Seeded Successfully. Reloading...");
+            window.location.reload();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = localStorage.getItem('coretex_user_role') || 'CEO';
+            const roleBadge = document.getElementById('role-badge');
+            const roleLabel = document.getElementById('user-role-label');
+            const nameLabel = document.getElementById('user-name-label');
+            const avatar = document.getElementById('user-avatar');
+
+            // Apply Role-Based Navigation
+            document.querySelectorAll('nav a').forEach(link => {
+                const path = link.getAttribute('href').toLowerCase();
+                const isAdminModule = path.includes('/admin');
+                const isExecModule = path.includes('/dashboard') && !path.includes('subscription');
+
+                if (role === 'ADMIN') {
+                    if (isExecModule) link.style.display = 'none';
+                } else if (role === 'FINANCE') {
+                    const financeAllowed = ['/dashboard/datavisualization', '/dashboard/executivereporting'];
+                    if (!financeAllowed.includes(path) && isExecModule) link.style.display = 'none';
+                    if (isAdminModule) link.style.display = 'none';
+                } else {
+                    if (isAdminModule) link.style.display = 'none';
+                }
+            });
+
+            // Update Header Branded UI
+            if (role === 'ADMIN') {
+                roleBadge.innerText = 'Platform Admin';
+                roleBadge.className = 'px-3 py-1 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg';
+                roleLabel.innerText = 'Super Admin';
+                nameLabel.innerText = 'Core System';
+                avatar.innerText = 'SA';
+                avatar.className = 'h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xs font-bold';
+            } else if (role === 'FINANCE') {
+                roleBadge.innerText = 'Finance Auditor';
+                roleBadge.className = 'px-3 py-1 bg-emerald-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg';
+                roleLabel.innerText = 'Accounting';
+                nameLabel.innerText = 'Audit Terminal';
+                avatar.innerText = 'FA';
+                avatar.className = 'h-12 w-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white text-xs font-bold';
+            }
+
+            // Show seeder if data is flat
+            if (!localStorage.getItem('coretex_monthly_data')) {
+                document.getElementById('seed-btn').classList.remove('hidden');
+            }
+        });
+    </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

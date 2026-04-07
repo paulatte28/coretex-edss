@@ -1,0 +1,250 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1800" width="1300" height="1800">
+  <style>
+    .actor-label { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; font-weight: bold; }
+    .usecase { fill: #fff; stroke: #333; stroke-width: 1.5; }
+    .usecase-text { font-family: Arial, sans-serif; font-size: 10px; text-anchor: middle; dominant-baseline: middle; }
+    .system-box { fill: #fafafa; stroke: #333; stroke-width: 2; }
+    .system-title { font-family: Arial, sans-serif; font-size: 20px; text-anchor: middle; font-weight: bold; }
+    .connector { stroke: #333; stroke-width: 1; fill: none; }
+  </style>
+
+  <!-- System Box -->
+  <rect x="200" y="20" width="900" height="1760" class="system-box" rx="5"/>
+  <text x="650" y="55" class="system-title">CORETEX EDSS</text>
+
+  <!-- ==================== SYSTEM ADMINISTRATOR ==================== -->
+  
+  <!-- System Admin Actor -->
+  <g transform="translate(80, 350)">
+    <circle cx="0" cy="0" r="18" fill="none" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="18" x2="0" y2="55" stroke="#333" stroke-width="2"/>
+    <line x1="-22" y1="35" x2="22" y2="35" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="55" x2="-15" y2="85" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="55" x2="15" y2="85" stroke="#333" stroke-width="2"/>
+    <text x="0" y="105" class="actor-label">System</text>
+    <text x="0" y="120" class="actor-label">Administrator</text>
+  </g>
+
+  <!-- Admin Use Cases -->
+  <ellipse cx="450" cy="100" rx="80" ry="22" class="usecase"/>
+  <text x="450" y="100" class="usecase-text">Login / Logout</text>
+
+  <ellipse cx="450" cy="160" rx="95" ry="22" class="usecase"/>
+  <text x="450" y="160" class="usecase-text">Create User Account</text>
+
+  <ellipse cx="450" cy="220" rx="100" ry="22" class="usecase"/>
+  <text x="450" y="220" class="usecase-text">Manage User Accounts</text>
+
+  <ellipse cx="450" cy="280" rx="95" ry="22" class="usecase"/>
+  <text x="450" y="280" class="usecase-text">Reset User Password</text>
+
+  <ellipse cx="450" cy="340" rx="75" ry="22" class="usecase"/>
+  <text x="450" y="340" class="usecase-text">Create Branch</text>
+
+  <ellipse cx="450" cy="400" rx="85" ry="22" class="usecase"/>
+  <text x="450" y="400" class="usecase-text">Manage Branches</text>
+
+  <ellipse cx="450" cy="460" rx="105" ry="22" class="usecase"/>
+  <text x="450" y="460" class="usecase-text">Configure KPI Thresholds</text>
+
+  <ellipse cx="450" cy="520" rx="90" ry="22" class="usecase"/>
+  <text x="450" y="520" class="usecase-text">Set Goals / Targets</text>
+
+  <ellipse cx="450" cy="580" rx="110" ry="22" class="usecase"/>
+  <text x="450" y="580" class="usecase-text">Configure Report Schedule</text>
+
+  <ellipse cx="450" cy="640" rx="120" ry="22" class="usecase"/>
+  <text x="450" y="640" class="usecase-text">View Branch Submission Status</text>
+
+  <ellipse cx="450" cy="700" rx="85" ry="22" class="usecase"/>
+  <text x="450" y="700" class="usecase-text">View Activity Log</text>
+
+  <ellipse cx="450" cy="760" rx="80" ry="22" class="usecase"/>
+  <text x="450" y="760" class="usecase-text">View Audit Log</text>
+
+  <!-- Admin Lines - horizontal to left edge -->
+  <path d="M 100 330 L 200 330 L 200 100 L 370 100" class="connector" fill="none"/>
+  <path d="M 100 335 L 190 335 L 190 160 L 355 160" class="connector" fill="none"/>
+  <path d="M 100 340 L 180 340 L 180 220 L 350 220" class="connector" fill="none"/>
+  <path d="M 100 345 L 170 345 L 170 280 L 355 280" class="connector" fill="none"/>
+  <line x1="100" y1="350" x2="375" y2="340" class="connector"/>
+  <line x1="100" y1="355" x2="365" y2="400" class="connector"/>
+  <path d="M 100 360 L 170 360 L 170 460 L 345 460" class="connector" fill="none"/>
+  <path d="M 100 365 L 180 365 L 180 520 L 360 520" class="connector" fill="none"/>
+  <path d="M 100 370 L 190 370 L 190 580 L 340 580" class="connector" fill="none"/>
+  <path d="M 100 375 L 200 375 L 200 640 L 330 640" class="connector" fill="none"/>
+  <path d="M 100 380 L 210 380 L 210 700 L 365 700" class="connector" fill="none"/>
+  <path d="M 100 385 L 220 385 L 220 760 L 370 760" class="connector" fill="none"/>
+
+  <!-- ==================== FINANCE OFFICER ==================== -->
+
+  <!-- Finance Officer Actor -->
+  <g transform="translate(1220, 450)">
+    <circle cx="0" cy="0" r="18" fill="none" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="18" x2="0" y2="55" stroke="#333" stroke-width="2"/>
+    <line x1="-22" y1="35" x2="22" y2="35" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="55" x2="-15" y2="85" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="55" x2="15" y2="85" stroke="#333" stroke-width="2"/>
+    <text x="0" y="105" class="actor-label">Finance</text>
+    <text x="0" y="120" class="actor-label">Officer</text>
+  </g>
+
+  <!-- Finance Officer Use Cases -->
+  <ellipse cx="850" cy="100" rx="80" ry="22" class="usecase"/>
+  <text x="850" y="100" class="usecase-text">Login / Logout</text>
+
+  <ellipse cx="850" cy="160" rx="120" ry="22" class="usecase"/>
+  <text x="850" y="160" class="usecase-text">Submit Monthly Business Data</text>
+
+  <ellipse cx="850" cy="220" rx="115" ry="22" class="usecase"/>
+  <text x="850" y="220" class="usecase-text">Enter Imported Costs (USD/CNY)</text>
+
+  <ellipse cx="850" cy="280" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="280" class="usecase-text">View Currency Conversion</text>
+
+  <ellipse cx="850" cy="340" rx="95" ry="22" class="usecase"/>
+  <text x="850" y="340" class="usecase-text">Edit Submitted Data</text>
+
+  <ellipse cx="850" cy="400" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="400" class="usecase-text">View Submission History</text>
+
+  <ellipse cx="850" cy="460" rx="100" ry="22" class="usecase"/>
+  <text x="850" y="460" class="usecase-text">View Branch Dashboard</text>
+
+  <ellipse cx="850" cy="520" rx="85" ry="22" class="usecase"/>
+  <text x="850" y="520" class="usecase-text">View Branch KPIs</text>
+
+  <ellipse cx="850" cy="580" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="580" class="usecase-text">Generate Branch Report</text>
+
+  <ellipse cx="850" cy="640" rx="100" ry="22" class="usecase"/>
+  <text x="850" y="640" class="usecase-text">View Interactive Charts</text>
+
+  <ellipse cx="850" cy="700" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="700" class="usecase-text">View In-App Notifications</text>
+
+  <ellipse cx="850" cy="760" rx="95" ry="22" class="usecase"/>
+  <text x="850" y="760" class="usecase-text">Export Report (PDF)</text>
+
+  <ellipse cx="850" cy="820" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="820" class="usecase-text">Export Data (CSV/Excel)</text>
+
+  <!-- Finance Officer Lines - horizontal to right edge -->
+  <path d="M 1200 430 L 1100 430 L 1100 100 L 930 100" class="connector" fill="none"/>
+  <path d="M 1200 435 L 1090 435 L 1090 160 L 970 160" class="connector" fill="none"/>
+  <path d="M 1200 440 L 1080 440 L 1080 220 L 965 220" class="connector" fill="none"/>
+  <path d="M 1200 445 L 1070 445 L 1070 280 L 955 280" class="connector" fill="none"/>
+  <path d="M 1200 450 L 1060 450 L 1060 340 L 945 340" class="connector" fill="none"/>
+  <line x1="1200" y1="455" x2="955" y2="400" class="connector"/>
+  <line x1="1200" y1="460" x2="950" y2="460" class="connector"/>
+  <path d="M 1200 465 L 1060 465 L 1060 520 L 935 520" class="connector" fill="none"/>
+  <path d="M 1200 470 L 1070 470 L 1070 580 L 955 580" class="connector" fill="none"/>
+  <path d="M 1200 475 L 1080 475 L 1080 640 L 950 640" class="connector" fill="none"/>
+  <path d="M 1200 480 L 1090 480 L 1090 700 L 955 700" class="connector" fill="none"/>
+  <path d="M 1200 485 L 1100 485 L 1100 760 L 945 760" class="connector" fill="none"/>
+  <path d="M 1200 490 L 1110 490 L 1110 820 L 955 820" class="connector" fill="none"/>
+
+  <!-- ==================== BUSINESS OWNER / CEO ==================== -->
+
+  <!-- CEO Actor -->
+  <g transform="translate(80, 1250)">
+    <circle cx="0" cy="0" r="18" fill="none" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="18" x2="0" y2="55" stroke="#333" stroke-width="2"/>
+    <line x1="-22" y1="35" x2="22" y2="35" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="55" x2="-15" y2="85" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="55" x2="15" y2="85" stroke="#333" stroke-width="2"/>
+    <text x="0" y="105" class="actor-label">Business Owner</text>
+    <text x="0" y="120" class="actor-label">/ CEO</text>
+  </g>
+
+  <!-- CEO Use Cases - Left Column -->
+  <ellipse cx="450" cy="920" rx="80" ry="22" class="usecase"/>
+  <text x="450" y="920" class="usecase-text">Login / Logout</text>
+
+  <ellipse cx="450" cy="980" rx="95" ry="22" class="usecase"/>
+  <text x="450" y="980" class="usecase-text">View KPI Dashboard</text>
+
+  <ellipse cx="450" cy="1040" rx="100" ry="22" class="usecase"/>
+  <text x="450" y="1040" class="usecase-text">View All Branches Data</text>
+
+  <ellipse cx="450" cy="1100" rx="115" ry="22" class="usecase"/>
+  <text x="450" y="1100" class="usecase-text">Compare Branch Performance</text>
+
+  <ellipse cx="450" cy="1160" rx="100" ry="22" class="usecase"/>
+  <text x="450" y="1160" class="usecase-text">View Branch Rankings</text>
+
+  <ellipse cx="450" cy="1220" rx="100" ry="22" class="usecase"/>
+  <text x="450" y="1220" class="usecase-text">View Revenue Forecast</text>
+
+  <ellipse cx="450" cy="1280" rx="95" ry="22" class="usecase"/>
+  <text x="450" y="1280" class="usecase-text">View Expense Trend</text>
+
+  <ellipse cx="450" cy="1340" rx="90" ry="22" class="usecase"/>
+  <text x="450" y="1340" class="usecase-text">View Risk Scoring</text>
+
+  <ellipse cx="450" cy="1400" rx="120" ry="22" class="usecase"/>
+  <text x="450" y="1400" class="usecase-text">View Business Health Summary</text>
+
+  <ellipse cx="450" cy="1460" rx="125" ry="22" class="usecase"/>
+  <text x="450" y="1460" class="usecase-text">View Year-over-Year Comparison</text>
+
+  <!-- CEO Use Cases - Right Column -->
+  <ellipse cx="850" cy="920" rx="90" ry="22" class="usecase"/>
+  <text x="850" y="920" class="usecase-text">Set Goals / Targets</text>
+
+  <ellipse cx="850" cy="980" rx="120" ry="22" class="usecase"/>
+  <text x="850" y="980" class="usecase-text">Use What-If Scenario Analysis</text>
+
+  <ellipse cx="850" cy="1040" rx="100" ry="22" class="usecase"/>
+  <text x="850" y="1040" class="usecase-text">View Goals &amp; Progress</text>
+
+  <ellipse cx="850" cy="1100" rx="100" ry="22" class="usecase"/>
+  <text x="850" y="1100" class="usecase-text">View Recommendations</text>
+
+  <ellipse cx="850" cy="1160" rx="95" ry="22" class="usecase"/>
+  <text x="850" y="1160" class="usecase-text">View News Headlines</text>
+
+  <ellipse cx="850" cy="1220" rx="100" ry="22" class="usecase"/>
+  <text x="850" y="1220" class="usecase-text">View Interactive Charts</text>
+
+  <ellipse cx="850" cy="1280" rx="110" ry="22" class="usecase"/>
+  <text x="850" y="1280" class="usecase-text">View In-App Notifications</text>
+
+  <ellipse cx="850" cy="1340" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="1340" class="usecase-text">Receive SMS KPI Alert</text>
+
+  <ellipse cx="850" cy="1400" rx="110" ry="22" class="usecase"/>
+  <text x="850" y="1400" class="usecase-text">Generate Executive Report</text>
+
+  <ellipse cx="850" cy="1460" rx="95" ry="22" class="usecase"/>
+  <text x="850" y="1460" class="usecase-text">Export Report (PDF)</text>
+
+  <ellipse cx="850" cy="1520" rx="105" ry="22" class="usecase"/>
+  <text x="850" y="1520" class="usecase-text">Export Data (CSV/Excel)</text>
+
+  <!-- CEO Lines - Left Column (using paths to avoid overlapping) -->
+  <path d="M 100 1230 L 200 1230 L 200 920 L 370 920" class="connector" fill="none"/>
+  <path d="M 100 1235 L 190 1235 L 190 980 L 355 980" class="connector" fill="none"/>
+  <path d="M 100 1240 L 180 1240 L 180 1040 L 350 1040" class="connector" fill="none"/>
+  <path d="M 100 1245 L 170 1245 L 170 1100 L 335 1100" class="connector" fill="none"/>
+  <path d="M 100 1250 L 160 1250 L 160 1160 L 350 1160" class="connector" fill="none"/>
+  <line x1="100" y1="1255" x2="350" y2="1220" class="connector"/>
+  <line x1="100" y1="1260" x2="355" y2="1280" class="connector"/>
+  <path d="M 100 1265 L 160 1265 L 160 1340 L 360 1340" class="connector" fill="none"/>
+  <path d="M 100 1270 L 170 1270 L 170 1400 L 330 1400" class="connector" fill="none"/>
+  <path d="M 100 1275 L 180 1275 L 180 1460 L 325 1460" class="connector" fill="none"/>
+
+  <!-- CEO Lines - Right Column (using paths to avoid overlapping) -->
+  <path d="M 100 1280 L 190 1280 L 190 870 L 650 870 L 650 920 L 760 920" class="connector" fill="none"/>
+  <path d="M 100 1285 L 200 1285 L 200 860 L 640 860 L 640 980 L 730 980" class="connector" fill="none"/>
+  <path d="M 100 1290 L 210 1290 L 210 850 L 630 850 L 630 1040 L 750 1040" class="connector" fill="none"/>
+  <path d="M 100 1295 L 220 1295 L 220 840 L 620 840 L 620 1100 L 750 1100" class="connector" fill="none"/>
+  <path d="M 100 1300 L 230 1300 L 230 830 L 610 830 L 610 1160 L 755 1160" class="connector" fill="none"/>
+  <path d="M 100 1305 L 240 1305 L 240 1560 L 600 1560 L 600 1220 L 750 1220" class="connector" fill="none"/>
+  <path d="M 100 1310 L 250 1310 L 250 1570 L 610 1570 L 610 1280 L 740 1280" class="connector" fill="none"/>
+  <path d="M 100 1315 L 260 1315 L 260 1580 L 620 1580 L 620 1340 L 745 1340" class="connector" fill="none"/>
+  <path d="M 100 1320 L 270 1320 L 270 1590 L 630 1590 L 630 1400 L 740 1400" class="connector" fill="none"/>
+  <path d="M 100 1325 L 280 1325 L 280 1600 L 640 1600 L 640 1460 L 755 1460" class="connector" fill="none"/>
+  <path d="M 100 1330 L 290 1330 L 290 1610 L 650 1610 L 650 1520 L 745 1520" class="connector" fill="none"/>
+
+</svg>
