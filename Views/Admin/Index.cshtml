@@ -10,7 +10,7 @@
             <div class="flex items-center space-x-3 mb-2">
                 <span class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">System Admin</span>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Admin Dashboard</h2>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Dashboard Overview</h2>
             <p class="text-sm text-slate-500 mt-1">Welcome back! Manage your CORETEX EDSS system.</p>
         </div>
         <div class="flex space-x-3">
@@ -40,109 +40,123 @@
         </div>
     </div>
 
-    <!-- Quick Stats -->
+    <!-- Quick Stats - Updated to match spec -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Total Users -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <a href="/Admin/UserManagement" class="text-purple-600 hover:text-purple-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <p class="text-3xl font-black text-slate-900" id="user-count">0</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Users</p>
+            <p class="text-[10px] text-slate-400 mt-2" id="user-breakdown">CEO, Finance Officers, Cashiers</p>
+        </div>
+
+        <!-- Branches -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
+                <a href="/Admin/BranchManagement" class="text-blue-600 hover:text-blue-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </div>
             <p class="text-3xl font-black text-slate-900" id="branch-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Active Branches</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Branches</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-slate-900" id="user-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Users</p>
-        </div>
-
+        <!-- Pending Submissions -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
+                <a href="/Admin/BranchSubmissions" class="text-amber-600 hover:text-amber-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <p class="text-3xl font-black text-amber-600" id="pending-count">0</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Pending Submissions</p>
+            <p class="text-[10px] text-slate-400 mt-2">Branches not submitted this month</p>
+        </div>
+
+        <!-- KPI Thresholds -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <a href="/Admin/KPIThresholds" class="text-emerald-600 hover:text-emerald-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </div>
             <p class="text-3xl font-black text-slate-900" id="threshold-count">0</p>
             <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">KPI Thresholds</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-slate-900" id="schedule-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Report Schedules</p>
         </div>
     </div>
 
     <!-- Quick Actions -->
     <div>
         <h3 class="text-lg font-black text-slate-900 mb-4">Quick Actions</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <a href="/Admin/BranchManagement" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all group text-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <a href="/Admin/UserManagement" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-purple-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500 transition-colors">
+                    <svg class="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Users</p>
+            </a>
+
+            <a href="/Admin/BranchManagement" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all group text-center">
                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-500 transition-colors">
                     <svg class="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <p class="font-bold text-sm text-slate-900">Branches</p>
             </a>
 
-            <a href="/Admin/UserManagement" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-emerald-200 transition-all group text-center">
+            <a href="/Admin/KPIThresholds" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-emerald-200 transition-all group text-center">
                 <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-emerald-500 transition-colors">
-                    <svg class="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                </div>
-                <p class="font-bold text-sm text-slate-900">Users</p>
-            </a>
-
-            <a href="/Admin/KPIThresholds" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-amber-200 transition-all group text-center">
-                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500 transition-colors">
-                    <svg class="w-6 h-6 text-amber-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <svg class="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
                 <p class="font-bold text-sm text-slate-900">KPI Thresholds</p>
             </a>
 
-            <a href="/Admin/GoalsTargets" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-purple-200 transition-all group text-center">
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500 transition-colors">
-                    <svg class="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <p class="font-bold text-sm text-slate-900">Goals</p>
-            </a>
-
-            <a href="/Admin/ReportSchedule" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-rose-200 transition-all group text-center">
+            <a href="/Admin/ReportSchedule" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-rose-200 transition-all group text-center">
                 <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-rose-500 transition-colors">
                     <svg class="w-6 h-6 text-rose-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
                 <p class="font-bold text-sm text-slate-900">Schedules</p>
             </a>
 
-            <a href="/Admin/ActivityLog" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition-all group text-center">
+            <a href="/Admin/BranchSubmissions" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-amber-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500 transition-colors">
+                    <svg class="w-6 h-6 text-amber-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Submissions</p>
+            </a>
+
+            <a href="/Admin/ActivityLog" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition-all group text-center">
                 <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-slate-700 transition-colors">
                     <svg class="w-6 h-6 text-slate-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <p class="font-bold text-sm text-slate-900">Activity Log</p>
             </a>
+
+            <a href="/Admin/AuditTrail" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-500 transition-colors">
+                    <svg class="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Audit Trail</p>
+            </a>
         </div>
     </div>
 
-    <!-- Submission Status Overview -->
-    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-black text-slate-900">Branch Submission Status (This Month)</h3>
-            <a href="/Admin/SubmissionStatus" class="text-blue-600 text-sm font-bold hover:underline">View All →</a>
-        </div>
-        <div id="submission-status" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <p class="text-slate-400 text-sm italic col-span-3">No branches configured yet. <a href="/Admin/BranchManagement" class="text-blue-600 hover:underline">Add branches</a> to get started.</p>
-        </div>
-    </div>
-
-    <!-- Recent Activity -->
+    <!-- Recent Activity (Last 5 login events) -->
     <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-black text-slate-900">Recent Activity</h3>
@@ -159,8 +173,6 @@
         // Simulate IPGeolocation API
         async function getLoginLocation() {
             try {
-                // In production, this would call: https://api.ipgeolocation.io/ipgeo?apiKey=YOUR_KEY
-                // For demo, we simulate the response
                 const mockLocations = [
                     { city: 'Davao City', region: 'Davao del Sur', country: 'Philippines', ip: '180.190.xxx.xxx' },
                     { city: 'Tagum City', region: 'Davao del Norte', country: 'Philippines', ip: '112.198.xxx.xxx' },
@@ -171,7 +183,6 @@
                 document.getElementById('location-text').textContent = `${location.city}, ${location.country}`;
                 document.getElementById('ip-address').textContent = `IP: ${location.ip}`;
                 
-                // Log this activity
                 logActivity('Login', `Admin logged in from ${location.city}, ${location.region}`, 'login');
             } catch (error) {
                 document.getElementById('location-text').textContent = 'Location unavailable';
@@ -188,7 +199,6 @@
                 timestamp: new Date().toISOString(),
                 user: 'System Administrator'
             });
-            // Keep only last 100 activities
             activities = activities.slice(0, 100);
             localStorage.setItem('coretex_activities', JSON.stringify(activities));
             renderRecentActivity();
@@ -246,45 +256,23 @@
             const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
             const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
             const thresholds = JSON.parse(localStorage.getItem('coretex_thresholds') || '[]');
-            const schedules = JSON.parse(localStorage.getItem('coretex_schedules') || '[]');
-
-            document.getElementById('branch-count').textContent = branches.length;
-            document.getElementById('user-count').textContent = users.length + 1; // +1 for admin
-            document.getElementById('threshold-count').textContent = thresholds.length;
-            document.getElementById('schedule-count').textContent = schedules.length;
-
-            renderSubmissionStatus(branches);
-        }
-
-        function renderSubmissionStatus(branches) {
-            const container = document.getElementById('submission-status');
             const submissions = JSON.parse(localStorage.getItem('coretex_submissions') || '[]');
-            const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+            const currentMonth = new Date().toISOString().slice(0, 7);
 
-            if (branches.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-sm italic col-span-3">No branches configured yet. <a href="/Admin/BranchManagement" class="text-blue-600 hover:underline">Add branches</a> to get started.</p>';
-                return;
-            }
+            // Count users by role
+            const ceoCount = users.filter(u => u.role === 'CEO').length;
+            const foCount = users.filter(u => u.role === 'Finance Officer').length;
+            const cashierCount = users.filter(u => u.role === 'Branch Cashier').length;
 
-            container.innerHTML = branches.slice(0, 6).map(branch => {
-                const hasSubmission = submissions.some(s => s.branchId === branch.id && s.month === currentMonth);
-                return `
-                    <div class="p-4 rounded-xl border ${hasSubmission ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-sm text-slate-900">${branch.name}</p>
-                                <p class="text-xs text-slate-500">${branch.location || 'No location set'}</p>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                ${hasSubmission 
-                                    ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">Submitted</span>'
-                                    : '<span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full">Pending</span>'
-                                }
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            document.getElementById('user-count').textContent = users.length;
+            document.getElementById('user-breakdown').textContent = `${ceoCount} CEO, ${foCount} Finance, ${cashierCount} Cashiers`;
+            document.getElementById('branch-count').textContent = branches.length;
+            document.getElementById('threshold-count').textContent = thresholds.length;
+
+            // Calculate pending submissions
+            const submittedBranches = new Set(submissions.filter(s => s.month === currentMonth).map(s => s.branchId));
+            const pendingCount = branches.length - submittedBranches.size;
+            document.getElementById('pending-count').textContent = pendingCount;
         }
 
         // Make logActivity available globally
