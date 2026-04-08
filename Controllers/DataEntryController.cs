@@ -18,8 +18,22 @@ namespace coretex_finalproj.Controllers
             _context = context;
         }
 
+        // Finance Officer Dashboard / Data Entry Form
         public IActionResult Index()
         {
+            return View();
+        }
+
+        // Submission History
+        public IActionResult History()
+        {
+            return View();
+        }
+
+        // Edit Submission
+        public IActionResult Edit(string id)
+        {
+            ViewBag.SubmissionId = id;
             return View();
         }
 
