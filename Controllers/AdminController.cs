@@ -51,5 +51,17 @@ namespace coretex_finalproj.Controllers
         {
             return View();
         }
+
+        // Branch Submissions Monitoring
+        public IActionResult BranchSubmissions()
+        {
+            return View();
+        }
+
+        // Audit Trail
+        public IActionResult AuditTrail()
+        {
+            return View();
+        }
     }
 }

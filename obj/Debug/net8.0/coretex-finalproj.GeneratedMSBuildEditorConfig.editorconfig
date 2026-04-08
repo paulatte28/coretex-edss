@@ -36,8 +36,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWN0aXZpdHlMb2cuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/AuditTrail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXVkaXRUcmFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/BranchManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQnJhbmNoTWFuYWdlbWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/BranchSubmissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQnJhbmNoU3VibWlzc2lvbnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/GoalsTargets.cshtml]
