@@ -1,5 +1,5 @@
 @{
-    Layout = null; // No global layout for the login splash
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -7,94 +7,484 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CORETEX | Persona Gateway</title>
+    <title>CORETEX | Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#001A4D', secondary: '#006D68' },
+                    colors: { 
+                        primary: '#001A4D', 
+                        secondary: '#006D68',
+                        accent: '#FFF0AD'
+                    },
                     fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { background: #fafafa; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .mesh-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(210,100%,15%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 100%, hsla(180,100%,10%,1) 0, transparent 40%);
+        body { font-family: 'Inter', sans-serif; }
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, rgba(0,26,77,0.85) 0%, rgba(0,109,104,0.75) 100%);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            box-shadow: 0 0 0 4px rgba(0, 109, 104, 0.1);
+        }
+        .btn-login {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 109, 104, 0.3);
+        }
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        .error-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @@keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="flex items-center justify-center h-screen">
-    <div class="mesh-bg"></div>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
 
-    <div class="max-w-5xl w-full px-6 space-y-12 animate-in fade-in duration-1000">
-        <div class="text-center space-y-4">
-            <h1 class="text-white text-5xl font-black tracking-tighter uppercase">Persona Gateway</h1>
-            <p class="text-blue-200/60 font-bold uppercase tracking-[0.3em] text-xs">Select your demonstration context</p>
+    <div class="w-full max-w-md fade-in">
+        <!-- Logo & Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-6">
+                <img src="/images/logo.png" alt="Coretex Logo" class="w-14 h-14 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="w-14 h-14 bg-gradient-to-br from-secondary to-primary rounded-2xl items-center justify-center hidden">
+                    <span class="text-white text-2xl font-black">C</span>
+                </div>
+            </div>
+            <h1 class="text-white text-3xl font-black tracking-tight">Welcome Back</h1>
+            <p class="text-blue-200/60 mt-2 text-sm">Sign in to access your CORETEX dashboard</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Business Owner Persona -->
-            <button onclick="setPersona('CEO', '/Dashboard')" class="group p-10 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[3rem] text-left hover:bg-white/20 transition-all hover:scale-[1.05] shadow-2xl">
-                <div class="w-16 h-16 bg-blue-500 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <!-- Login Card -->
+        <div class="glass-card rounded-3xl p-8 shadow-2xl">
+            <!-- Error Message (hidden by default) -->
+            <div id="error-message" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p id="error-text" class="text-red-700 text-sm font-medium">Incorrect email or password</p>
                 </div>
-                <h3 class="text-white text-2xl font-black">Business Executive</h3>
-                <p class="text-blue-100/60 mt-3 text-xs leading-relaxed font-medium">Strategic oversight, AI trends, and decision analytics for the business owner.</p>
-                <div class="mt-8 flex items-center text-blue-300 text-[10px] font-black uppercase tracking-widest group-hover:text-white">
-                    <span>Enter Terminal</span>
-                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </div>
-            </button>
+            </div>
 
-            <!-- Finance Officer Persona -->
-            <button onclick="setPersona('FINANCE', '/Dashboard/ExecutiveReporting')" class="group p-10 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[3rem] text-left hover:bg-white/20 transition-all hover:scale-[1.05] shadow-2xl">
-                <div class="w-16 h-16 bg-emerald-500 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
+            <!-- Session Expired Message -->
+            <div id="session-message" class="hidden mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <p class="text-amber-700 text-sm font-medium">Your session has expired. Please sign in again.</p>
                 </div>
-                <h3 class="text-white text-2xl font-black">Finance Officer</h3>
-                <p class="text-emerald-100/60 mt-3 text-xs leading-relaxed font-medium">Monthly audits, currency normalization, and detailed P&L verification.</p>
-                <div class="mt-8 flex items-center text-emerald-300 text-[10px] font-black uppercase tracking-widest group-hover:text-white">
-                    <span>Audit Data</span>
-                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </div>
-            </button>
+            </div>
 
-            <!-- Super Admin Persona -->
-            <button onclick="setPersona('ADMIN', '/Admin')" class="group p-10 bg-slate-900 border border-white/10 rounded-[3rem] text-left hover:bg-slate-800 transition-all hover:scale-[1.05] shadow-2xl">
-                <div class="w-16 h-16 bg-white/10 text-white rounded-3xl flex items-center justify-center mb-6 shadow-lg border border-white/10">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-5">
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            placeholder="you@company.com"
+                            class="input-field w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-secondary focus:bg-white"
+                        />
+                    </div>
                 </div>
-                <h3 class="text-white text-2xl font-black">Super Admin</h3>
-                <p class="text-slate-400 mt-3 text-xs leading-relaxed font-medium">SaaS Platform monitoring, tenant tracking, and system health audits.</p>
-                <div class="mt-8 flex items-center text-slate-500 text-[10px] font-black uppercase tracking-widest group-hover:text-white">
-                    <span>Manage Platform</span>
-                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                            placeholder="••••••••"
+                            class="input-field w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-secondary focus:bg-white"
+                        />
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                            <svg id="eye-icon" class="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg id="eye-off-icon" class="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </button>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="checkbox" id="remember" name="remember" class="w-5 h-5 rounded-lg border-slate-300 text-secondary focus:ring-secondary focus:ring-offset-0 cursor-pointer" />
+                        <span class="ml-3 text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Remember me</span>
+                    </label>
+                    <a href="#" id="forgot-password-link" class="text-sm font-semibold text-secondary hover:text-primary transition-colors">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <!-- Login Button -->
+                <button 
+                    type="submit" 
+                    id="login-btn"
+                    class="btn-login w-full py-4 bg-gradient-to-r from-secondary to-teal-600 text-white font-bold rounded-2xl shadow-lg shadow-secondary/20 hover:shadow-secondary/40 flex items-center justify-center gap-2"
+                >
+                    <span id="btn-text">Sign In</span>
+                    <svg id="btn-arrow" class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                    <!-- Loading Spinner (hidden by default) -->
+                    <svg id="btn-spinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="relative my-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-slate-200"></div>
+                </div>
+                <div class="relative flex justify-center text-xs uppercase">
+                    <span class="bg-white px-4 text-slate-400 font-medium">Quick Access (Demo)</span>
+                </div>
+            </div>
+
+            <!-- Quick Access Buttons (for demo purposes) -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="quickLogin('CEO')" class="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-left transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">CEO</p>
+                            <p class="text-[10px] text-slate-500">Dashboard</p>
+                        </div>
+                    </div>
+                </button>
+                <button onclick="quickLogin('FINANCE')" class="p-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-left transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">Finance</p>
+                            <p class="text-[10px] text-slate-500">Officer</p>
+                        </div>
+                    </div>
+                </button>
+                <button onclick="quickLogin('CASHIER')" class="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-left transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">Cashier</p>
+                            <p class="text-[10px] text-slate-500">Branch POS</p>
+                        </div>
+                    </div>
+                </button>
+                <button onclick="quickLogin('ADMIN')" class="p-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-left transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-700 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">Admin</p>
+                            <p class="text-[10px] text-slate-500">System</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
         </div>
 
-        <div class="text-center">
-            <a href="/" class="text-blue-300/40 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-colors">Return to Landing Page</a>
+        <!-- Footer -->
+        <div class="text-center mt-8">
+            <a href="/" class="text-blue-200/60 font-semibold text-sm hover:text-white transition-colors">
+                ← Return to Landing Page
+            </a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-8 max-w-md w-full shadow-2xl fade-in">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900">Reset Password</h3>
+                <p class="text-slate-500 text-sm mt-2">Enter your email and we'll send you a reset link</p>
+            </div>
+            <form id="forgot-form">
+                <input 
+                    type="email" 
+                    id="forgot-email"
+                    placeholder="you@company.com"
+                    required
+                    class="input-field w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-secondary focus:bg-white mb-4"
+                />
+                <button type="submit" class="w-full py-4 bg-secondary text-white font-bold rounded-2xl hover:bg-teal-700 transition-colors">
+                    Send Reset Link
+                </button>
+            </form>
+            <button id="close-forgot-modal" class="w-full py-3 text-slate-500 font-medium mt-3 hover:text-slate-700 transition-colors">
+                Cancel
+            </button>
         </div>
     </div>
 
     <script>
-        function setPersona(role, redirect) {
-            localStorage.setItem('coretex_user_role', role);
+        // Demo credentials for testing
+        const demoCredentials = {
+            'admin@coretex.com': { password: 'admin123', role: 'ADMIN', redirect: '/Admin' },
+            'ceo@coretex.com': { password: 'ceo123', role: 'CEO', redirect: '/Dashboard' },
+            'finance@coretex.com': { password: 'finance123', role: 'FINANCE', redirect: '/Finance' },
+            'cashier@coretex.com': { password: 'cashier123', role: 'CASHIER', redirect: '/Cashier/POS' }
+        };
+
+        // Toggle password visibility
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        const eyeOffIcon = document.getElementById('eye-off-icon');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            eyeIcon.classList.toggle('hidden');
+            eyeOffIcon.classList.toggle('hidden');
+        });
+
+        // Login form submission
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnArrow = document.getElementById('btn-arrow');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // Auto-Seeding: If selecting Owner, potentially seed data for a better demo
-            if (role === 'CEO' && !localStorage.getItem('coretex_monthly_data')) {
-                // Future seeding logic goes here
+            const email = document.getElementById('email').value.toLowerCase();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            // Show loading state
+            btnText.textContent = 'Signing in...';
+            btnArrow.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+            loginBtn.disabled = true;
+
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Check credentials (demo mode)
+            const user = demoCredentials[email];
+            
+            if (user && user.password === password) {
+                // Success - store session data
+                const loginData = {
+                    email: email,
+                    role: user.role,
+                    loginTime: new Date().toISOString(),
+                    remember: remember
+                };
+                
+                // Store in localStorage/sessionStorage based on remember me
+                if (remember) {
+                    localStorage.setItem('coretex_session', JSON.stringify(loginData));
+                } else {
+                    sessionStorage.setItem('coretex_session', JSON.stringify(loginData));
+                }
+                localStorage.setItem('coretex_user_role', user.role);
+
+                // Log activity (would call IPGeolocation API in production)
+                console.log('Login successful:', {
+                    ...loginData,
+                    ip: 'Will be captured by IPGeolocation API',
+                    location: 'Will be captured by IPGeolocation API'
+                });
+
+                // Redirect to appropriate dashboard
+                window.location.href = user.redirect;
+            } else {
+                // Error - show message
+                errorMessage.classList.remove('hidden');
+                errorMessage.classList.add('error-shake');
+                
+                if (!user) {
+                    errorText.textContent = 'Incorrect email or password';
+                } else {
+                    errorText.textContent = 'Incorrect password';
+                }
+
+                // Reset button state
+                btnText.textContent = 'Sign In';
+                btnArrow.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
+                loginBtn.disabled = false;
+
+                // Remove shake animation after it completes
+                setTimeout(() => {
+                    errorMessage.classList.remove('error-shake');
+                }, 500);
             }
+        });
+
+        // Quick login function (demo)
+        function quickLogin(role) {
+            const roleMap = {
+                'CEO': { email: 'ceo@coretex.com', redirect: '/Dashboard' },
+                'FINANCE': { email: 'finance@coretex.com', redirect: '/Finance' },
+                'CASHIER': { email: 'cashier@coretex.com', redirect: '/Cashier/POS' },
+                'ADMIN': { email: 'admin@coretex.com', redirect: '/Admin' }
+            };
+
+            const userData = roleMap[role];
             
-            window.location.href = redirect;
+            // Store session
+            const loginData = {
+                email: userData.email,
+                role: role,
+                loginTime: new Date().toISOString(),
+                quickAccess: true
+            };
+            
+            sessionStorage.setItem('coretex_session', JSON.stringify(loginData));
+            localStorage.setItem('coretex_user_role', role);
+
+            // Redirect
+            window.location.href = userData.redirect;
+        }
+
+        // Forgot password modal
+        const forgotLink = document.getElementById('forgot-password-link');
+        const forgotModal = document.getElementById('forgot-modal');
+        const closeForgotModal = document.getElementById('close-forgot-modal');
+        const forgotForm = document.getElementById('forgot-form');
+
+        forgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotModal.classList.remove('hidden');
+            forgotModal.classList.add('flex');
+        });
+
+        closeForgotModal.addEventListener('click', () => {
+            forgotModal.classList.add('hidden');
+            forgotModal.classList.remove('flex');
+        });
+
+        forgotModal.addEventListener('click', (e) => {
+            if (e.target === forgotModal) {
+                forgotModal.classList.add('hidden');
+                forgotModal.classList.remove('flex');
+            }
+        });
+
+        forgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            alert(`Password reset link sent to ${email}\n\n(Demo mode - no actual email sent)`);
+            forgotModal.classList.add('hidden');
+            forgotModal.classList.remove('flex');
+        });
+
+        // Check for session expired parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('session') === 'expired') {
+            document.getElementById('session-message').classList.remove('hidden');
+        }
+
+        // Check for account locked
+        if (urlParams.get('status') === 'locked') {
+            errorMessage.classList.remove('hidden');
+            errorText.textContent = 'Account locked. Contact administrator.';
         }
     </script>
 </body>
