@@ -1,0 +1,161 @@
+@{
+    ViewData["Title"] = "Submission History";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span id="fo-name" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Finance Officer: Loading...</span>
+                <span id="branch-name" class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">Branch: Loading...</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Submission History</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">View submitted months and open details in read-only mode</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/finance/dashboard" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">Back to Dashboard</a>
+            <a href="/finance/edit-submission" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">Edit Submission</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Month</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Submitted On</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Revenue</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Expenses</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Net Profit</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
+                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table" class="divide-y divide-slate-100">
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">No submissions found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="details-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-black text-slate-900">Submission Details</h3>
+                <p id="modal-month" class="text-xs text-slate-500 mt-1">Month</p>
+            </div>
+            <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Transactions</span><span id="detail-transactions" class="text-sm font-black text-slate-900">0</span></div>
+                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Top Product</span><span id="detail-top-product" class="text-sm font-black text-slate-900">-</span></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Revenue</span><span id="detail-revenue" class="text-sm font-black text-slate-900">P0.00</span></div>
+                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Expenses</span><span id="detail-expenses" class="text-sm font-black text-slate-900">P0.00</span></div>
+            </div>
+            <div class="p-4 bg-slate-900 rounded-xl flex items-center justify-between">
+                <span class="text-xs font-black text-white uppercase tracking-widest">Net Profit</span>
+                <span id="detail-profit" class="text-sm font-black text-white">P0.00</span>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl">
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Status</p>
+                <p id="detail-status" class="text-sm font-bold text-slate-900 mt-1">Submitted</p>
+                <p id="detail-submitted-at" class="text-xs text-slate-500 mt-1">Submitted on -</p>
+            </div>
+            <div id="detail-edit-reason-wrap" class="hidden p-4 bg-amber-50 rounded-xl border border-amber-100">
+                <p class="text-xs font-black text-amber-700 uppercase tracking-widest">Edit Reason</p>
+                <p id="detail-edit-reason" class="text-sm text-amber-800 mt-1">-</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/finance-flow.js" asp-append-version="true"></script>
+    <script>
+        let context = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const flow = window.CoretexFinanceFlow;
+            context = flow.getContext();
+
+            document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
+            document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
+
+            renderHistory();
+        });
+
+        function renderHistory() {
+            const flow = window.CoretexFinanceFlow;
+            const table = document.getElementById('history-table');
+            const history = flow.getSubmissionHistory(context.branch.id);
+
+            if (!history.length) {
+                table.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">No submissions found.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = history.map(item => {
+                const statusClass = item.status === 'Edited'
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-emerald-100 text-emerald-700';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${flow.formatMonthLabel(item.month)}</td>
+                        <td class="px-6 py-4 text-sm text-slate-600">${flow.formatDateTime(item.submittedAt)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${flow.formatCurrency(item.totalSales)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${flow.formatCurrency(item.totalExpenses)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${flow.formatCurrency(item.netProfit)}</td>
+                        <td class="px-6 py-4"><span class="px-3 py-1 text-[10px] font-black uppercase rounded-full ${statusClass}">${item.status || 'Submitted'}</span></td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="openDetailsModal('${item.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors">View Details</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openDetailsModal(id) {
+            const flow = window.CoretexFinanceFlow;
+            const details = flow.getSubmissionDetailsById(id);
+            if (!details) return;
+
+            document.getElementById('modal-month').textContent = details.monthLabel;
+            document.getElementById('detail-transactions').textContent = String(details.snapshot.totalTransactions || 0);
+            document.getElementById('detail-top-product').textContent = details.snapshot.topProduct || '-';
+            document.getElementById('detail-revenue').textContent = flow.formatCurrency(details.submission.totalSales || 0);
+            document.getElementById('detail-expenses').textContent = flow.formatCurrency(details.submission.totalExpenses || 0);
+            document.getElementById('detail-profit').textContent = flow.formatCurrency(details.submission.netProfit || 0);
+            document.getElementById('detail-status').textContent = details.submission.status || 'Submitted';
+            document.getElementById('detail-submitted-at').textContent = `Submitted on ${flow.formatDateTime(details.submission.submittedAt)}`;
+
+            if (details.submission.editReason) {
+                document.getElementById('detail-edit-reason-wrap').classList.remove('hidden');
+                document.getElementById('detail-edit-reason').textContent = details.submission.editReason;
+            } else {
+                document.getElementById('detail-edit-reason-wrap').classList.add('hidden');
+            }
+
+            const modal = document.getElementById('details-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('details-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
+}

@@ -1,0 +1,223 @@
+@{
+    ViewData["Title"] = "COGS Expense";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span id="fo-name" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Finance Officer: Loading...</span>
+                <span id="branch-name" class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">Branch: Loading...</span>
+                <span id="month-label" class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Month: --</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Expense Entry: COGS</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Capture imported cost and convert to PHP automatically</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/finance/dashboard" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">Back to Dashboard</a>
+            <a href="/finance/expenses/rent" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">Next: Rent</a>
+        </div>
+    </div>
+
+    <div id="locked-banner" class="hidden p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-800">
+        <p class="text-sm font-bold">This month is already submitted and locked.</p>
+        <p class="text-xs mt-1">Go to <a href="/finance/edit-submission" class="underline font-black">Edit Submitted Data</a> if editing is allowed.</p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div class="xl:col-span-8">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-8 border-b border-slate-100">
+                    <h3 class="text-lg font-black text-slate-900">COGS Form</h3>
+                    <p class="text-xs text-slate-500 mt-1">On currency or amount change, the exchange rate API is called and conversion is refreshed.</p>
+                </div>
+
+                <form id="cogs-form" class="p-8 space-y-6" autocomplete="off">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="cogs-amount" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount</label>
+                            <input id="cogs-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all" placeholder="0.00" />
+                        </div>
+                        <div class="space-y-2">
+                            <label for="cogs-currency" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Currency</label>
+                            <select id="cogs-currency" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all">
+                                <option value="USD">USD</option>
+                                <option value="CNY">CNY</option>
+                                <option value="PHP">PHP</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="cogs-description" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Description (Optional)</label>
+                        <textarea id="cogs-description" rows="3" maxlength="250" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all resize-none" placeholder="Supplier, product batch, or notes"></textarea>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-black text-blue-700 uppercase tracking-widest">Exchange Rate API</p>
+                            <span id="rate-source" class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Live</span>
+                        </div>
+                        <p id="conversion-text" class="text-sm font-bold text-slate-700">1 USD = P56.50</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Converted Amount (PHP)</p>
+                                <input id="converted-php" type="text" readonly class="w-full bg-white border border-blue-200 rounded-xl py-3 px-4 text-sm font-black text-slate-900" value="P0.00" />
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Exchange Rate Used</p>
+                                <input id="exchange-rate-used" type="text" readonly class="w-full bg-white border border-blue-200 rounded-xl py-3 px-4 text-sm font-black text-slate-900" value="56.50" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="save-btn" type="submit" class="w-full py-3.5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-all">Save COGS Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="xl:col-span-4">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-base font-black text-slate-900">Current COGS Value</h3>
+                    <p class="text-xs text-slate-500 mt-1">Saved value for this month</p>
+                </div>
+                <div class="p-6 space-y-3">
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Original</span>
+                        <span id="saved-original" class="text-sm font-black text-slate-900">-</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Converted (PHP)</span>
+                        <span id="saved-converted" class="text-sm font-black text-slate-900">P0.00</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-xs font-bold text-slate-600">Description</p>
+                        <p id="saved-description" class="text-xs text-slate-800 mt-1">No description saved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+    <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        <span id="toast-text" class="font-bold text-sm">Saved.</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/finance-flow.js" asp-append-version="true"></script>
+    <script>
+        let monthKey = null;
+        let currentRate = 56.5;
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const flow = window.CoretexFinanceFlow;
+            monthKey = flow.getCurrentMonthKey();
+            const context = flow.getContext();
+
+            document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
+            document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
+            document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+
+            const locked = flow.isMonthLocked(monthKey, context.branch.id);
+            if (locked) {
+                document.getElementById('locked-banner').classList.remove('hidden');
+                document.getElementById('save-btn').disabled = true;
+                document.getElementById('save-btn').classList.add('opacity-60', 'cursor-not-allowed');
+            }
+
+            document.getElementById('cogs-currency').addEventListener('change', refreshConversion);
+            document.getElementById('cogs-amount').addEventListener('input', refreshConversion);
+            document.getElementById('cogs-form').addEventListener('submit', saveExpense);
+
+            await loadSavedData();
+            await refreshConversion();
+        });
+
+        async function loadSavedData() {
+            const flow = window.CoretexFinanceFlow;
+            const context = flow.getContext();
+            const record = flow.getExpenseRecord(monthKey, 'cogs', context.branch.id);
+            if (!record) return;
+
+            document.getElementById('cogs-amount').value = Number(record.originalAmount || 0).toFixed(2);
+            document.getElementById('cogs-currency').value = record.currency || 'USD';
+            document.getElementById('cogs-description').value = record.description || '';
+
+            currentRate = Number(record.exchangeRate || 1);
+            document.getElementById('exchange-rate-used').value = currentRate.toFixed(4);
+            document.getElementById('converted-php').value = flow.formatCurrency(record.amountPHP || 0);
+
+            document.getElementById('saved-original').textContent = `${record.currency || 'USD'} ${Number(record.originalAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('saved-converted').textContent = flow.formatCurrency(record.amountPHP || 0);
+            document.getElementById('saved-description').textContent = record.description || 'No description saved.';
+
+            document.getElementById('conversion-text').textContent = `1 ${record.currency || 'USD'} = ${flow.formatCurrency(record.exchangeRate || 1)}`;
+        }
+
+        async function refreshConversion() {
+            const flow = window.CoretexFinanceFlow;
+            const currency = document.getElementById('cogs-currency').value;
+            const amount = Number(document.getElementById('cogs-amount').value || 0);
+
+            const result = await flow.fetchExchangeRate(currency);
+            currentRate = Number(result.rate || 1);
+
+            const converted = amount * currentRate;
+            document.getElementById('conversion-text').textContent = `1 ${currency} = ${flow.formatCurrency(currentRate)}`;
+            document.getElementById('converted-php').value = flow.formatCurrency(converted);
+            document.getElementById('exchange-rate-used').value = currentRate.toFixed(4);
+            document.getElementById('rate-source').textContent = result.source;
+        }
+
+        function saveExpense(event) {
+            event.preventDefault();
+
+            const flow = window.CoretexFinanceFlow;
+            const amount = Number(document.getElementById('cogs-amount').value || 0);
+            const currency = document.getElementById('cogs-currency').value;
+            const description = document.getElementById('cogs-description').value.trim();
+
+            if (amount <= 0) {
+                alert('Amount is required and must be greater than 0.');
+                return;
+            }
+
+            try {
+                const saved = flow.saveExpense('cogs', {
+                    originalAmount: amount,
+                    currency,
+                    exchangeRate: currentRate,
+                    amountPHP: amount * currentRate,
+                    description,
+                    notes: description
+                }, {
+                    monthKey
+                });
+
+                document.getElementById('saved-original').textContent = `${saved.record.currency} ${Number(saved.record.originalAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('saved-converted').textContent = flow.formatCurrency(saved.record.amountPHP);
+                document.getElementById('saved-description').textContent = saved.record.description || 'No description saved.';
+
+                showToast('COGS expense saved successfully.');
+            } catch (error) {
+                alert(error.message || 'Unable to save COGS expense.');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(function () {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+    </script>
+}

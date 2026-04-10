@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Review Monthly Data";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span id="fo-name" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Finance Officer: Loading...</span>
+                <span id="branch-name" class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">Branch: Loading...</span>
+                <span id="month-label" class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Month: --</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Review Monthly Data</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Validate totals before final submission</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/finance/dashboard" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">Back to Dashboard</a>
+            <a href="/finance/submit" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">Confirm &amp; Submit</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total POS Transactions</p>
+            <p id="total-tx" class="text-3xl font-black text-slate-900 mt-2">0</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Revenue</p>
+            <p id="total-revenue" class="text-3xl font-black text-emerald-700 mt-2">P0.00</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Net Profit</p>
+            <p id="net-profit" class="text-3xl font-black text-blue-700 mt-2">P0.00</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div class="xl:col-span-8 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-lg font-black text-slate-900">Expenses Summary</h3>
+                <p class="text-xs text-slate-500 mt-1">COGS + Rent + Salaries + Utilities</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Category</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount (PHP)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-900">COGS</td>
+                            <td id="row-cogs" class="px-6 py-4 text-sm font-black text-slate-900 text-right">P0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-900">Rent</td>
+                            <td id="row-rent" class="px-6 py-4 text-sm font-black text-slate-900 text-right">P0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-900">Salaries</td>
+                            <td id="row-salaries" class="px-6 py-4 text-sm font-black text-slate-900 text-right">P0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-900">Utilities</td>
+                            <td id="row-utilities" class="px-6 py-4 text-sm font-black text-slate-900 text-right">P0.00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-slate-900">
+                            <td class="px-6 py-4 text-right text-xs font-black text-white uppercase tracking-widest">Total Expenses</td>
+                            <td id="row-total-expenses" class="px-6 py-4 text-right text-sm font-black text-white">P0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="xl:col-span-4 space-y-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                <h3 class="text-base font-black text-slate-900">Data Source Labels</h3>
+                <div class="mt-4 flex flex-wrap gap-2" id="source-labels"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 space-y-3">
+                <a href="/finance/expenses/cogs" class="block w-full px-4 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all text-center">Edit Expenses</a>
+                <a href="/finance/submit" class="block w-full px-4 py-3 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-all text-center">Confirm &amp; Submit</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/finance-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const flow = window.CoretexFinanceFlow;
+            const monthKey = flow.getCurrentMonthKey();
+            const context = flow.getContext();
+            const snapshot = flow.getSnapshot(monthKey, context.branch.id);
+
+            document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
+            document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
+            document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+
+            document.getElementById('total-tx').textContent = String(snapshot.totalTransactions);
+            document.getElementById('total-revenue').textContent = flow.formatCurrency(snapshot.totalRevenue);
+            document.getElementById('net-profit').textContent = flow.formatCurrency(snapshot.netProfit);
+
+            document.getElementById('row-cogs').textContent = flow.formatCurrency(snapshot.expenses.cogs);
+            document.getElementById('row-rent').textContent = flow.formatCurrency(snapshot.expenses.rent);
+            document.getElementById('row-salaries').textContent = flow.formatCurrency(snapshot.expenses.salaries);
+            document.getElementById('row-utilities').textContent = flow.formatCurrency(snapshot.expenses.utilities);
+            document.getElementById('row-total-expenses').textContent = flow.formatCurrency(snapshot.expenses.total);
+
+            const sourceContainer = document.getElementById('source-labels');
+            sourceContainer.innerHTML = snapshot.dataSources.map(source =>
+                `<span class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">${source}</span>`
+            ).join('');
+        });
+    </script>
+}

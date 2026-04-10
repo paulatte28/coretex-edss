@@ -1,0 +1,145 @@
+@{
+    ViewData["Title"] = "Finance Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span id="fo-name" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Finance Officer: Loading...</span>
+                <span id="branch-name" class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">Branch: Loading...</span>
+                <span id="month-label" class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Month: --</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Finance Officer Dashboard</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Monthly finance operations and submission workflow</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/finance/review" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">Review Data</a>
+            <a href="/finance/submissions" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">View Submission History</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Sales from Cashiers</p>
+            <p id="card-total-sales" class="text-3xl font-black text-emerald-700 mt-2">P0.00</p>
+            <p id="card-tx-count" class="text-xs text-slate-500 mt-1">0 transactions</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Expenses Logged</p>
+            <p id="card-total-expenses" class="text-3xl font-black text-red-700 mt-2">P0.00</p>
+            <p class="text-xs text-slate-500 mt-1">COGS, Rent, Salaries, Utilities</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Submission Status</p>
+            <p id="card-submission-status" class="text-xl font-black text-slate-900 mt-2">Not Submitted</p>
+            <p id="card-submission-meta" class="text-xs text-slate-500 mt-1">No monthly submission yet.</p>
+        </div>
+    </div>
+
+    <div id="lock-banner" class="hidden p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-800">
+        <p class="text-sm font-bold">This month is locked after submission.</p>
+        <p class="text-xs mt-1">Use <a href="/finance/edit-submission" class="underline font-black">Edit Submitted Data</a> if within the 48-hour window or if admin has unlocked editing.</p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div class="xl:col-span-8 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-lg font-black text-slate-900">Quick Actions</h3>
+                <p class="text-xs text-slate-500 mt-1">Step through expense logging, review, and monthly submission.</p>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/finance/expenses/cogs" class="p-5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Step 1</p>
+                    <h4 class="font-black text-slate-900 mt-1">Log COGS Expense</h4>
+                    <p class="text-xs text-slate-500 mt-1">Currency conversion + converted PHP amount</p>
+                </a>
+                <a href="/finance/expenses/rent" class="p-5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Step 2</p>
+                    <h4 class="font-black text-slate-900 mt-1">Log Rent Expense</h4>
+                    <p class="text-xs text-slate-500 mt-1">Monthly rent and notes</p>
+                </a>
+                <a href="/finance/expenses/salaries" class="p-5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Step 3</p>
+                    <h4 class="font-black text-slate-900 mt-1">Log Salaries Expense</h4>
+                    <p class="text-xs text-slate-500 mt-1">Payroll-related monthly amount</p>
+                </a>
+                <a href="/finance/expenses/utilities" class="p-5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Step 4</p>
+                    <h4 class="font-black text-slate-900 mt-1">Log Utilities Expense</h4>
+                    <p class="text-xs text-slate-500 mt-1">Electric, water, internet, and related costs</p>
+                </a>
+                <a href="/finance/review" class="p-5 rounded-2xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all">
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Step 5</p>
+                    <h4 class="font-black text-slate-900 mt-1">Review Monthly Figures</h4>
+                    <p class="text-xs text-slate-500 mt-1">Validate totals before submission</p>
+                </a>
+                <a href="/finance/submit" class="p-5 rounded-2xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all">
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Step 6</p>
+                    <h4 class="font-black text-slate-900 mt-1">Confirm and Submit</h4>
+                    <p class="text-xs text-slate-500 mt-1">Lock month data and trigger EDSS processing</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="xl:col-span-4 space-y-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-base font-black text-slate-900">Current Month Snapshot</h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Top Product</span>
+                        <span id="snapshot-top-product" class="text-sm font-black text-slate-900">-</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Top Product Qty</span>
+                        <span id="snapshot-top-qty" class="text-sm font-black text-slate-900">0</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Net Profit</span>
+                        <span id="snapshot-net" class="text-sm font-black text-slate-900">P0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                <h3 class="text-base font-black text-slate-900">More Actions</h3>
+                <div class="mt-4 space-y-2">
+                    <a href="/finance/edit-submission" class="block w-full px-4 py-3 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all text-center">Edit Submitted Data</a>
+                    <a href="/finance/submissions" class="block w-full px-4 py-3 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all text-center">Submission History</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/finance-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const flow = window.CoretexFinanceFlow;
+            const monthKey = flow.getCurrentMonthKey();
+            const dashboard = flow.getDashboardData(monthKey);
+
+            document.getElementById('fo-name').textContent = `Finance Officer: ${dashboard.context.financeOfficer.name}`;
+            document.getElementById('branch-name').textContent = `Branch: ${dashboard.context.branch.name}`;
+            document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+
+            document.getElementById('card-total-sales').textContent = flow.formatCurrency(dashboard.snapshot.totalRevenue);
+            document.getElementById('card-tx-count').textContent = `${dashboard.snapshot.totalTransactions} transactions`;
+            document.getElementById('card-total-expenses').textContent = flow.formatCurrency(dashboard.snapshot.expenses.total);
+            document.getElementById('card-submission-status').textContent = dashboard.submissionStatus;
+
+            if (dashboard.submission) {
+                document.getElementById('card-submission-meta').textContent = `Status: ${dashboard.submission.status || 'Submitted'}`;
+                document.getElementById('lock-banner').classList.remove('hidden');
+            }
+
+            document.getElementById('snapshot-top-product').textContent = dashboard.snapshot.topProduct || '-';
+            document.getElementById('snapshot-top-qty').textContent = Number(dashboard.snapshot.topProductQty || 0).toString();
+            document.getElementById('snapshot-net').textContent = flow.formatCurrency(dashboard.snapshot.netProfit);
+        });
+    </script>
+}

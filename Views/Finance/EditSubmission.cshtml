@@ -1,0 +1,268 @@
+@{
+    ViewData["Title"] = "Edit Submitted Data";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span id="fo-name" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Finance Officer: Loading...</span>
+                <span id="branch-name" class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">Branch: Loading...</span>
+                <span id="month-label" class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Month: --</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Edit Submitted Data</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Allowed only within 48 hours or when admin unlock is active</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/finance/submissions" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">View History</a>
+            <a href="/finance/dashboard" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div id="status-banner" class="p-4 rounded-2xl border bg-slate-50 border-slate-200 text-slate-700">
+        <p id="status-text" class="text-sm font-bold">Checking submission edit eligibility...</p>
+        <p id="status-meta" class="text-xs mt-1"></p>
+    </div>
+
+    <form id="edit-form" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <h3 class="text-lg font-black text-slate-900">Expense Adjustment Form</h3>
+            <p class="text-xs text-slate-500 mt-1">Update values and provide reason. Changes are logged in the audit trail.</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">COGS</p>
+                    <input id="cogs-amount" type="number" min="0" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold" placeholder="Amount" />
+                    <select id="cogs-currency" class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold">
+                        <option value="PHP">PHP</option>
+                        <option value="USD">USD</option>
+                        <option value="CNY">CNY</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                    <textarea id="cogs-notes" rows="2" class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold resize-none" placeholder="Notes"></textarea>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Rent</p>
+                    <input id="rent-amount" type="number" min="0" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold" placeholder="Amount" />
+                    <select id="rent-currency" class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold">
+                        <option value="PHP">PHP</option>
+                        <option value="USD">USD</option>
+                        <option value="CNY">CNY</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                    <textarea id="rent-notes" rows="2" class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold resize-none" placeholder="Notes"></textarea>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Salaries</p>
+                    <input id="salaries-amount" type="number" min="0" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold" placeholder="Amount" />
+                    <select id="salaries-currency" class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold">
+                        <option value="PHP">PHP</option>
+                        <option value="USD">USD</option>
+                        <option value="CNY">CNY</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                    <textarea id="salaries-notes" rows="2" class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold resize-none" placeholder="Notes"></textarea>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Utilities</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input id="utilities-amount" type="number" min="0" step="0.01" class="bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold" placeholder="Amount" />
+                    <select id="utilities-currency" class="bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold">
+                        <option value="PHP">PHP</option>
+                        <option value="USD">USD</option>
+                        <option value="CNY">CNY</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                    <textarea id="utilities-notes" rows="2" class="bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3 text-sm font-semibold resize-none" placeholder="Notes"></textarea>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="edit-reason" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Reason for Edit (Required)</label>
+                <textarea id="edit-reason" rows="3" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all resize-none" placeholder="Explain why submitted values are being changed" required></textarea>
+            </div>
+        </div>
+
+        <div class="px-6 pb-6">
+            <button id="save-btn" type="submit" class="w-full py-3.5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-all">Save Edits and Update Submission</button>
+        </div>
+    </form>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <h3 class="text-base font-black text-slate-900">Changed Fields Preview</h3>
+        <p class="text-xs text-slate-500 mt-1">This list updates while you edit values.</p>
+        <div id="changed-fields" class="mt-4 space-y-2">
+            <p class="text-sm text-slate-400 italic">No changes detected yet.</p>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+    <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        <span id="toast-text" class="font-bold text-sm">Saved.</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/finance-flow.js" asp-append-version="true"></script>
+    <script>
+        let monthKey = null;
+        let context = null;
+        let canEdit = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const flow = window.CoretexFinanceFlow;
+            monthKey = flow.getCurrentMonthKey();
+            context = flow.getContext();
+
+            document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
+            document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
+            document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+
+            initFormFromSaved();
+            evaluateEditEligibility();
+            bindLivePreview();
+
+            document.getElementById('edit-form').addEventListener('submit', submitEdit);
+        });
+
+        function evaluateEditEligibility() {
+            const flow = window.CoretexFinanceFlow;
+            const submission = flow.getSubmission(monthKey, context.branch.id);
+
+            if (!submission) {
+                canEdit = false;
+                setStatus('No submitted data found for this month.', 'Submit data first, then use this page for controlled edits.', 'bg-red-50', 'border-red-200', 'text-red-800');
+                lockForm();
+                return;
+            }
+
+            canEdit = flow.canEditSubmission(monthKey, context.branch.id);
+
+            const submittedAt = flow.formatDateTime(submission.submittedAt);
+            const editWindow = flow.formatDateTime(submission.editWindowUntil);
+            const unlocked = submission.adminUnlocked || flow.hasAdminUnlock(monthKey, context.branch.id);
+
+            if (canEdit) {
+                const statusNote = unlocked
+                    ? 'Admin unlock is active for this month.'
+                    : `48-hour edit window ends on ${editWindow}.`;
+                setStatus('Edit access granted.', `Submitted at ${submittedAt}. ${statusNote}`, 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+            } else {
+                setStatus('Edit access denied.', `Submitted at ${submittedAt}. Edit window ended on ${editWindow}.`, 'bg-amber-50', 'border-amber-200', 'text-amber-800');
+                lockForm();
+            }
+        }
+
+        function setStatus(main, meta, bg, border, text) {
+            const banner = document.getElementById('status-banner');
+            banner.className = `p-4 rounded-2xl border ${bg} ${border} ${text}`;
+            document.getElementById('status-text').textContent = main;
+            document.getElementById('status-meta').textContent = meta;
+        }
+
+        function lockForm() {
+            document.querySelectorAll('#edit-form input, #edit-form select, #edit-form textarea, #edit-form button').forEach(el => {
+                el.disabled = true;
+            });
+        }
+
+        function initFormFromSaved() {
+            const flow = window.CoretexFinanceFlow;
+            ['cogs', 'rent', 'salaries', 'utilities'].forEach(category => {
+                const record = flow.getExpenseRecord(monthKey, category, context.branch.id);
+                if (!record) return;
+
+                document.getElementById(`${category}-amount`).value = Number(record.originalAmount || 0).toFixed(2);
+                document.getElementById(`${category}-currency`).value = record.currency || 'PHP';
+                document.getElementById(`${category}-notes`).value = record.notes || record.description || '';
+            });
+
+            renderChangedFields();
+        }
+
+        function collectEdits() {
+            const edits = {};
+            ['cogs', 'rent', 'salaries', 'utilities'].forEach(category => {
+                const amountRaw = document.getElementById(`${category}-amount`).value;
+                const notesRaw = document.getElementById(`${category}-notes`).value.trim();
+
+                if (!amountRaw && !notesRaw) {
+                    return;
+                }
+
+                edits[category] = {
+                    amount: Number(amountRaw || 0),
+                    originalAmount: Number(amountRaw || 0),
+                    currency: document.getElementById(`${category}-currency`).value,
+                    notes: notesRaw,
+                    description: notesRaw
+                };
+            });
+            return edits;
+        }
+
+        function bindLivePreview() {
+            document.querySelectorAll('#edit-form input, #edit-form select, #edit-form textarea').forEach(el => {
+                el.addEventListener('input', renderChangedFields);
+                el.addEventListener('change', renderChangedFields);
+            });
+        }
+
+        function renderChangedFields() {
+            const flow = window.CoretexFinanceFlow;
+            const fields = flow.getEditDiff(monthKey, collectEdits(), context.branch.id);
+            const container = document.getElementById('changed-fields');
+
+            if (!fields.length) {
+                container.innerHTML = '<p class="text-sm text-slate-400 italic">No changes detected yet.</p>';
+                return;
+            }
+
+            container.innerHTML = fields.map(field =>
+                `<div class="px-3 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg">${field}</div>`
+            ).join('');
+        }
+
+        function submitEdit(event) {
+            event.preventDefault();
+
+            if (!canEdit) {
+                alert('Editing is not allowed for this submission.');
+                return;
+            }
+
+            const flow = window.CoretexFinanceFlow;
+            const reason = document.getElementById('edit-reason').value.trim();
+            if (!reason) {
+                alert('Reason for edit is required.');
+                return;
+            }
+
+            try {
+                const result = flow.saveEditedExpenses(monthKey, collectEdits(), reason);
+                renderChangedFields();
+                showToast(`Submission updated. ${result.changedFields.length} field(s) changed.`);
+            } catch (error) {
+                alert(error.message || 'Unable to save submission edits.');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(function () {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+    </script>
+}

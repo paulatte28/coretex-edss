@@ -64,6 +64,51 @@ app.MapControllerRoute(
     pattern: "cashier/transactions",
     defaults: new { controller = "Cashier", action = "Transactions" });
 
+app.MapControllerRoute(
+    name: "finance_dashboard",
+    pattern: "finance/dashboard",
+    defaults: new { controller = "Finance", action = "Dashboard" });
+
+app.MapControllerRoute(
+    name: "finance_expenses_cogs",
+    pattern: "finance/expenses/cogs",
+    defaults: new { controller = "Finance", action = "ExpensesCogs" });
+
+app.MapControllerRoute(
+    name: "finance_expenses_rent",
+    pattern: "finance/expenses/rent",
+    defaults: new { controller = "Finance", action = "ExpensesRent" });
+
+app.MapControllerRoute(
+    name: "finance_expenses_salaries",
+    pattern: "finance/expenses/salaries",
+    defaults: new { controller = "Finance", action = "ExpensesSalaries" });
+
+app.MapControllerRoute(
+    name: "finance_expenses_utilities",
+    pattern: "finance/expenses/utilities",
+    defaults: new { controller = "Finance", action = "ExpensesUtilities" });
+
+app.MapControllerRoute(
+    name: "finance_review",
+    pattern: "finance/review",
+    defaults: new { controller = "Finance", action = "Review" });
+
+app.MapControllerRoute(
+    name: "finance_submit",
+    pattern: "finance/submit",
+    defaults: new { controller = "Finance", action = "Submit" });
+
+app.MapControllerRoute(
+    name: "finance_edit_submission",
+    pattern: "finance/edit-submission",
+    defaults: new { controller = "Finance", action = "EditSubmission" });
+
+app.MapControllerRoute(
+    name: "finance_submissions",
+    pattern: "finance/submissions",
+    defaults: new { controller = "Finance", action = "Submissions" });
+
 
 app.MapControllerRoute(
     name: "default",
