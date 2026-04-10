@@ -23,14 +23,14 @@ namespace coretex_finalproj.Controllers
 
         public IActionResult Index()
         {
-            // HARDCODED: Mocking a user and tenant for frontend-only mode without login
-            Guid? tenantId = _context.Tenants.FirstOrDefault()?.Id;
-            if (tenantId == null) tenantId = Guid.NewGuid();
+            // HARDCODED: Mocking a branch for frontend-only mode without login
+            Guid? branchId = _context.Branches.FirstOrDefault()?.Id;
+            if (branchId == null) branchId = Guid.NewGuid();
 
-            // Fetch tenant specific data
-            var sales = _context.Sales.Where(s => s.TenantId == tenantId).ToList();
-            var expenses = _context.Expenses.Where(e => e.TenantId == tenantId).ToList();
-            var products = _context.Products.Where(p => p.TenantId == tenantId).ToList();
+            // Fetch branch specific data
+            var sales = _context.Sales.Where(s => s.BranchId == branchId).ToList();
+            var expenses = _context.Expenses.Where(e => e.BranchId == branchId).ToList();
+            var products = _context.Products.Where(p => p.BranchId == branchId).ToList();
 
             decimal totalRevenue = sales.Sum(s => s.Amount);
             decimal totalExpenses = expenses.Sum(e => e.Amount);
@@ -78,20 +78,20 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
-        public IActionResult TenantManagement()
+        public IActionResult BranchManagement()
         {
-            var tenants = _context.Tenants.ToList();
-            if (!tenants.Any())
+            var branches = _context.Branches.ToList();
+            if (!branches.Any())
             {
-                // Provide some mock tenants for the frontend
-                tenants = new List<Tenant>
+                // Provide some mock branches for the frontend
+                branches = new List<Branch>
                 {
-                    new Tenant { CompanyName = "ElectroCore Inc.", PlanType = "Premium", Status = "Active", JoinedDate = DateTime.Now.AddDays(-120) },
-                    new Tenant { CompanyName = "SmartTech Solutions", PlanType = "Basic", Status = "Active", JoinedDate = DateTime.Now.AddDays(-40) },
-                    new Tenant { CompanyName = "Vertex Electronics", PlanType = "Enterprise", Status = "Suspended", JoinedDate = DateTime.Now.AddDays(-10) }
+                    new Branch { Name = "Davao Branch", Address = "Davao City", BranchCode = "DAV", IsActive = true },
+                    new Branch { Name = "Tagum Branch", Address = "Tagum City", BranchCode = "TAG", IsActive = true },
+                    new Branch { Name = "Digos Branch", Address = "Digos City", BranchCode = "DIG", IsActive = false }
                 };
             }
-            return View(tenants);
+            return View("~/Views/Admin/BranchManagement.cshtml", branches);
         }
 
         public IActionResult Subscription()

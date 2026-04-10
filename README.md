@@ -128,9 +128,9 @@ Used in the **Decision Support Analytics Module** to display live business news 
 ## Security Features
 
 - **Role-Based Access Control (RBAC)** — each user role has strictly defined access boundaries
-- **User Authentication** — secure login system per company tenant
+- **User Authentication** — secure login system per company account
 - **Input Validation** — all user inputs are validated server-side
-- **Activity Logging** — all system actions are recorded per company
+- **Activity Logging** — all system actions are recorded per branch
 - **SSL/HTTPS Encryption** — all data in transit is encrypted
 - **Data Encryption at Rest** — sensitive business data is encrypted in the database
 - **Session Timeout Management** — inactive sessions are automatically terminated
@@ -198,13 +198,11 @@ coretex-edss/
 │   ├── DashboardController.cs
 │   ├── ReportingController.cs
 │   ├── AnalyticsController.cs
-│   ├── TenantController.cs
 │   └── AccountController.cs
 │
 ├── Models/                       # Data models
 │   ├── KPI.cs
 │   ├── Report.cs
-│   ├── Tenant.cs
 │   └── User.cs
 │
 ├── Views/                        # Razor Pages views
@@ -213,7 +211,6 @@ coretex-edss/
 │   ├── Analytics/
 │   ├── DataVisualization/
 │   ├── DecisionSupport/
-│   └── Tenant/
 │
 ├── Services/                     # Business logic & API integrations
 │   ├── ExchangeRateService.cs

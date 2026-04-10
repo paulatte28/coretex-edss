@@ -20,8 +20,7 @@ namespace coretex_finalproj.Models
 
         public int LowStockThreshold { get; set; } = 10;
 
-        // Multi-tenancy
-        public Guid TenantId { get; set; }
-        public Tenant? Tenant { get; set; }
+        public Guid BranchId { get; set; }
+        public Branch? Branch { get; set; }
     }
 }

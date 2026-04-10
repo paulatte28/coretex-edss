@@ -1,0 +1,372 @@
+@{
+    ViewData["Title"] = "Cashier POS";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="branch-name">Branch: Loading...</span>
+                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="cashier-name">Cashier: Loading...</span>
+                <span class="px-3 py-1 bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-full" id="current-date">Date: --</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Cashier Dashboard / POS Module</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Record point-of-sale transactions</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/cashier/daily-summary" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">
+                View Daily Summary
+            </a>
+            <a href="/cashier/transactions" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">
+                View Transaction History
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div class="xl:col-span-8">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-8 border-b border-slate-100">
+                    <h3 class="text-lg font-black text-slate-900">Record POS Transaction</h3>
+                    <p class="text-xs text-slate-500 mt-1">Line total is auto-calculated from quantity and unit price</p>
+                </div>
+
+                <form id="pos-form" class="p-8 space-y-6" autocomplete="on">
+                    <div class="space-y-2">
+                        <label for="product-name" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Product Name</label>
+                        <input
+                            id="product-name"
+                            type="text"
+                            list="product-suggestions"
+                            maxlength="100"
+                            required
+                            placeholder="Enter product name"
+                            class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all"
+                        />
+                        <datalist id="product-suggestions"></datalist>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="quantity" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Quantity</label>
+                            <input
+                                id="quantity"
+                                type="number"
+                                min="1"
+                                step="1"
+                                value="1"
+                                required
+                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all"
+                            />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="unit-price" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Unit Price (₱)</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">₱</span>
+                                <input
+                                    id="unit-price"
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    required
+                                    placeholder="0.00"
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 pl-14 pr-4 text-sm font-bold focus:border-blue-500 outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex items-center justify-between">
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Line Total</p>
+                        <p id="line-total" class="text-2xl font-black text-slate-900">₱0.00</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <button type="button" id="save-and-clear" class="w-full py-3.5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-all" onclick="saveTransaction('clear')">
+                            Save Transaction
+                        </button>
+                        <button type="button" id="save-and-add" class="w-full py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-all" onclick="saveTransaction('add')">
+                            Save & Add Another
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="xl:col-span-4 space-y-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-base font-black text-slate-900">Today's Transactions Summary</h3>
+                    <p class="text-xs text-slate-500 mt-1">Current cashier and branch only</p>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <div class="p-4 bg-emerald-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Total Amount</span>
+                        <span id="summary-total" class="text-sm font-black text-emerald-700">₱0.00</span>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Transactions</span>
+                        <span id="summary-count" class="text-sm font-black text-blue-700">0</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Average Ticket</span>
+                        <span id="summary-average" class="text-sm font-black text-slate-700">₱0.00</span>
+                    </div>
+                </div>
+
+                <div class="px-6 pb-6">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Recent Entries</p>
+                    <div id="today-list" class="space-y-2 max-h-64 overflow-y-auto">
+                        <p class="text-xs text-slate-400 text-center py-4">No transactions yet today.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+    <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        <span id="toast-text" class="font-bold text-sm">Transaction saved!</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const POS_STORAGE_KEY = 'coretex_pos_transactions';
+
+        let currentCashier = null;
+        let currentBranch = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            resolveContext();
+            renderDate();
+            bindFormEvents();
+            loadSuggestions();
+            updateLineTotal();
+            renderTodaySummary();
+            document.getElementById('product-name').focus();
+        });
+
+        function resolveContext() {
+            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
+            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+
+            currentCashier = users.find(u => u.role === 'Branch Cashier' && u.status === 'Active')
+                || users.find(u => u.role === 'Branch Cashier')
+                || { id: 'cashier_demo', name: 'Demo Cashier', branchId: null };
+
+            currentBranch = branches.find(b => b.id === currentCashier.branchId)
+                || branches[0]
+                || { id: 'branch_default', name: 'Davao Main' };
+
+            document.getElementById('cashier-name').textContent = `Cashier: ${currentCashier.name || 'Demo Cashier'}`;
+            document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Davao Main'}`;
+        }
+
+        function renderDate() {
+            const now = new Date();
+            const formatted = now.toLocaleDateString('en-PH', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            document.getElementById('current-date').textContent = `Date: ${formatted}`;
+        }
+
+        function bindFormEvents() {
+            document.getElementById('quantity').addEventListener('input', updateLineTotal);
+            document.getElementById('unit-price').addEventListener('input', updateLineTotal);
+            document.getElementById('pos-form').addEventListener('submit', function (event) {
+                event.preventDefault();
+            });
+        }
+
+        function loadSuggestions() {
+            const defaults = ['Laptop', 'Mouse', 'Keyboard', 'Monitor', 'Printer', 'Router'];
+            const transactions = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
+            const dynamicNames = transactions.map(t => t.productName).filter(Boolean);
+            const unique = [...new Set([...defaults, ...dynamicNames])].sort((a, b) => a.localeCompare(b));
+
+            const dataList = document.getElementById('product-suggestions');
+            dataList.innerHTML = unique.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+        }
+
+        function updateLineTotal() {
+            const qty = parseInt(document.getElementById('quantity').value, 10) || 0;
+            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const lineTotal = qty * unitPrice;
+            document.getElementById('line-total').textContent = formatCurrency(lineTotal);
+        }
+
+        function validateForm() {
+            const productName = document.getElementById('product-name').value.trim();
+            const quantity = parseInt(document.getElementById('quantity').value, 10);
+            const unitPrice = parseFloat(document.getElementById('unit-price').value);
+
+            if (!productName) {
+                alert('Product Name is required.');
+                return null;
+            }
+
+            if (productName.length > 100) {
+                alert('Product Name must be 100 characters or fewer.');
+                return null;
+            }
+
+            if (!Number.isInteger(quantity) || quantity < 1) {
+                alert('Quantity must be at least 1.');
+                return null;
+            }
+
+            if (Number.isNaN(unitPrice) || unitPrice < 0.01) {
+                alert('Unit Price must be at least 0.01.');
+                return null;
+            }
+
+            return {
+                productName,
+                quantity,
+                unitPrice,
+                lineTotal: quantity * unitPrice
+            };
+        }
+
+        function saveTransaction(mode) {
+            const parsed = validateForm();
+            if (!parsed) return;
+
+            const timestamp = new Date().toISOString();
+            const transactionId = generateTransactionId();
+
+            const transaction = {
+                id: transactionId,
+                transactionId,
+                productName: parsed.productName,
+                quantity: parsed.quantity,
+                unitPrice: parsed.unitPrice,
+                lineTotal: parsed.lineTotal,
+                cashierId: currentCashier.id || 'cashier_demo',
+                cashierName: currentCashier.name || 'Demo Cashier',
+                branchId: currentBranch.id || 'branch_default',
+                branchName: currentBranch.name || 'Davao Main',
+                timestamp
+            };
+
+            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
+            all.unshift(transaction);
+            localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(all.slice(0, 1000)));
+
+            showToast(`Transaction saved! ${formatCurrency(parsed.lineTotal)}`);
+            renderTodaySummary();
+            loadSuggestions();
+
+            if (mode === 'clear') {
+                clearForm();
+                document.getElementById('product-name').focus();
+                return;
+            }
+
+            document.getElementById('quantity').value = '1';
+            updateLineTotal();
+            document.getElementById('quantity').focus();
+            document.getElementById('quantity').select();
+        }
+
+        function clearForm() {
+            document.getElementById('pos-form').reset();
+            document.getElementById('quantity').value = '1';
+            updateLineTotal();
+        }
+
+        function renderTodaySummary() {
+            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
+            const todayKey = toDateKey(new Date());
+
+            const today = all.filter(t =>
+                t.branchId === (currentBranch.id || 'branch_default')
+                && t.cashierId === (currentCashier.id || 'cashier_demo')
+                && toDateKey(new Date(t.timestamp)) === todayKey
+            );
+
+            const total = today.reduce((sum, t) => sum + (Number(t.lineTotal) || 0), 0);
+            const count = today.length;
+            const average = count > 0 ? total / count : 0;
+
+            document.getElementById('summary-total').textContent = formatCurrency(total);
+            document.getElementById('summary-count').textContent = count.toString();
+            document.getElementById('summary-average').textContent = formatCurrency(average);
+
+            const list = document.getElementById('today-list');
+            if (count === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No transactions yet today.</p>';
+                return;
+            }
+
+            list.innerHTML = today.slice(0, 12).map(t => {
+                const time = new Date(t.timestamp).toLocaleTimeString('en-PH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <div class="p-3 bg-slate-50 rounded-lg flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(t.productName)}</p>
+                            <p class="text-[11px] text-slate-500">${t.quantity} x ${formatCurrency(t.unitPrice)} | ${time}</p>
+                        </div>
+                        <p class="text-xs font-black text-slate-900 whitespace-nowrap">${formatCurrency(t.lineTotal)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toDateKey(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function generateTransactionId() {
+            const now = new Date();
+            const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
+            return `TXN-${datePart}-${randomPart}`;
+        }
+
+        function formatCurrency(value) {
+            return `₱${Number(value || 0).toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(function () {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        function escapeHtml(value) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+
+            return String(value || '').replace(/[&<>"']/g, char => map[char]);
+        }
+    </script>
+}

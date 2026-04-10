@@ -49,6 +49,21 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.MapControllerRoute(
+    name: "cashier_pos",
+    pattern: "cashier/pos",
+    defaults: new { controller = "Cashier", action = "Pos" });
+
+app.MapControllerRoute(
+    name: "cashier_daily_summary",
+    pattern: "cashier/daily-summary",
+    defaults: new { controller = "Cashier", action = "DailySummary" });
+
+app.MapControllerRoute(
+    name: "cashier_transactions",
+    pattern: "cashier/transactions",
+    defaults: new { controller = "Cashier", action = "Transactions" });
+
 
 app.MapControllerRoute(
     name: "default",

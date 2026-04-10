@@ -17,7 +17,7 @@ namespace coretex_finalproj.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateExecutiveReport(string emailAddress)
         {
-            // Simulate generation of a PDF or HTML report based on Tenant Data
+            // Simulate generation of a PDF or HTML report based on business data
             string reportContent = "<h1>Executive Report</h1><p>Your KPI metrics and predictive trends are stable.</p>";
             
             bool success = await _notificationService.SendExecutiveReportEmailAsync(emailAddress, "Monthly Executive Summary", reportContent);

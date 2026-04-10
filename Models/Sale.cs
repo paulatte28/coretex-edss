@@ -19,8 +19,7 @@ namespace coretex_finalproj.Models
 
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        // Multi-tenancy
-        public Guid TenantId { get; set; }
-        public Tenant? Tenant { get; set; }
+        public Guid BranchId { get; set; }
+        public Branch? Branch { get; set; }
     }
 }

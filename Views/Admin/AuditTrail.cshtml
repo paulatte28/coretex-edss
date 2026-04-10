@@ -4,401 +4,371 @@
 }
 
 <div class="space-y-8">
-    <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
             <div class="flex items-center space-x-3 mb-2">
-                <span class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Security</span>
+                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </a>
+                <span class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Change Log</span>
             </div>
             <h2 class="text-3xl font-black text-slate-900 tracking-tight">Audit Trail</h2>
-            <p class="text-sm text-slate-500 mt-1">Track all data changes and system modifications</p>
+            <p class="text-sm text-slate-500 mt-1">Track created, updated, and deleted records across modules</p>
         </div>
-        <div class="flex items-center space-x-3">
-            <!-- Filters -->
-            <select id="action-filter" onchange="filterAuditLog()" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-secondary/20">
-                <option value="">All Actions</option>
-                <option value="create">Create</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-                <option value="submit">Submit</option>
-            </select>
-            <select id="user-filter" onchange="filterAuditLog()" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-secondary/20">
-                <option value="">All Users</option>
-            </select>
-            <button onclick="exportAuditLog()" class="px-4 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <span class="text-sm font-bold">Export</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div class="flex flex-wrap items-end gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date From</label>
+                <input type="date" id="date-from" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date To</label>
+                <input type="date" id="date-to" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
+                <select id="user-filter" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
+                    <option value="">All Users</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Module</label>
+                <select id="module-filter" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
+                    <option value="">All Modules</option>
+                </select>
+            </div>
+            <button id="clear-filters" class="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors text-sm font-bold">
+                Clear Filters
             </button>
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-slate-900" id="total-entries">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Entries</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-emerald-600" id="create-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Creates</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-amber-600" id="update-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Updates</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-red-600" id="delete-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Deletes</p>
-        </div>
-    </div>
-
-    <!-- Audit Log Table -->
     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="text-lg font-black text-slate-900">Audit Log</h3>
-            <div class="flex items-center space-x-2">
-                <input type="text" id="search-input" onkeyup="filterAuditLog()" placeholder="Search..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-secondary/20">
+            <div>
+                <h3 class="font-bold text-slate-900">Change Log Table</h3>
+                <p class="text-xs text-slate-500 mt-1">Timestamp, user, module, action, field changes, and record references</p>
             </div>
+            <p class="text-xs text-slate-400" id="showing-count">Showing 0 of 0 changes</p>
         </div>
+
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Timestamp</th>
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">User</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Module</th>
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Action</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Entity</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Details</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">IP Address</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Field Changed</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Old Value</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">New Value</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Record ID</th>
                     </tr>
                 </thead>
-                <tbody id="audit-table" class="divide-y divide-slate-100">
+                <tbody id="change-log-table" class="divide-y divide-slate-100">
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No audit entries yet.
-                        </td>
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-400 text-sm italic">No change logs yet.</td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <!-- Pagination -->
-        <div class="p-4 border-t border-slate-100 flex items-center justify-between">
-            <p class="text-sm text-slate-500">Showing <span id="showing-count">0</span> of <span id="total-count">0</span> entries</p>
-            <div class="flex items-center space-x-2">
-                <button onclick="prevPage()" id="prev-btn" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50" disabled>Previous</button>
-                <span id="page-info" class="text-sm text-slate-600 px-3">Page 1</span>
-                <button onclick="nextPage()" id="next-btn" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Data Change History -->
-    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-        <h3 class="text-lg font-black text-slate-900 mb-6">Recent Data Changes</h3>
-        <div id="change-history" class="space-y-4">
-            <p class="text-slate-400 text-sm italic">No data changes recorded yet.</p>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        let allAuditEntries = [];
+        const KNOWN_MODULES = [
+            'POS',
+            'Expenses',
+            'KPI Settings',
+            'Goals & Targets',
+            'Report Schedule',
+            'Branch Submission',
+            'User Management',
+            'System'
+        ];
+
+        const MODULE_HINTS = {
+            pos: 'POS',
+            sale: 'POS',
+            sales: 'POS',
+            expense: 'Expenses',
+            expenses: 'Expenses',
+            kpi: 'KPI Settings',
+            threshold: 'KPI Settings',
+            goal: 'Goals & Targets',
+            target: 'Goals & Targets',
+            schedule: 'Report Schedule',
+            report: 'Report Schedule',
+            branch: 'Branch Submission',
+            submission: 'Branch Submission',
+            user: 'User Management'
+        };
+
+        let allEntries = [];
         let filteredEntries = [];
-        let currentPage = 1;
-        const entriesPerPage = 15;
 
-        function initUserFilter() {
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            const select = document.getElementById('user-filter');
-            
-            // Add System Administrator
-            const adminOption = document.createElement('option');
-            adminOption.value = 'System Administrator';
-            adminOption.textContent = 'System Administrator';
-            select.appendChild(adminOption);
+        function normalizeAction(rawAction) {
+            const value = String(rawAction || '').toLowerCase();
 
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.name;
-                option.textContent = user.name;
-                select.appendChild(option);
-            });
+            if (!value) return null;
+            if (value.includes('login') || value.includes('logout') || value.includes('auth')) return null;
+            if (value.includes('create') || value.includes('add') || value.includes('new')) return 'Created';
+            if (value.includes('update') || value.includes('edit') || value.includes('change') || value.includes('submit')) return 'Updated';
+            if (value.includes('delete') || value.includes('remove')) return 'Deleted';
+
+            return null;
         }
 
-        function loadAuditLog() {
-            // Combine all audit-related data
-            const activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            const auditLog = JSON.parse(localStorage.getItem('coretex_audit_log') || '[]');
-            
-            // Convert activities to audit format
-            const activityAudits = activities.map(a => ({
-                id: a.id,
-                timestamp: a.timestamp,
-                user: a.user || 'System',
-                role: a.user === 'System Administrator' ? 'System Admin' : 'User',
-                action: categorizeAction(a.action),
-                entity: a.type || 'System',
-                details: a.description,
-                ipAddress: generateMockIP()
-            }));
+        function toTitleCase(value) {
+            return String(value || '')
+                .replace(/[_-]/g, ' ')
+                .trim()
+                .replace(/\s+/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
 
-            allAuditEntries = [...auditLog, ...activityAudits].sort((a, b) => 
-                new Date(b.timestamp) - new Date(a.timestamp)
-            );
+        function safeString(value, fallback = '-') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text ? text : fallback;
+        }
 
-            // Remove duplicates by ID
+        function inferModule(moduleValue, contextText) {
+            const source = (safeString(moduleValue, '') + ' ' + safeString(contextText, '')).toLowerCase();
+
+            for (const [hint, label] of Object.entries(MODULE_HINTS)) {
+                if (source.includes(hint)) return label;
+            }
+
+            if (safeString(moduleValue, '') !== '') {
+                return toTitleCase(moduleValue);
+            }
+
+            return 'System';
+        }
+
+        function normalizeAuditEntry(entry) {
+            const action = normalizeAction(entry.action);
+            if (!action) return null;
+
+            const details = safeString(entry.details || entry.description, '');
+            const timestamp = entry.timestamp || entry.createdAt || entry.date || new Date().toISOString();
+
+            return {
+                timestamp,
+                user: safeString(entry.user || entry.userName || entry.actor, 'System Administrator'),
+                module: inferModule(entry.module || entry.entity || entry.type, (entry.action || '') + ' ' + details),
+                action,
+                fieldChanged: safeString(entry.fieldChanged || entry.field || entry.property || entry.column, '-'),
+                oldValue: safeString(entry.oldValue ?? entry.before ?? entry.previousValue ?? entry.old, '-'),
+                newValue: safeString(entry.newValue ?? entry.after ?? entry.currentValue ?? entry.new, '-'),
+                recordId: safeString(entry.recordId || entry.referenceId || entry.entityId || entry.targetId || entry.id, '-'),
+                sortDate: new Date(timestamp)
+            };
+        }
+
+        function normalizeActivityEntry(entry) {
+            const action = normalizeAction(entry.action);
+            if (!action) return null;
+
+            const details = safeString(entry.description, '');
+            const timestamp = entry.timestamp || new Date().toISOString();
+
+            return {
+                timestamp,
+                user: safeString(entry.user, 'System Administrator'),
+                module: inferModule(entry.type, (entry.action || '') + ' ' + details),
+                action,
+                fieldChanged: safeString(entry.fieldChanged || entry.field, '-'),
+                oldValue: safeString(entry.oldValue ?? entry.before ?? entry.previousValue, '-'),
+                newValue: safeString(entry.newValue ?? entry.after ?? entry.currentValue, '-'),
+                recordId: safeString(entry.recordId || entry.entityId || entry.id, '-'),
+                sortDate: new Date(timestamp)
+            };
+        }
+
+        function setSelectOptions(selectId, values, placeholder) {
+            const select = document.getElementById(selectId);
+            const currentValue = select.value;
+
+            const optionHtml = values
+                .map(value => '<option value="' + escapeHtml(value) + '">' + escapeHtml(value) + '</option>')
+                .join('');
+
+            select.innerHTML = '<option value="">' + placeholder + '</option>' + optionHtml;
+
+            if (values.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function initFilterOptions() {
+            const usersFromEntries = allEntries.map(entry => entry.user);
+            const usersFromStore = JSON.parse(localStorage.getItem('coretex_users') || '[]').map(user => user.name);
+            const allUsers = [...new Set([...usersFromEntries, ...usersFromStore, 'System Administrator'])]
+                .filter(Boolean)
+                .sort((a, b) => a.localeCompare(b));
+
+            const modulesFromEntries = allEntries.map(entry => entry.module);
+            const allModules = [...new Set([...KNOWN_MODULES, ...modulesFromEntries])]
+                .filter(Boolean)
+                .sort((a, b) => a.localeCompare(b));
+
+            setSelectOptions('user-filter', allUsers, 'All Users');
+            setSelectOptions('module-filter', allModules, 'All Modules');
+        }
+
+        function loadEntries() {
+            const auditEntriesRaw = JSON.parse(localStorage.getItem('coretex_audit_log') || '[]');
+            const activityEntriesRaw = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
+
+            const auditEntries = auditEntriesRaw.map(normalizeAuditEntry).filter(Boolean);
+            const activityEntries = activityEntriesRaw.map(normalizeActivityEntry).filter(Boolean);
+
+            const combined = [...auditEntries, ...activityEntries];
             const seen = new Set();
-            allAuditEntries = allAuditEntries.filter(entry => {
-                if (seen.has(entry.id)) return false;
-                seen.add(entry.id);
-                return true;
-            });
 
-            updateSummary();
-            filterAuditLog();
+            allEntries = combined
+                .filter(entry => {
+                    const key = [
+                        safeString(entry.timestamp, ''),
+                        safeString(entry.user, ''),
+                        safeString(entry.module, ''),
+                        safeString(entry.action, ''),
+                        safeString(entry.fieldChanged, ''),
+                        safeString(entry.recordId, '')
+                    ].join('|');
+
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                })
+                .sort((a, b) => b.sortDate - a.sortDate);
+
+            initFilterOptions();
+            applyFilters();
         }
 
-        function categorizeAction(action) {
-            const lowerAction = action.toLowerCase();
-            if (lowerAction.includes('create') || lowerAction.includes('add') || lowerAction.includes('new')) return 'create';
-            if (lowerAction.includes('update') || lowerAction.includes('edit') || lowerAction.includes('change')) return 'update';
-            if (lowerAction.includes('delete') || lowerAction.includes('remove')) return 'delete';
-            if (lowerAction.includes('submit') || lowerAction.includes('confirm')) return 'submit';
-            if (lowerAction.includes('login') || lowerAction.includes('logout')) return 'auth';
-            return 'other';
-        }
-
-        function generateMockIP() {
-            const ips = ['180.190.xxx.xxx', '112.198.xxx.xxx', '49.145.xxx.xxx', '202.90.xxx.xxx'];
-            return ips[Math.floor(Math.random() * ips.length)];
-        }
-
-        function updateSummary() {
-            document.getElementById('total-entries').textContent = allAuditEntries.length;
-            document.getElementById('create-count').textContent = allAuditEntries.filter(e => e.action === 'create').length;
-            document.getElementById('update-count').textContent = allAuditEntries.filter(e => e.action === 'update').length;
-            document.getElementById('delete-count').textContent = allAuditEntries.filter(e => e.action === 'delete').length;
-        }
-
-        function filterAuditLog() {
-            const actionFilter = document.getElementById('action-filter').value;
+        function applyFilters() {
+            const dateFromValue = document.getElementById('date-from').value;
+            const dateToValue = document.getElementById('date-to').value;
             const userFilter = document.getElementById('user-filter').value;
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const moduleFilter = document.getElementById('module-filter').value;
 
-            filteredEntries = allAuditEntries.filter(entry => {
-                const matchesAction = !actionFilter || entry.action === actionFilter;
+            const dateFrom = dateFromValue ? new Date(dateFromValue + 'T00:00:00') : null;
+            const dateTo = dateToValue ? new Date(dateToValue + 'T23:59:59.999') : null;
+
+            filteredEntries = allEntries.filter(entry => {
+                const entryDate = new Date(entry.timestamp);
+
+                const matchesFrom = !dateFrom || entryDate >= dateFrom;
+                const matchesTo = !dateTo || entryDate <= dateTo;
                 const matchesUser = !userFilter || entry.user === userFilter;
-                const matchesSearch = !searchTerm || 
-                    entry.details.toLowerCase().includes(searchTerm) ||
-                    entry.entity.toLowerCase().includes(searchTerm) ||
-                    entry.user.toLowerCase().includes(searchTerm);
-                
-                return matchesAction && matchesUser && matchesSearch;
+                const matchesModule = !moduleFilter || entry.module === moduleFilter;
+
+                return matchesFrom && matchesTo && matchesUser && matchesModule;
             });
 
-            currentPage = 1;
             renderTable();
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('audit-table');
-            const start = (currentPage - 1) * entriesPerPage;
-            const end = start + entriesPerPage;
-            const pageEntries = filteredEntries.slice(start, end);
-
-            if (pageEntries.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No audit entries found.
-                        </td>
-                    </tr>`;
-            } else {
-                tbody.innerHTML = pageEntries.map(entry => `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4 text-sm text-slate-600">${formatDateTime(entry.timestamp)}</td>
-                        <td class="px-6 py-4">
-                            <span class="font-bold text-slate-900">${entry.user}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">${entry.role}</span>
-                        </td>
-                        <td class="px-6 py-4">${getActionBadge(entry.action)}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600 capitalize">${entry.entity}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="${entry.details}">${entry.details}</td>
-                        <td class="px-6 py-4 text-sm text-slate-400 font-mono">${entry.ipAddress}</td>
-                    </tr>
-                `).join('');
-            }
-
-            // Update pagination
-            const totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
-            document.getElementById('showing-count').textContent = pageEntries.length;
-            document.getElementById('total-count').textContent = filteredEntries.length;
-            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages || 1}`;
-            document.getElementById('prev-btn').disabled = currentPage === 1;
-            document.getElementById('next-btn').disabled = currentPage >= totalPages;
-
-            renderChangeHistory();
-        }
-
         function getActionBadge(action) {
-            const badges = {
-                'create': '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded">Create</span>',
-                'update': '<span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase rounded">Update</span>',
-                'delete': '<span class="px-2 py-1 bg-red-100 text-red-700 text-[10px] font-black uppercase rounded">Delete</span>',
-                'submit': '<span class="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-black uppercase rounded">Submit</span>',
-                'auth': '<span class="px-2 py-1 bg-purple-100 text-purple-700 text-[10px] font-black uppercase rounded">Auth</span>',
-                'other': '<span class="px-2 py-1 bg-slate-100 text-slate-700 text-[10px] font-black uppercase rounded">Other</span>'
-            };
-            return badges[action] || badges['other'];
-        }
-
-        function renderChangeHistory() {
-            const container = document.getElementById('change-history');
-            const dataChanges = allAuditEntries.filter(e => 
-                ['create', 'update', 'delete'].includes(e.action) && 
-                !['auth', 'login', 'logout'].includes(e.entity)
-            ).slice(0, 10);
-
-            if (dataChanges.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-sm italic">No data changes recorded yet.</p>';
-                return;
+            if (action === 'Created') {
+                return '<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-full">Created</span>';
             }
 
-            container.innerHTML = dataChanges.map(entry => `
-                <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-xl">
-                    <div class="w-10 h-10 ${getActionColor(entry.action)} rounded-full flex items-center justify-center flex-shrink-0">
-                        ${getActionIcon(entry.action)}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2">
-                            <span class="font-bold text-sm text-slate-900">${entry.user}</span>
-                            ${getActionBadge(entry.action)}
-                            <span class="text-sm text-slate-600">${entry.entity}</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">${entry.details}</p>
-                    </div>
-                    <p class="text-xs text-slate-400">${formatTimeAgo(entry.timestamp)}</p>
-                </div>
-            `).join('');
-        }
-
-        function getActionColor(action) {
-            const colors = {
-                'create': 'bg-emerald-100',
-                'update': 'bg-amber-100',
-                'delete': 'bg-red-100',
-                'submit': 'bg-blue-100',
-                'auth': 'bg-purple-100'
-            };
-            return colors[action] || 'bg-slate-100';
-        }
-
-        function getActionIcon(action) {
-            const icons = {
-                'create': '<svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>',
-                'update': '<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>',
-                'delete': '<svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
-                'submit': '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-            };
-            return icons[action] || '<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderTable();
+            if (action === 'Updated') {
+                return '<span class="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase rounded-full">Updated</span>';
             }
+
+            return '<span class="px-3 py-1 bg-red-100 text-red-700 text-[10px] font-black uppercase rounded-full">Deleted</span>';
         }
 
-        function nextPage() {
-            const totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderTable();
-            }
-        }
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            if (Number.isNaN(date.getTime())) return '-';
 
-        function exportAuditLog() {
-            const csv = [
-                ['Timestamp', 'User', 'Role', 'Action', 'Entity', 'Details', 'IP Address'],
-                ...filteredEntries.map(e => [
-                    formatDateTime(e.timestamp),
-                    e.user,
-                    e.role,
-                    e.action,
-                    e.entity,
-                    e.details,
-                    e.ipAddress
-                ])
-            ].map(row => row.join(',')).join('\n');
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `audit_log_${new Date().toISOString().slice(0, 10)}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            if (window.logActivity) {
-                window.logActivity('Export', 'Audit log exported to CSV', 'general');
-            }
-        }
-
-        function formatDateTime(dateStr) {
-            return new Date(dateStr).toLocaleString('en-US', {
+            return date.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
-                year: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            if (Number.isNaN(date.getTime())) return '-';
+
+            return date.toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit'
             });
         }
 
-        function formatTimeAgo(timestamp) {
-            const now = new Date();
-            const then = new Date(timestamp);
-            const diffMs = now - then;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
+        function escapeHtml(value) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
 
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins}m ago`;
-            if (diffHours < 24) return `${diffHours}h ago`;
-            return `${diffDays}d ago`;
+            return String(value || '').replace(/[&<>"']/g, char => map[char]);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('change-log-table');
+            const showingCount = document.getElementById('showing-count');
+
+            showingCount.textContent = 'Showing ' + filteredEntries.length + ' of ' + allEntries.length + ' changes';
+
+            if (filteredEntries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-400 text-sm italic">
+                            No change logs match the selected filters.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredEntries.map(entry => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <p class="font-semibold text-slate-900 text-sm">${escapeHtml(formatDate(entry.timestamp))}</p>
+                        <p class="text-xs text-slate-500">${escapeHtml(formatTime(entry.timestamp))}</p>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${escapeHtml(entry.user)}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${escapeHtml(entry.module)}</td>
+                    <td class="px-6 py-4">${getActionBadge(entry.action)}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${escapeHtml(entry.fieldChanged)}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 max-w-[220px] truncate" title="${escapeHtml(entry.oldValue)}">${escapeHtml(entry.oldValue)}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 max-w-[220px] truncate" title="${escapeHtml(entry.newValue)}">${escapeHtml(entry.newValue)}</td>
+                    <td class="px-6 py-4 text-sm font-mono text-slate-500">${escapeHtml(entry.recordId)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function clearFilters() {
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+            document.getElementById('user-filter').value = '';
+            document.getElementById('module-filter').value = '';
+            applyFilters();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            initUserFilter();
-            loadAuditLog();
+            document.getElementById('date-from').addEventListener('change', applyFilters);
+            document.getElementById('date-to').addEventListener('change', applyFilters);
+            document.getElementById('user-filter').addEventListener('change', applyFilters);
+            document.getElementById('module-filter').addEventListener('change', applyFilters);
+            document.getElementById('clear-filters').addEventListener('click', clearFilters);
+            loadEntries();
         });
     </script>
 }

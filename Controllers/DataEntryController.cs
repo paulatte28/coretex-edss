@@ -43,11 +43,11 @@ namespace coretex_finalproj.Controllers
         {
             if (ModelState.IsValid)
             {
-                var tenant = _context.Tenants.FirstOrDefault();
+                var branch = _context.Branches.FirstOrDefault();
                 
-                if (tenant != null)
+                if (branch != null)
                 {
-                    sale.TenantId = tenant.Id;
+                    sale.BranchId = branch.Id;
                     sale.Date = DateTime.UtcNow;
                     _context.Sales.Add(sale);
                     await _context.SaveChangesAsync();

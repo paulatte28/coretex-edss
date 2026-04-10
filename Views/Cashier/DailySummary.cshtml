@@ -1,0 +1,215 @@
+@{
+    ViewData["Title"] = "Daily Sales Summary";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="branch-name">Branch: Loading...</span>
+                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="cashier-name">Cashier: Loading...</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Daily Sales Summary</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Cashier daily performance snapshot</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/cashier/pos" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">
+                Back to POS
+            </a>
+            <a href="/cashier/transactions" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">
+                View Transactions
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div class="flex flex-wrap items-end gap-4">
+            <div>
+                <label for="summary-date" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date</label>
+                <input type="date" id="summary-date" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500" />
+            </div>
+            <p id="selected-date-label" class="text-sm text-slate-500 font-semibold"></p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Transactions</p>
+            <p id="total-transactions" class="text-3xl font-black text-slate-900 mt-2">0</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Sales</p>
+            <p id="total-sales" class="text-3xl font-black text-emerald-700 mt-2">₱0.00</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Top Product</p>
+            <p id="top-product" class="text-xl font-black text-slate-900 mt-2">-</p>
+            <p id="top-product-qty" class="text-xs text-slate-500 mt-1">No sales</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <h3 class="text-lg font-black text-slate-900">Mini Table: Today's Transactions</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Product</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Qty</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Unit Price</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="daily-table-body" class="divide-y divide-slate-100">
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-400 text-sm italic">No transactions for this date.</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="bg-slate-900">
+                        <td colspan="3" class="px-6 py-4 text-right text-xs font-black text-white uppercase tracking-widest">Total</td>
+                        <td id="daily-total" class="px-6 py-4 text-right text-sm font-black text-white">₱0.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const POS_STORAGE_KEY = 'coretex_pos_transactions';
+
+        let currentCashier = null;
+        let currentBranch = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            resolveContext();
+
+            const dateInput = document.getElementById('summary-date');
+            dateInput.value = toDateKey(new Date());
+            dateInput.addEventListener('change', renderSummary);
+
+            renderSummary();
+        });
+
+        function resolveContext() {
+            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
+            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+
+            currentCashier = users.find(u => u.role === 'Branch Cashier' && u.status === 'Active')
+                || users.find(u => u.role === 'Branch Cashier')
+                || { id: 'cashier_demo', name: 'Demo Cashier', branchId: null };
+
+            currentBranch = branches.find(b => b.id === currentCashier.branchId)
+                || branches[0]
+                || { id: 'branch_default', name: 'Davao Main' };
+
+            document.getElementById('cashier-name').textContent = `Cashier: ${currentCashier.name || 'Demo Cashier'}`;
+            document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Davao Main'}`;
+        }
+
+        function renderSummary() {
+            const selectedDate = document.getElementById('summary-date').value;
+            const transactions = getTransactionsForDate(selectedDate);
+
+            const dateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-PH', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            document.getElementById('selected-date-label').textContent = dateLabel;
+
+            const totalTransactions = transactions.length;
+            const totalSales = transactions.reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
+
+            document.getElementById('total-transactions').textContent = totalTransactions.toString();
+            document.getElementById('total-sales').textContent = formatCurrency(totalSales);
+            document.getElementById('daily-total').textContent = formatCurrency(totalSales);
+
+            renderTopProduct(transactions);
+            renderMiniTable(transactions);
+        }
+
+        function getTransactionsForDate(dateKey) {
+            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
+
+            return all
+                .filter(item => !item.deleted)
+                .filter(item => (item.branchId || 'branch_default') === (currentBranch.id || 'branch_default'))
+                .filter(item => (item.cashierId || 'cashier_demo') === (currentCashier.id || 'cashier_demo'))
+                .filter(item => toDateKey(new Date(item.timestamp)) === dateKey)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        function renderTopProduct(transactions) {
+            if (transactions.length === 0) {
+                document.getElementById('top-product').textContent = '-';
+                document.getElementById('top-product-qty').textContent = 'No sales';
+                return;
+            }
+
+            const qtyByProduct = {};
+            transactions.forEach(item => {
+                const name = item.productName || 'Unknown Product';
+                qtyByProduct[name] = (qtyByProduct[name] || 0) + (Number(item.quantity) || 0);
+            });
+
+            const [name, qty] = Object.entries(qtyByProduct).sort((a, b) => b[1] - a[1])[0];
+
+            document.getElementById('top-product').textContent = name;
+            document.getElementById('top-product-qty').textContent = `${qty} sold`;
+        }
+
+        function renderMiniTable(transactions) {
+            const body = document.getElementById('daily-table-body');
+
+            if (transactions.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-400 text-sm italic">No transactions for this date.</td>
+                    </tr>`;
+                return;
+            }
+
+            body.innerHTML = transactions.map(item => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${escapeHtml(item.productName)}</td>
+                    <td class="px-6 py-4 text-sm text-slate-700 text-right">${Number(item.quantity || 0)}</td>
+                    <td class="px-6 py-4 text-sm text-slate-700 text-right">${formatCurrency(item.unitPrice)}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${formatCurrency(item.lineTotal)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function toDateKey(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatCurrency(value) {
+            return `₱${Number(value || 0).toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+        }
+
+        function escapeHtml(value) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+
+            return String(value || '').replace(/[&<>"']/g, char => map[char]);
+        }
+    </script>
+}
