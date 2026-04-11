@@ -1,0 +1,192 @@
+@{
+    ViewData["Title"] = "CEO Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">CEO Dashboard</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">KPI summary, interactive charts, branch comparisons, and risk alerts</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Revenue</p>
+            <p id="kpi-revenue" class="text-3xl font-black text-slate-900 mt-2">P0.00</p>
+            <p id="kpi-revenue-change" class="text-xs text-emerald-600 font-bold mt-1">↑ 0% vs last month</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Total Expenses</p>
+            <p id="kpi-expenses" class="text-3xl font-black text-slate-900 mt-2">P0.00</p>
+            <p id="kpi-expenses-change" class="text-xs text-amber-600 font-bold mt-1">↑ 0% vs last month</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Net Profit</p>
+            <p id="kpi-profit" class="text-3xl font-black text-slate-900 mt-2">P0.00</p>
+            <p id="kpi-profit-change" class="text-xs text-emerald-600 font-bold mt-1">↑ 0% vs last month</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Profit Margin</p>
+            <p id="kpi-margin" class="text-3xl font-black text-slate-900 mt-2">0.0%</p>
+            <p id="kpi-margin-status" class="text-xs text-emerald-600 font-bold mt-1">🟢 Healthy</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-black text-slate-900">Risk Score Widget</h3>
+            <a href="/ceo/kpi/risk-score" class="text-xs font-bold text-blue-600 hover:underline">Open Risk Details</a>
+        </div>
+        <div id="risk-widget" class="mt-4 p-6 rounded-2xl border border-emerald-200 bg-emerald-50">
+            <p id="risk-indicator" class="text-4xl font-black text-emerald-700">🟢 GREEN</p>
+            <p id="risk-text" class="text-sm font-bold text-emerald-700 mt-2">Business Health: Healthy</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <h3 class="text-base font-black text-slate-900">Revenue vs Expenses</h3>
+            <p class="text-xs text-slate-500 mt-1">Monthly comparison trend</p>
+            <div class="mt-4 h-72"><canvas id="chart-revenue-expenses"></canvas></div>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <h3 class="text-base font-black text-slate-900">Profit Trend</h3>
+            <p class="text-xs text-slate-500 mt-1">Last 12 months</p>
+            <div class="mt-4 h-72"><canvas id="chart-profit-trend"></canvas></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div class="xl:col-span-8 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-base font-black text-slate-900">Branch Comparison</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Branch</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Revenue</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Expenses</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Profit</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Margin</th>
+                            <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="branch-table" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="xl:col-span-4 bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <h3 class="text-base font-black text-slate-900">Alerts</h3>
+            <p class="text-xs text-slate-500 mt-1">Latest KPI and system warnings</p>
+            <div id="alerts-list" class="mt-4 space-y-3"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('dashboard', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const kpi = ceo.getKpiSnapshot();
+            document.getElementById('kpi-revenue').textContent = ceo.money(kpi.totalRevenue);
+            document.getElementById('kpi-expenses').textContent = ceo.money(kpi.totalExpenses);
+            document.getElementById('kpi-profit').textContent = ceo.money(kpi.netProfit);
+            document.getElementById('kpi-margin').textContent = ceo.pct(kpi.profitMargin);
+
+            document.getElementById('kpi-revenue-change').textContent = `↑ ${kpi.revenueChange.replace('+', '')} vs last month`;
+            document.getElementById('kpi-expenses-change').textContent = `↑ ${kpi.expensesChange.replace('+', '')} vs last month`;
+            document.getElementById('kpi-profit-change').textContent = `↑ ${kpi.profitChange.replace('+', '')} vs last month`;
+            document.getElementById('kpi-margin-status').textContent = kpi.risk.code === 'GREEN' ? '🟢 Healthy' : kpi.risk.code === 'YELLOW' ? '🟡 Warning' : '🔴 Critical';
+
+            document.getElementById('risk-indicator').textContent = `${kpi.risk.icon} ${kpi.risk.code}`;
+            document.getElementById('risk-text').textContent = kpi.risk.detail;
+
+            const riskWidget = document.getElementById('risk-widget');
+            if (kpi.risk.code === 'RED') {
+                riskWidget.className = 'mt-4 p-6 rounded-2xl border border-red-200 bg-red-50';
+                document.getElementById('risk-indicator').className = 'text-4xl font-black text-red-700';
+                document.getElementById('risk-text').className = 'text-sm font-bold text-red-700 mt-2';
+            } else if (kpi.risk.code === 'YELLOW') {
+                riskWidget.className = 'mt-4 p-6 rounded-2xl border border-amber-200 bg-amber-50';
+                document.getElementById('risk-indicator').className = 'text-4xl font-black text-amber-700';
+                document.getElementById('risk-text').className = 'text-sm font-bold text-amber-700 mt-2';
+            }
+
+            const series = ceo.getMonthSeries();
+            const labels = series.map(x => x.month);
+            const revenues = series.map(x => x.revenue);
+            const expenses = series.map(x => x.expenses);
+            const profits = series.map(x => x.revenue - x.expenses);
+
+            ceo.makeChart('chart-revenue-expenses', {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Revenue', data: revenues, backgroundColor: 'rgba(16,185,129,0.65)', borderColor: 'rgba(16,185,129,1)', borderWidth: 1 },
+                        { label: 'Expenses', data: expenses, backgroundColor: 'rgba(248,113,113,0.65)', borderColor: 'rgba(248,113,113,1)', borderWidth: 1 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            ceo.makeChart('chart-profit-trend', {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Profit',
+                        data: profits,
+                        borderColor: 'rgba(59,130,246,1)',
+                        backgroundColor: 'rgba(59,130,246,0.15)',
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const branches = ceo.getBranchComparisonRows();
+            document.getElementById('branch-table').innerHTML = branches.map(b => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${b.branch}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.revenue)}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.expenses)}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.profit)}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(b.margin)}</td>
+                    <td class="px-6 py-4 text-center text-lg">${b.rank}</td>
+                </tr>
+            `).join('');
+
+            const alerts = ceo.readReports().slice(0, 1);
+            const notifs = document.getElementById('notif-badge').textContent;
+            const alertCount = Number(notifs || 0);
+            document.getElementById('alerts-list').innerHTML = alertCount === 0
+                ? '<p class="text-sm text-slate-400 italic">No alerts. Business is stable.</p>'
+                : `<div class="p-3 rounded-xl bg-amber-50 border border-amber-100"><p class="text-xs font-bold text-amber-700">${alertCount} active alert(s)</p><p class="text-xs text-amber-700 mt-1">Open the Alerts dropdown to review and jump to KPI pages.</p></div>`;
+
+            if (alerts.length > 0) {
+                document.getElementById('alerts-list').innerHTML += `<div class="p-3 rounded-xl bg-blue-50 border border-blue-100"><p class="text-xs font-bold text-blue-700">Latest report ready</p><p class="text-xs text-blue-700 mt-1">${alerts[0].title} (${alerts[0].periodLabel})</p></div>`;
+            }
+        });
+    </script>
+}

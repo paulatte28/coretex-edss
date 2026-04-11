@@ -1,0 +1,139 @@
+@{
+    ViewData["Title"] = "Executive Reports";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Executive Reports</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Download, email, and manage generated PDF reports</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/ceo/reports/generate" class="px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-colors">Generate New Report</a>
+                <div class="relative">
+                    <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                        Alerts
+                        <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+                </div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Auto-Emailed Report Behavior</h3>
+        <p class="text-sm text-slate-700 mt-2">Scheduled by System Admin (example: every Monday 8AM). SendGrid email includes summary + attached PDF and a View Dashboard link to /ceo/dashboard.</p>
+        <button id="simulate-email" class="mt-4 px-4 py-2 bg-slate-100 text-slate-700 text-xs font-black rounded-xl hover:bg-slate-200 transition-colors">Simulate Weekly Auto-Email</button>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Report</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Period</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Generated On</th>
+                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reports-table" class="divide-y divide-slate-100">
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-400 text-sm italic">No reports generated yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+    <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        <span id="toast-text" class="font-bold text-sm">Done.</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(function () {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2400);
+        }
+
+        function renderTable() {
+            const ceo = window.CoretexCeo;
+            const reports = ceo.readReports();
+            const body = document.getElementById('reports-table');
+
+            if (!reports.length) {
+                body.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 text-sm italic">No reports generated yet.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = reports.map(report => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${report.title}</td>
+                    <td class="px-6 py-4 text-sm text-slate-700">${report.periodLabel}</td>
+                    <td class="px-6 py-4 text-sm text-slate-700">${new Date(report.generatedOn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="inline-flex gap-2">
+                            <button onclick="downloadReport('${report.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-black rounded-lg hover:bg-blue-100 transition-colors">Download</button>
+                            <button onclick="emailReport('${report.id}')" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-xs font-black rounded-lg hover:bg-emerald-100 transition-colors">Email</button>
+                            <button onclick="deleteReport('${report.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-black rounded-lg hover:bg-red-100 transition-colors">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function downloadReport(id) {
+            const ceo = window.CoretexCeo;
+            ceo.downloadReport(id);
+            showToast('Report downloaded.');
+        }
+
+        function emailReport(id) {
+            const ceo = window.CoretexCeo;
+            ceo.emailReport(id);
+            showToast('Report emailed via SendGrid simulation.');
+        }
+
+        function deleteReport(id) {
+            const ceo = window.CoretexCeo;
+            ceo.deleteReport(id);
+            renderTable();
+            showToast('Report removed.');
+        }
+
+        function simulateAutoEmail() {
+            const ceo = window.CoretexCeo;
+            const reports = ceo.readReports();
+            if (!reports.length) {
+                showToast('No generated report to email yet.');
+                return;
+            }
+
+            ceo.emailReport(reports[0].id);
+            showToast('Auto-email sent: Coretex Weekly Executive Report simulation.');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('reports', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+            document.getElementById('simulate-email').addEventListener('click', simulateAutoEmail);
+            renderTable();
+        });
+    </script>
+}

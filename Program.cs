@@ -109,6 +109,81 @@ app.MapControllerRoute(
     pattern: "finance/submissions",
     defaults: new { controller = "Finance", action = "Submissions" });
 
+app.MapControllerRoute(
+    name: "ceo_root",
+    pattern: "ceo",
+    defaults: new { controller = "Ceo", action = "Index" });
+
+app.MapControllerRoute(
+    name: "ceo_dashboard",
+    pattern: "ceo/dashboard",
+    defaults: new { controller = "Ceo", action = "Dashboard" });
+
+app.MapControllerRoute(
+    name: "ceo_kpi_profit_margin",
+    pattern: "ceo/kpi/profit-margin",
+    defaults: new { controller = "Ceo", action = "KpiProfitMargin" });
+
+app.MapControllerRoute(
+    name: "ceo_kpi_expense_ratio",
+    pattern: "ceo/kpi/expense-ratio",
+    defaults: new { controller = "Ceo", action = "KpiExpenseRatio" });
+
+app.MapControllerRoute(
+    name: "ceo_analytics_forecast",
+    pattern: "ceo/analytics/forecast",
+    defaults: new { controller = "Ceo", action = "AnalyticsForecast" });
+
+app.MapControllerRoute(
+    name: "ceo_analytics_expense_trend",
+    pattern: "ceo/analytics/expense-trend",
+    defaults: new { controller = "Ceo", action = "AnalyticsExpenseTrend" });
+
+app.MapControllerRoute(
+    name: "ceo_kpi_risk_score",
+    pattern: "ceo/kpi/risk-score",
+    defaults: new { controller = "Ceo", action = "KpiRiskScore" });
+
+app.MapControllerRoute(
+    name: "ceo_analytics_health_summary",
+    pattern: "ceo/analytics/health-summary",
+    defaults: new { controller = "Ceo", action = "AnalyticsHealthSummary" });
+
+app.MapControllerRoute(
+    name: "ceo_branches_compare",
+    pattern: "ceo/branches/compare",
+    defaults: new { controller = "Ceo", action = "BranchesCompare" });
+
+app.MapControllerRoute(
+    name: "ceo_analytics_mom",
+    pattern: "ceo/analytics/mom",
+    defaults: new { controller = "Ceo", action = "AnalyticsMom" });
+
+app.MapControllerRoute(
+    name: "ceo_charts",
+    pattern: "ceo/charts",
+    defaults: new { controller = "Ceo", action = "Charts" });
+
+app.MapControllerRoute(
+    name: "ceo_analytics_predictive",
+    pattern: "ceo/analytics/predictive",
+    defaults: new { controller = "Ceo", action = "AnalyticsPredictive" });
+
+app.MapControllerRoute(
+    name: "ceo_news",
+    pattern: "ceo/news",
+    defaults: new { controller = "Ceo", action = "News" });
+
+app.MapControllerRoute(
+    name: "ceo_reports_generate",
+    pattern: "ceo/reports/generate",
+    defaults: new { controller = "Ceo", action = "ReportsGenerate" });
+
+app.MapControllerRoute(
+    name: "ceo_reports",
+    pattern: "ceo/reports",
+    defaults: new { controller = "Ceo", action = "Reports" });
+
 
 app.MapControllerRoute(
     name: "default",

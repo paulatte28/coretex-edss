@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Business Health Summary";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Business Health Summary</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Executive narrative, key metrics, and recommendations</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+        <h3 class="text-base font-black text-slate-900">Summary</h3>
+        <p id="summary-text" class="text-sm text-slate-700 mt-3 leading-relaxed">
+            Your business is performing well this month. Overall profit increased by 18% compared to last month. Branch 1 is the top performer. Branch 2 needs attention - sales dropped 8%.
+        </p>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <h3 class="text-base font-black text-slate-900">Key Metrics</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Metric</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Value</th>
+                    </tr>
+                </thead>
+                <tbody id="metrics-table" class="divide-y divide-slate-100"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Recommendations</h3>
+        <div id="recommendations" class="mt-4 space-y-2"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('health-summary', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const kpi = ceo.getKpiSnapshot();
+            const text = `Your business is performing well this month. Overall profit increased by ${kpi.profitChange.replace('+', '')} compared to last month. Branch 1 is the top performer. Branch 2 needs attention - sales dropped 8%.`;
+            document.getElementById('summary-text').textContent = text;
+
+            const metrics = [
+                ['Total Revenue', ceo.money(kpi.totalRevenue)],
+                ['Total Expenses', ceo.money(kpi.totalExpenses)],
+                ['Net Profit', ceo.money(kpi.netProfit)],
+                ['Profit Margin', ceo.pct(kpi.profitMargin)],
+                ['Business Health', kpi.risk.code]
+            ];
+
+            document.getElementById('metrics-table').innerHTML = metrics.map(([name, value]) => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${name}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${value}</td>
+                </tr>
+            `).join('');
+
+            const recommendations = [
+                'Focus corrective sales action on Branch 2 for next 2 weeks.',
+                'Maintain expense ratio below admin threshold through COGS controls.',
+                'Increase upsell strategy in top-performing branches to sustain margin growth.',
+                'Review weekly KPI alerts immediately when notification bell count increases.'
+            ];
+
+            document.getElementById('recommendations').innerHTML = recommendations.map(item =>
+                `<p class="text-sm text-slate-700">• ${item}</p>`
+            ).join('');
+        });
+    </script>
+}

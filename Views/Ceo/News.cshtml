@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Live News Feed";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Live News Feed</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Business and industry headlines with category filtering</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-wrap items-end gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Category</label>
+                <select id="news-category" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold">
+                    <option value="business">Business</option>
+                    <option value="technology">Technology</option>
+                    <option value="economy">Economy</option>
+                </select>
+            </div>
+            <button id="refresh-news" class="px-4 py-2.5 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-colors">Refresh</button>
+            <p id="news-source" class="text-xs text-slate-500 font-semibold"></p>
+        </div>
+    </div>
+
+    <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        async function renderNews() {
+            const ceo = window.CoretexCeo;
+            const category = document.getElementById('news-category').value;
+            const result = await ceo.fetchNews(category);
+
+            document.getElementById('news-source').textContent = result.source === 'newsapi'
+                ? 'Source: NewsAPI'
+                : 'Source: Demo fallback feed (set coretex_news_api_key in localStorage to use NewsAPI)';
+
+            const grid = document.getElementById('news-grid');
+            grid.innerHTML = result.articles.map(article => `
+                <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">${article.source || 'Unknown Source'}</p>
+                    <h3 class="text-base font-black text-slate-900 mt-2 leading-tight">${article.title || 'Untitled headline'}</h3>
+                    <p class="text-xs text-slate-500 mt-2">${new Date(article.publishedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    <a href="${article.url || '#'}" target="_blank" rel="noopener noreferrer" class="mt-4 text-xs font-black text-blue-600 hover:underline">Read more</a>
+                </article>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('news', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            document.getElementById('refresh-news').addEventListener('click', renderNews);
+            document.getElementById('news-category').addEventListener('change', renderNews);
+            renderNews();
+        });
+    </script>
+}

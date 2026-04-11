@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Predictive Trend Analysis";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Predictive Trend Analysis</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Historical + forecast with confidence bands and seasonality signals</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Combined Trend with Confidence Bands</h3>
+        <div class="mt-4 h-96"><canvas id="chart-predictive"></canvas></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Seasonality Indicators</h3>
+        <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-black rounded-full">Q2 Demand Rebound</span>
+            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-black rounded-full">Holiday Carry-over Effect</span>
+            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full">Logistics Cost Volatility</span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('predictive', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const history = ceo.getMonthSeries();
+            const forecast = ceo.getForecastRows();
+            const labels = history.map(x => x.month).concat(forecast.map(x => x.month));
+            const historical = history.map(x => x.revenue).concat(forecast.map(() => null));
+            const projected = history.map(() => null).concat(forecast.map(x => x.projectedRevenue));
+            const upper = history.map(() => null).concat(forecast.map(x => x.projectedRevenue * 1.08));
+            const lower = history.map(() => null).concat(forecast.map(x => x.projectedRevenue * 0.92));
+
+            ceo.makeChart('chart-predictive', {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Historical Revenue',
+                            data: historical,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37,99,235,0.15)',
+                            fill: true,
+                            tension: 0.35
+                        },
+                        {
+                            label: 'Projected Revenue',
+                            data: projected,
+                            borderColor: '#16a34a',
+                            borderDash: [6, 6],
+                            fill: false,
+                            tension: 0.35
+                        },
+                        {
+                            label: 'Upper Confidence Band',
+                            data: upper,
+                            borderColor: 'rgba(22,163,74,0.35)',
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.25
+                        },
+                        {
+                            label: 'Lower Confidence Band',
+                            data: lower,
+                            borderColor: 'rgba(22,163,74,0.35)',
+                            backgroundColor: 'rgba(22,163,74,0.12)',
+                            pointRadius: 0,
+                            fill: '-1',
+                            tension: 0.25
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+        });
+    </script>
+}

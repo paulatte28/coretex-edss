@@ -1,0 +1,107 @@
+@{
+    ViewData["Title"] = "Risk Score KPI";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Risk Score</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Current score, contributing factors, and historical trend</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div id="risk-card" class="bg-emerald-50 border border-emerald-200 rounded-3xl p-8">
+        <p id="risk-main" class="text-5xl font-black text-emerald-700">🟢 GREEN</p>
+        <p id="risk-sub" class="text-sm font-bold text-emerald-700 mt-2">Business Health: Healthy</p>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Factors Contributing to Score</h3>
+        <div id="factor-list" class="mt-4 space-y-2"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Historical Risk Score Trend</h3>
+        <div class="mt-4 h-80"><canvas id="chart-risk"></canvas></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('risk-score', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const risk = ceo.getRiskSummary();
+            document.getElementById('risk-main').textContent = `${risk.icon} ${risk.code}`;
+            document.getElementById('risk-sub').textContent = risk.detail;
+
+            const card = document.getElementById('risk-card');
+            if (risk.code === 'RED') {
+                card.className = 'bg-red-50 border border-red-200 rounded-3xl p-8';
+                document.getElementById('risk-main').className = 'text-5xl font-black text-red-700';
+                document.getElementById('risk-sub').className = 'text-sm font-bold text-red-700 mt-2';
+            } else if (risk.code === 'YELLOW') {
+                card.className = 'bg-amber-50 border border-amber-200 rounded-3xl p-8';
+                document.getElementById('risk-main').className = 'text-5xl font-black text-amber-700';
+                document.getElementById('risk-sub').className = 'text-sm font-bold text-amber-700 mt-2';
+            }
+
+            const factors = [
+                '✅ Profit Margin above threshold',
+                '✅ Expense Ratio within limit',
+                '⚠️ Branch 2 showing declining sales'
+            ];
+            document.getElementById('factor-list').innerHTML = factors.map(f => `<p class="text-sm text-slate-700">${f}</p>`).join('');
+
+            const trend = ceo.getExpenseRatioTrend();
+            const scoreValues = trend.map(item => {
+                if (item.ratio > 75) return 3;
+                if (item.ratio > 65) return 2;
+                return 1;
+            });
+
+            ceo.makeChart('chart-risk', {
+                type: 'line',
+                data: {
+                    labels: trend.map(x => x.month),
+                    datasets: [{
+                        label: 'Risk Score (1=Green,2=Yellow,3=Red)',
+                        data: scoreValues,
+                        borderColor: 'rgba(59,130,246,1)',
+                        backgroundColor: 'rgba(59,130,246,0.15)',
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 1,
+                            max: 3,
+                            ticks: {
+                                stepSize: 1,
+                                callback: value => value === 1 ? 'Green' : value === 2 ? 'Yellow' : 'Red'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

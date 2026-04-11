@@ -1,0 +1,106 @@
+@{
+    ViewData["Title"] = "Expense Trend";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Expense Trend</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Stacked monthly category trend and category-wise month comparison</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Stacked Expense Trend</h3>
+        <div class="mt-4 h-80"><canvas id="chart-expense-trend"></canvas></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <h3 class="text-base font-black text-slate-900">Category Comparison (This Month vs Last Month)</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Category</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">This Month</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Last Month</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Change</th>
+                    </tr>
+                </thead>
+                <tbody id="comparison-table" class="divide-y divide-slate-100"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('expense-trend', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const series = ceo.getMonthSeries();
+            ceo.makeChart('chart-expense-trend', {
+                type: 'bar',
+                data: {
+                    labels: series.map(x => x.month),
+                    datasets: [
+                        { label: 'COGS', data: series.map(x => x.cogs), backgroundColor: '#f97316' },
+                        { label: 'Rent', data: series.map(x => x.rent), backgroundColor: '#3b82f6' },
+                        { label: 'Salaries', data: series.map(x => x.salaries), backgroundColor: '#10b981' },
+                        { label: 'Utilities', data: series.map(x => x.utilities), backgroundColor: '#8b5cf6' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+
+            const current = series[series.length - 1];
+            const last = series[series.length - 2];
+
+            const rows = [
+                ['COGS', current.cogs, last.cogs],
+                ['Rent', current.rent, last.rent],
+                ['Salaries', current.salaries, last.salaries],
+                ['Utilities', current.utilities, last.utilities]
+            ];
+
+            document.getElementById('comparison-table').innerHTML = rows.map(([category, nowValue, lastValue]) => {
+                const change = nowValue - lastValue;
+                const sign = change >= 0 ? '↑' : '↓';
+                const color = change >= 0 ? 'text-amber-600' : 'text-emerald-600';
+                const percent = lastValue > 0 ? ((change / lastValue) * 100).toFixed(1) : '0.0';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${category}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(nowValue)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(lastValue)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-right ${color}">${sign} ${percent}%</td>
+                    </tr>
+                `;
+            }).join('');
+        });
+    </script>
+}

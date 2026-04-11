@@ -1,5 +1,7 @@
 using coretex_finalproj.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +13,17 @@ namespace coretex_finalproj.Data
         public static async Task SeedDataAsync(IServiceProvider serviceProvider)
         {
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger("DbSeeder");
 
-            // Ensure DB and schema are created
-            await context.Database.EnsureCreatedAsync();
+            await EnsureSchemaAsync(context, logger);
 
-            if (!context.Branches.Any())
+            if (!await TableExistsAsync(context, "Branches"))
+            {
+                logger?.LogWarning("Skipping data seed because the Branches table is not present in the target database.");
+                return;
+            }
+
+            if (!await context.Branches.AnyAsync())
             {
                 var defaultBranch = new Branch
                 {
@@ -47,6 +55,48 @@ namespace coretex_finalproj.Data
                 );
 
                 await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task EnsureSchemaAsync(ApplicationDbContext context, ILogger? logger)
+        {
+            logger?.LogInformation("Applying pending EF Core migrations before seeding.");
+            await context.Database.MigrateAsync();
+        }
+
+        private static async Task<bool> TableExistsAsync(ApplicationDbContext context, string tableName)
+        {
+            var connection = context.Database.GetDbConnection();
+            var openedHere = false;
+
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+                openedHere = true;
+            }
+
+            try
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = @"
+SELECT 1
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = @tableName";
+
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@tableName";
+                parameter.Value = tableName;
+                command.Parameters.Add(parameter);
+
+                var result = await command.ExecuteScalarAsync();
+                return result != null;
+            }
+            finally
+            {
+                if (openedHere)
+                {
+                    await connection.CloseAsync();
+                }
             }
         }
     }

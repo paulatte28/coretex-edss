@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Revenue Forecast";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Revenue Forecast</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Historical revenue with projected next 3 months</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="text-base font-black text-slate-900">Historical + Forecast Revenue</h3>
+        <div class="mt-4 h-80"><canvas id="chart-forecast"></canvas></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <h3 class="text-base font-black text-slate-900">Forecast Table</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Month</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Projected Revenue</th>
+                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Confidence</th>
+                    </tr>
+                </thead>
+                <tbody id="forecast-table" class="divide-y divide-slate-100"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('forecast', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const history = ceo.getMonthSeries();
+            const forecast = ceo.getForecastRows();
+
+            const labels = history.map(h => h.month).concat(forecast.map(f => f.month));
+            const historicalValues = history.map(h => h.revenue).concat(forecast.map(() => null));
+            const projectedValues = history.map(() => null).concat(forecast.map(f => f.projectedRevenue));
+
+            ceo.makeChart('chart-forecast', {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Historical Revenue',
+                            data: historicalValues,
+                            borderColor: 'rgba(59,130,246,1)',
+                            backgroundColor: 'rgba(59,130,246,0.15)',
+                            tension: 0.35,
+                            fill: true
+                        },
+                        {
+                            label: 'Projected Revenue',
+                            data: projectedValues,
+                            borderColor: 'rgba(16,185,129,1)',
+                            borderDash: [6, 6],
+                            tension: 0.35,
+                            fill: false
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            document.getElementById('forecast-table').innerHTML = forecast.map(row => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${row.month}</td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.projectedRevenue)}</td>
+                    <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-black rounded-full">${row.confidence}%</span></td>
+                </tr>
+            `).join('');
+        });
+    </script>
+}

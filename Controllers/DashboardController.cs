@@ -7,6 +7,8 @@ using System.Security.Claims;
 using coretex_finalproj.Data;
 using System.Linq;
 using coretex_finalproj.Services;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace coretex_finalproj.Controllers
 {
@@ -23,14 +25,38 @@ namespace coretex_finalproj.Controllers
 
         public IActionResult Index()
         {
-            // HARDCODED: Mocking a branch for frontend-only mode without login
-            Guid? branchId = _context.Branches.FirstOrDefault()?.Id;
-            if (branchId == null) branchId = Guid.NewGuid();
+            Guid? branchId = null;
+            var sales = new List<Sale>();
+            var expenses = new List<Expense>();
+            var products = new List<Product>();
 
-            // Fetch branch specific data
-            var sales = _context.Sales.Where(s => s.BranchId == branchId).ToList();
-            var expenses = _context.Expenses.Where(e => e.BranchId == branchId).ToList();
-            var products = _context.Products.Where(p => p.BranchId == branchId).ToList();
+            if (CanUseBusinessSchema())
+            {
+                try
+                {
+                    branchId = _context.Branches.Select(b => (Guid?)b.Id).FirstOrDefault();
+
+                    if (branchId.HasValue)
+                    {
+                        sales = _context.Sales.Where(s => s.BranchId == branchId.Value).ToList();
+                        expenses = _context.Expenses.Where(e => e.BranchId == branchId.Value).ToList();
+                        products = _context.Products.Where(p => p.BranchId == branchId.Value).ToList();
+                    }
+                    else
+                    {
+                        sales = _context.Sales.ToList();
+                        expenses = _context.Expenses.ToList();
+                        products = _context.Products.ToList();
+                    }
+                }
+                catch
+                {
+                    branchId = null;
+                    sales = new List<Sale>();
+                    expenses = new List<Expense>();
+                    products = new List<Product>();
+                }
+            }
 
             decimal totalRevenue = sales.Sum(s => s.Amount);
             decimal totalExpenses = expenses.Sum(e => e.Amount);
@@ -80,7 +106,19 @@ namespace coretex_finalproj.Controllers
 
         public IActionResult BranchManagement()
         {
-            var branches = _context.Branches.ToList();
+            List<Branch> branches = new List<Branch>();
+            if (TableHasColumns("Branches", "Id", "Name", "Address", "BranchCode", "IsActive"))
+            {
+                try
+                {
+                    branches = _context.Branches.ToList();
+                }
+                catch
+                {
+                    branches = new List<Branch>();
+                }
+            }
+
             if (!branches.Any())
             {
                 // Provide some mock branches for the frontend
@@ -97,6 +135,69 @@ namespace coretex_finalproj.Controllers
         public IActionResult Subscription()
         {
             return View();
+        }
+
+        private bool CanUseBusinessSchema()
+        {
+            return TableHasColumns("Branches", "Id", "Name", "Address", "BranchCode", "IsActive")
+                && TableHasColumns("Sales", "Id", "BranchId", "Amount", "Status", "Date", "OrderId", "CustomerName")
+                && TableHasColumns("Expenses", "Id", "BranchId", "Amount", "Date", "Category", "Description")
+                && TableHasColumns("Products", "Id", "BranchId", "StockQuantity", "LowStockThreshold");
+        }
+
+        private bool TableHasColumns(string tableName, params string[] columns)
+        {
+            foreach (var column in columns)
+            {
+                if (!ColumnExists(tableName, column))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ColumnExists(string tableName, string columnName)
+        {
+            var connection = _context.Database.GetDbConnection();
+            var openedHere = false;
+
+            if (connection.State != ConnectionState.Open)
+            {
+                connection.Open();
+                openedHere = true;
+            }
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+SELECT 1
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = 'dbo'
+  AND TABLE_NAME = @tableName
+  AND COLUMN_NAME = @columnName";
+
+                var tableParameter = command.CreateParameter();
+                tableParameter.ParameterName = "@tableName";
+                tableParameter.Value = tableName;
+                command.Parameters.Add(tableParameter);
+
+                var columnParameter = command.CreateParameter();
+                columnParameter.ParameterName = "@columnName";
+                columnParameter.Value = columnName;
+                command.Parameters.Add(columnParameter);
+
+                return command.ExecuteScalar() != null;
+            }
+            finally
+            {
+                if (openedHere)
+                {
+                    connection.Close();
+                }
+            }
         }
     }
 }

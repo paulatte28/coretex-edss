@@ -1,0 +1,154 @@
+@{
+    ViewData["Title"] = "Generate Executive Report";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Generate Executive Report</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Select period, sections, and generate PDF report</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Report Period Type</label>
+            <select id="period-type" class="w-full md:w-64 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold">
+                <option value="month">Month Picker</option>
+                <option value="range">Date Range</option>
+            </select>
+        </div>
+
+        <div id="period-month" class="space-y-2">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Month</label>
+            <input id="month-value" type="month" class="w-full md:w-64 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" />
+        </div>
+
+        <div id="period-range" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Start Date</label>
+                <input id="start-date" type="date" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" />
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">End Date</label>
+                <input id="end-date" type="date" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" />
+            </div>
+        </div>
+
+        <div>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Include Sections</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="section-check" value="KPI Summary" checked /> KPI Summary</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="section-check" value="Branch Comparison" checked /> Branch Comparison</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="section-check" value="Charts" checked /> Charts</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="section-check" value="Recommendations" checked /> Recommendations</label>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Format</label>
+            <input type="text" value="PDF" readonly class="w-full md:w-40 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-700" />
+        </div>
+
+        <button id="generate-btn" class="w-full md:w-72 py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+            <span id="btn-label">Generate Report</span>
+            <span id="btn-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        </button>
+
+        <div id="success-box" class="hidden p-4 rounded-xl border border-emerald-200 bg-emerald-50">
+            <p id="success-text" class="text-sm font-bold text-emerald-700">Report generated.</p>
+            <a href="/ceo/reports" class="text-xs font-black text-emerald-700 hover:underline mt-1 inline-block">Open report list</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        function selectedSections() {
+            return Array.from(document.querySelectorAll('.section-check:checked')).map(x => x.value);
+        }
+
+        function togglePeriodMode() {
+            const mode = document.getElementById('period-type').value;
+            document.getElementById('period-month').classList.toggle('hidden', mode !== 'month');
+            document.getElementById('period-range').classList.toggle('hidden', mode !== 'range');
+        }
+
+        async function generateReport() {
+            const ceo = window.CoretexCeo;
+            const button = document.getElementById('generate-btn');
+            const label = document.getElementById('btn-label');
+            const spinner = document.getElementById('btn-spinner');
+
+            const periodType = document.getElementById('period-type').value;
+            const monthValue = document.getElementById('month-value').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const sections = selectedSections();
+
+            if (periodType === 'month' && !monthValue) {
+                alert('Please select a report month.');
+                return;
+            }
+
+            if (periodType === 'range' && (!startDate || !endDate)) {
+                alert('Please select start and end dates.');
+                return;
+            }
+
+            if (!sections.length) {
+                alert('Select at least one section.');
+                return;
+            }
+
+            button.disabled = true;
+            label.textContent = 'Generating...';
+            spinner.classList.remove('hidden');
+
+            await new Promise(resolve => setTimeout(resolve, 1200));
+
+            const report = ceo.saveGeneratedReport({
+                periodType,
+                monthValue,
+                startDate,
+                endDate,
+                sections
+            });
+
+            ceo.downloadReport(report.id);
+
+            document.getElementById('success-box').classList.remove('hidden');
+            document.getElementById('success-text').textContent = `Report generated: ${report.title} (${report.periodLabel})`;
+
+            button.disabled = false;
+            label.textContent = 'Generate Report';
+            spinner.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('report-generate', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const now = new Date();
+            document.getElementById('month-value').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            document.getElementById('period-type').addEventListener('change', togglePeriodMode);
+            document.getElementById('generate-btn').addEventListener('click', generateReport);
+            togglePeriodMode();
+        });
+    </script>
+}

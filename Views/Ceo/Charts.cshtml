@@ -1,0 +1,145 @@
+@{
+    ViewData["Title"] = "Interactive Charts";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Interactive Charts</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Revenue vs expenses, profit trend, expense breakdown, branches, and monthly area trend</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-wrap items-end gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date Range Start</label>
+                <select id="range-start" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date Range End</label>
+                <select id="range-end" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"></select>
+            </div>
+            <button id="apply-range" class="px-4 py-2.5 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-colors">Apply</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"><h3 class="font-black text-slate-900">Revenue vs Expenses (Bar)</h3><div class="mt-4 h-72"><canvas id="chart-1"></canvas></div></div>
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"><h3 class="font-black text-slate-900">Profit Trend (Line)</h3><div class="mt-4 h-72"><canvas id="chart-2"></canvas></div></div>
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"><h3 class="font-black text-slate-900">Expense Breakdown (Donut)</h3><div class="mt-4 h-72"><canvas id="chart-3"></canvas></div></div>
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"><h3 class="font-black text-slate-900">Branch Comparison (Horizontal Bar)</h3><div class="mt-4 h-72"><canvas id="chart-4"></canvas></div></div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <h3 class="font-black text-slate-900">Monthly Trend (Area)</h3>
+        <div class="mt-4 h-80"><canvas id="chart-5"></canvas></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        function fillRangeOptions(series) {
+            const start = document.getElementById('range-start');
+            const end = document.getElementById('range-end');
+            const options = series.map((item, index) => `<option value="${index}">${item.month}</option>`).join('');
+            start.innerHTML = options;
+            end.innerHTML = options;
+            start.value = '0';
+            end.value = String(series.length - 1);
+        }
+
+        function renderAllCharts() {
+            const ceo = window.CoretexCeo;
+            const series = ceo.getMonthSeries();
+            const start = Number(document.getElementById('range-start').value || 0);
+            const end = Number(document.getElementById('range-end').value || (series.length - 1));
+            const min = Math.min(start, end);
+            const max = Math.max(start, end);
+            const sliced = series.slice(min, max + 1);
+
+            const labels = sliced.map(x => x.month);
+            const revenue = sliced.map(x => x.revenue);
+            const expenses = sliced.map(x => x.expenses);
+            const profit = sliced.map(x => x.revenue - x.expenses);
+
+            ceo.makeChart('chart-1', {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Revenue', data: revenue, backgroundColor: 'rgba(16,185,129,0.65)' },
+                        { label: 'Expenses', data: expenses, backgroundColor: 'rgba(248,113,113,0.65)' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            ceo.makeChart('chart-2', {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{ label: 'Profit', data: profit, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.15)', fill: true, tension: 0.35 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const current = sliced[sliced.length - 1];
+            ceo.makeChart('chart-3', {
+                type: 'doughnut',
+                data: {
+                    labels: ['COGS', 'Rent', 'Salaries', 'Utilities'],
+                    datasets: [{ data: [current.cogs, current.rent, current.salaries, current.utilities], backgroundColor: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const branches = ceo.getBranchComparisonRows();
+            ceo.makeChart('chart-4', {
+                type: 'bar',
+                data: {
+                    labels: branches.map(x => x.branch),
+                    datasets: [{ label: 'Revenue', data: branches.map(x => x.revenue), backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6'] }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            ceo.makeChart('chart-5', {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{ label: 'Revenue Area Trend', data: revenue, borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.2)', fill: true, tension: 0.35 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('charts', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const series = ceo.getMonthSeries();
+            fillRangeOptions(series);
+            renderAllCharts();
+
+            document.getElementById('apply-range').addEventListener('click', renderAllCharts);
+        });
+    </script>
+}

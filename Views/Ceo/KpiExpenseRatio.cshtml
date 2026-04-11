@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Expense Ratio KPI";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Expense Ratio</h2>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Current ratio, category donut, and 12-month trend line</p>
+            </div>
+            <div class="relative">
+                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
+                    Alerts
+                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            </div>
+        </div>
+        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <p class="text-xs text-slate-500 uppercase tracking-widest font-black">Current Expense Ratio</p>
+        <p id="current-ratio" class="text-5xl font-black text-slate-900 mt-2">0.0%</p>
+        <p class="text-xs text-slate-500 mt-2">Formula: Total Expenses / Total Revenue</p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <h3 class="text-base font-black text-slate-900">Expense Breakdown Donut</h3>
+            <div class="mt-4 h-80"><canvas id="chart-donut"></canvas></div>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <h3 class="text-base font-black text-slate-900">12-Month Expense Ratio Trend</h3>
+            <div class="mt-4 h-80"><canvas id="chart-trend"></canvas></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ceo = window.CoretexCeo;
+            ceo.renderNav('expense-ratio', 'ceo-nav');
+            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            const kpi = ceo.getKpiSnapshot();
+            const ratio = (kpi.totalExpenses / kpi.totalRevenue) * 100;
+            document.getElementById('current-ratio').textContent = ceo.pct(ratio);
+
+            const breakdown = ceo.getExpenseBreakdownCurrent();
+            ceo.makeChart('chart-donut', {
+                type: 'doughnut',
+                data: {
+                    labels: ['COGS', 'Rent', 'Salaries', 'Utilities'],
+                    datasets: [{
+                        data: [breakdown.cogs, breakdown.rent, breakdown.salaries, breakdown.utilities],
+                        backgroundColor: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const trend = ceo.getExpenseRatioTrend();
+            ceo.makeChart('chart-trend', {
+                type: 'line',
+                data: {
+                    labels: trend.map(x => x.month),
+                    datasets: [{
+                        label: 'Expense Ratio',
+                        data: trend.map(x => x.ratio),
+                        borderColor: 'rgba(59,130,246,1)',
+                        backgroundColor: 'rgba(59,130,246,0.15)',
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { ticks: { callback: value => `${value}%` } } }
+                }
+            });
+        });
+    </script>
+}
