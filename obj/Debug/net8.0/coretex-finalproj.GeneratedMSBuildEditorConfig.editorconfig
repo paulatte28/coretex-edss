@@ -64,18 +64,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmVwb3J0U2NoZWR1bGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/SystemHealth.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU3lzdGVtSGVhbHRoLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/SystemSetup.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU3lzdGVtU2V0dXAuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/TenantManagement.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGVuYW50TWFuYWdlbWVudC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Admin/UserManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlck1hbmFnZW1lbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -146,42 +134,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Ceo/ReportsGenerate.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2VvXFJlcG9ydHNHZW5lcmF0ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/DataVisualization.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXERhdGFWaXN1YWxpemF0aW9uLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/DecisionSupport.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXERlY2lzaW9uU3VwcG9ydC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/ExecutiveReporting.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEV4ZWN1dGl2ZVJlcG9ydGluZy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/Subscription.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN1YnNjcmlwdGlvbi5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/TenantManagement.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFRlbmFudE1hbmFnZW1lbnQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Dashboard/TrendAnalysis.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFRyZW5kQW5hbHlzaXMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/DataEntry/History.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGF0YUVudHJ5XEhpc3RvcnkuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/DataEntry/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGF0YUVudHJ5XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/Documents/3rd Year/1st Term/IT13/coretex-finalproj/coretex-finalproj/Views/Finance/Dashboard.cshtml]

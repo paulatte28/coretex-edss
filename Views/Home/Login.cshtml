@@ -321,9 +321,9 @@
         // Demo credentials for testing
         const demoCredentials = {
             'admin@coretex.com': { password: 'admin123', role: 'ADMIN', redirect: '/Admin' },
-            'ceo@coretex.com': { password: 'ceo123', role: 'CEO', redirect: '/Dashboard' },
-            'finance@coretex.com': { password: 'finance123', role: 'FINANCE', redirect: '/Finance' },
-            'cashier@coretex.com': { password: 'cashier123', role: 'CASHIER', redirect: '/Cashier/POS' }
+            'ceo@coretex.com': { password: 'ceo123', role: 'CEO', redirect: '/ceo/dashboard' },
+            'finance@coretex.com': { password: 'finance123', role: 'FINANCE', redirect: '/finance/dashboard' },
+            'cashier@coretex.com': { password: 'cashier123', role: 'CASHIER', redirect: '/cashier/pos' }
         };
 
         // Toggle password visibility
@@ -420,9 +420,9 @@
         // Quick login function (demo)
         function quickLogin(role) {
             const roleMap = {
-                'CEO': { email: 'ceo@coretex.com', redirect: '/Dashboard' },
-                'FINANCE': { email: 'finance@coretex.com', redirect: '/Finance' },
-                'CASHIER': { email: 'cashier@coretex.com', redirect: '/Cashier/POS' },
+                'CEO': { email: 'ceo@coretex.com', redirect: '/ceo/dashboard' },
+                'FINANCE': { email: 'finance@coretex.com', redirect: '/finance/dashboard' },
+                'CASHIER': { email: 'cashier@coretex.com', redirect: '/cashier/pos' },
                 'ADMIN': { email: 'admin@coretex.com', redirect: '/Admin' }
             };
 

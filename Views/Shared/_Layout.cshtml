@@ -107,7 +107,7 @@
                 <div class="flex items-center space-x-2 md:space-x-4">
                     <a href="/" class="nav-link-premium @(Context.Request.Path == "/" ? "active" : "")">Home</a>
                     <a href="/Home/Privacy" class="nav-link-premium @(Context.Request.Path == "/Home/Privacy" ? "active" : "")">Privacy</a>
-                    <a href="/Dashboard" class="nav-link-premium">Dashboard</a>
+                    <a href="/ceo/dashboard" class="nav-link-premium @(Context.Request.Path == "/ceo/dashboard" ? "active" : "")">Dashboard</a>
                     <a href="/Admin" class="nav-link-premium">Admin</a>
                     <a href="/Home/Login" class="ml-4 px-6 py-3 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
                         Sign In

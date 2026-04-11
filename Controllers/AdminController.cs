@@ -46,12 +46,6 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
-        // Branch Submission Status
-        public IActionResult SubmissionStatus()
-        {
-            return View();
-        }
-
         // Branch Submissions Monitoring
         public IActionResult BranchSubmissions()
         {

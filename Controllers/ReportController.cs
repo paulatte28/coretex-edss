@@ -28,7 +28,7 @@ namespace coretex_finalproj.Controllers
                 TempData["Error"] = "Failed to send the report.";
             }
 
-            return RedirectToAction("ExecutiveReporting", "Dashboard");
+            return RedirectToAction("Reports", "Ceo");
         }
         
         [HttpPost]
@@ -43,7 +43,7 @@ namespace coretex_finalproj.Controllers
                 TempData["Error"] = "Failed to send the SMS alert.";
             }
 
-            return RedirectToAction("Index", "Dashboard");
+            return RedirectToAction("Dashboard", "Ceo");
         }
     }
 }
