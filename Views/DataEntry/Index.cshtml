@@ -1,0 +1,407 @@
+@{
+	ViewData["Title"] = "Data Entry";
+	Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+	<div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+		<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+			<div>
+				<h2 class="text-3xl font-black text-slate-900 tracking-tight">Data Entry</h2>
+				<p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Manual monthly input for CEO analytics</p>
+			</div>
+			<a href="/DataEntry/History" class="px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-colors">
+				View History
+			</a>
+		</div>
+	</div>
+
+	<div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+		<div class="xl:col-span-7 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+			<div class="p-6 border-b border-slate-100">
+				<h3 class="text-base font-black text-slate-900">Monthly Record Form</h3>
+				<p class="text-xs text-slate-500 mt-1">Saved entries update CEO charts and KPI cards immediately.</p>
+			</div>
+
+			<form id="entry-form" class="p-6 space-y-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="month-key" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Month</label>
+						<input id="month-key" type="month" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" />
+					</div>
+					<div>
+						<label for="branch-select" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Branch</label>
+						<select id="branch-select" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"></select>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="sales" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Sales (PHP)</label>
+						<input id="sales" type="number" min="0" step="0.01" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+					</div>
+					<div>
+						<label for="cogs" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">COGS (PHP)</label>
+						<input id="cogs" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+					</div>
+					<div>
+						<label for="rent" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Rent (PHP)</label>
+						<input id="rent" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+					</div>
+					<div>
+						<label for="salaries" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Salaries (PHP)</label>
+						<input id="salaries" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+					</div>
+					<div class="md:col-span-2">
+						<label for="utilities" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Utilities (PHP)</label>
+						<input id="utilities" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+					<div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+						<p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Expenses</p>
+						<p id="preview-expenses" class="text-lg font-black text-slate-900 mt-1">PHP 0.00</p>
+					</div>
+					<div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+						<p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Net Profit</p>
+						<p id="preview-profit" class="text-lg font-black text-slate-900 mt-1">PHP 0.00</p>
+					</div>
+					<div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+						<p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Profit Margin</p>
+						<p id="preview-margin" class="text-lg font-black text-slate-900 mt-1">0.0%</p>
+					</div>
+				</div>
+
+				<div class="flex items-center gap-3">
+					<button type="submit" class="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-colors">
+						Save Entry
+					</button>
+					<button type="button" id="reset-btn" class="px-5 py-3 bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-colors">
+						Reset
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="xl:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+			<div class="p-6 border-b border-slate-100 flex items-center justify-between">
+				<h3 class="text-base font-black text-slate-900">Recent Entries</h3>
+				<a href="/DataEntry/History" class="text-xs font-bold text-blue-600 hover:underline">Open Full History</a>
+			</div>
+
+			<div class="overflow-x-auto">
+				<table class="w-full">
+					<thead class="bg-slate-50">
+						<tr>
+							<th class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Month</th>
+							<th class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Branch</th>
+							<th class="px-4 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Sales</th>
+							<th class="px-4 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Profit</th>
+						</tr>
+					</thead>
+					<tbody id="recent-rows" class="divide-y divide-slate-100">
+						<tr>
+							<td colspan="4" class="px-4 py-8 text-center text-xs text-slate-400 italic">No entries yet.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="save-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+	<div class="bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-bold">Entry saved.</div>
+</div>
+
+@section Scripts {
+	<script>
+		(function () {
+			'use strict';
+
+			const STORAGE_KEY = 'coretex_monthly_data';
+			const BRANCH_KEY = 'coretex_branches';
+
+			const form = document.getElementById('entry-form');
+			const monthInput = document.getElementById('month-key');
+			const branchSelect = document.getElementById('branch-select');
+
+			const salesInput = document.getElementById('sales');
+			const cogsInput = document.getElementById('cogs');
+			const rentInput = document.getElementById('rent');
+			const salariesInput = document.getElementById('salaries');
+			const utilitiesInput = document.getElementById('utilities');
+
+			const previewExpenses = document.getElementById('preview-expenses');
+			const previewProfit = document.getElementById('preview-profit');
+			const previewMargin = document.getElementById('preview-margin');
+
+			function toNumber(value) {
+				const parsed = Number(value);
+				return Number.isFinite(parsed) ? parsed : 0;
+			}
+
+			function readEntries() {
+				try {
+					const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+					return Array.isArray(parsed) ? parsed : [];
+				} catch (_error) {
+					return [];
+				}
+			}
+
+			function writeEntries(entries) {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.slice(0, 1500)));
+			}
+
+			function formatCurrency(value) {
+				return `PHP ${toNumber(value).toLocaleString('en-PH', {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				})}`;
+			}
+
+			function monthKeyFromEntry(entry) {
+				if (entry && /^\d{4}-\d{2}$/.test(String(entry.monthKey || ''))) {
+					return entry.monthKey;
+				}
+
+				if (entry && entry.month && entry.year) {
+					const parsed = new Date(`${entry.month} 1, ${entry.year}`);
+					if (!Number.isNaN(parsed.getTime())) {
+						const year = parsed.getFullYear();
+						const month = String(parsed.getMonth() + 1).padStart(2, '0');
+						return `${year}-${month}`;
+					}
+				}
+
+				return null;
+			}
+
+			function monthLabelFromKey(monthKey) {
+				const parsed = new Date(`${monthKey}-01T00:00:00`);
+				if (Number.isNaN(parsed.getTime())) return monthKey;
+
+				return parsed.toLocaleDateString('en-US', {
+					month: 'short',
+					year: 'numeric'
+				});
+			}
+
+			function monthNameFromKey(monthKey) {
+				const parsed = new Date(`${monthKey}-01T00:00:00`);
+				if (Number.isNaN(parsed.getTime())) return monthKey;
+
+				return parsed.toLocaleDateString('en-US', { month: 'long' });
+			}
+
+			function fillBranchOptions() {
+				const branches = readBranches();
+				branchSelect.innerHTML = branches.map(branch => `
+					<option value="${escapeHtml(branch.id)}">${escapeHtml(branch.name)}</option>
+				`).join('');
+			}
+
+			function readBranches() {
+				try {
+					const parsed = JSON.parse(localStorage.getItem(BRANCH_KEY) || '[]');
+					if (!Array.isArray(parsed) || parsed.length === 0) {
+						return [{ id: 'branch_default', name: 'Main Branch' }];
+					}
+
+					return parsed.map(item => ({
+						id: String(item.id || 'branch_default'),
+						name: String(item.name || 'Unnamed Branch')
+					}));
+				} catch (_error) {
+					return [{ id: 'branch_default', name: 'Main Branch' }];
+				}
+			}
+
+			function getBranchName(branchId) {
+				const option = branchSelect.querySelector(`option[value="${CSS.escape(branchId)}"]`);
+				return option ? option.textContent : 'Main Branch';
+			}
+
+			function updatePreview() {
+				const sales = toNumber(salesInput.value);
+				const cogs = toNumber(cogsInput.value);
+				const rent = toNumber(rentInput.value);
+				const salaries = toNumber(salariesInput.value);
+				const utilities = toNumber(utilitiesInput.value);
+
+				const totalExpenses = cogs + rent + salaries + utilities;
+				const netProfit = sales - totalExpenses;
+				const margin = sales > 0 ? (netProfit / sales) * 100 : 0;
+
+				previewExpenses.textContent = formatCurrency(totalExpenses);
+				previewProfit.textContent = formatCurrency(netProfit);
+				previewMargin.textContent = `${margin.toFixed(1)}%`;
+
+				previewProfit.className = `text-lg font-black mt-1 ${netProfit < 0 ? 'text-red-600' : 'text-slate-900'}`;
+			}
+
+			function upsertEntry(entry) {
+				const entries = readEntries();
+				const index = entries.findIndex(item =>
+					monthKeyFromEntry(item) === entry.monthKey
+					&& String(item.branchId || 'branch_default') === String(entry.branchId)
+				);
+
+				if (index >= 0) {
+					entries[index] = {
+						...entries[index],
+						...entry,
+						id: entries[index].id || entry.id
+					};
+				} else {
+					entries.unshift(entry);
+				}
+
+				writeEntries(entries);
+			}
+
+			function renderRecent() {
+				const target = document.getElementById('recent-rows');
+				const entries = readEntries()
+					.map(item => ({ ...item, __monthKey: monthKeyFromEntry(item) }))
+					.filter(item => item.__monthKey)
+					.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0))
+					.slice(0, 8);
+
+				if (entries.length === 0) {
+					target.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-xs text-slate-400 italic">No entries yet.</td></tr>';
+					return;
+				}
+
+				target.innerHTML = entries.map(item => {
+					const sales = toNumber(item.sales || item.revenue);
+					const expenses = toNumber(item.expenses || item.totalExpenses);
+					const profit = toNumber(item.profit || (sales - expenses));
+
+					return `
+						<tr class="hover:bg-slate-50 transition-colors">
+							<td class="px-4 py-3 text-sm font-semibold text-slate-900">${monthLabelFromKey(item.__monthKey)}</td>
+							<td class="px-4 py-3 text-sm text-slate-600">${escapeHtml(item.branchName || 'Main Branch')}</td>
+							<td class="px-4 py-3 text-sm text-slate-900 text-right">${formatCurrency(sales)}</td>
+							<td class="px-4 py-3 text-sm font-black text-right ${profit < 0 ? 'text-red-600' : 'text-emerald-700'}">${formatCurrency(profit)}</td>
+						</tr>
+					`;
+				}).join('');
+			}
+
+			function showToast() {
+				const toast = document.getElementById('save-toast');
+				toast.classList.remove('translate-y-20', 'opacity-0');
+
+				setTimeout(function () {
+					toast.classList.add('translate-y-20', 'opacity-0');
+				}, 2200);
+			}
+
+			function setDefaultMonth() {
+				const now = new Date();
+				const month = String(now.getMonth() + 1).padStart(2, '0');
+				monthInput.value = `${now.getFullYear()}-${month}`;
+			}
+
+			function resetForm() {
+				salesInput.value = '';
+				cogsInput.value = '';
+				rentInput.value = '';
+				salariesInput.value = '';
+				utilitiesInput.value = '';
+				updatePreview();
+				salesInput.focus();
+			}
+
+			function applyUrlPrefill() {
+				const params = new URLSearchParams(window.location.search);
+				const month = params.get('month');
+				const branch = params.get('branch');
+
+				if (month && /^\d{4}-\d{2}$/.test(month)) {
+					monthInput.value = month;
+				}
+
+				if (branch) {
+					const hasOption = Array.from(branchSelect.options).some(opt => opt.value === branch);
+					if (hasOption) branchSelect.value = branch;
+				}
+			}
+
+			function onSubmit(event) {
+				event.preventDefault();
+
+				const monthKey = monthInput.value;
+				if (!/^\d{4}-\d{2}$/.test(monthKey)) {
+					alert('Please select a valid month.');
+					return;
+				}
+
+				const sales = toNumber(salesInput.value);
+				if (sales <= 0) {
+					alert('Total Sales must be greater than 0.');
+					return;
+				}
+
+				const cogs = toNumber(cogsInput.value);
+				const rent = toNumber(rentInput.value);
+				const salaries = toNumber(salariesInput.value);
+				const utilities = toNumber(utilitiesInput.value);
+
+				const totalExpenses = cogs + rent + salaries + utilities;
+				const netProfit = sales - totalExpenses;
+				const profitMargin = sales > 0 ? (netProfit / sales) * 100 : 0;
+
+				const branchId = branchSelect.value || 'branch_default';
+				const branchName = getBranchName(branchId);
+				const year = monthKey.slice(0, 4);
+
+				const entry = {
+					id: `entry_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+					monthKey,
+					month: monthNameFromKey(monthKey),
+					year,
+					branchId,
+					branchName,
+					sales,
+					expenses: totalExpenses,
+					importedPHP: cogs,
+					cogs,
+					rent,
+					salaries,
+					utilities,
+					profit: netProfit,
+					profitMargin: Number(profitMargin.toFixed(2)),
+					timestamp: new Date().toISOString()
+				};
+
+				upsertEntry(entry);
+				renderRecent();
+				showToast();
+			}
+
+			function escapeHtml(value) {
+				const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+				return String(value || '').replace(/[&<>"']/g, char => map[char]);
+			}
+
+			document.addEventListener('DOMContentLoaded', function () {
+				fillBranchOptions();
+				setDefaultMonth();
+				applyUrlPrefill();
+				renderRecent();
+				updatePreview();
+
+				[salesInput, cogsInput, rentInput, salariesInput, utilitiesInput].forEach(input => {
+					input.addEventListener('input', updatePreview);
+				});
+
+				form.addEventListener('submit', onSubmit);
+				document.getElementById('reset-btn').addEventListener('click', resetForm);
+			});
+		})();
+	</script>
+}

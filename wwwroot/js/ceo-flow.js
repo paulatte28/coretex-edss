@@ -5,64 +5,29 @@
         thresholdAlerts: 'coretex_threshold_alerts',
         activities: 'coretex_activities',
         reports: 'coretex_ceo_reports',
-        newsApiKey: 'coretex_news_api_key'
+        newsApiKey: 'coretex_news_api_key',
+        monthlyData: 'coretex_monthly_data',
+        monthlySummaries: 'coretex_monthly_summaries',
+        submissions: 'coretex_submissions',
+        expenses: 'coretex_finance_expenses'
     };
 
-    const SAMPLE = {
-        kpi: {
-            totalRevenue: 7350000,
-            totalExpenses: 4365000,
-            netProfit: 2985000,
-            profitMargin: 40.6,
-            revenueChange: '+12%',
-            expensesChange: '+5%',
-            profitChange: '+18%'
-        },
-        branchComparison: [
-            { branch: 'Branch 1', revenue: 3000000, expenses: 1500000, profit: 1500000, margin: 50, rank: '🥇' },
-            { branch: 'Branch 2', revenue: 2200000, expenses: 1400000, profit: 800000, margin: 36, rank: '🥉' },
-            { branch: 'Branch 3', revenue: 2150000, expenses: 1465000, profit: 685000, margin: 32, rank: '🥈' }
+    const NEWS_FALLBACK = {
+        business: [
+            { title: 'Retail spending expands as consumer confidence improves', source: 'Market Wire', publishedAt: '2026-04-11', url: 'https://example.com/business-1' },
+            { title: 'SME lending volume climbs in Q1 amid lower default rates', source: 'Finance Journal', publishedAt: '2026-04-10', url: 'https://example.com/business-2' },
+            { title: 'Local logistics costs cool, improving distributor margins', source: 'Commerce Daily', publishedAt: '2026-04-09', url: 'https://example.com/business-3' }
         ],
-        mom: {
-            previous: { label: 'Mar 2026', revenue: 6300000, expenses: 4000000, profit: 2300000 },
-            current: { label: 'Apr 2026', revenue: 7350000, expenses: 4365000, profit: 2985000 }
-        },
-        forecast: [
-            { month: 'May 2026', projectedRevenue: 7500000, confidence: 85 },
-            { month: 'Jun 2026', projectedRevenue: 7800000, confidence: 75 },
-            { month: 'Jul 2026', projectedRevenue: 8000000, confidence: 65 }
+        technology: [
+            { title: 'AI demand forecasting tools gain traction in retail chains', source: 'Tech Ledger', publishedAt: '2026-04-11', url: 'https://example.com/tech-1' },
+            { title: 'Cloud ERP adoption rises among regional distributors', source: 'Systems Report', publishedAt: '2026-04-10', url: 'https://example.com/tech-2' },
+            { title: 'POS analytics platforms add real-time anomaly alerts', source: 'Digital Ops', publishedAt: '2026-04-09', url: 'https://example.com/tech-3' }
         ],
-        monthSeries: [
-            { month: 'May 2025', revenue: 5900000, expenses: 3800000, cogs: 2200000, rent: 510000, salaries: 720000, utilities: 370000 },
-            { month: 'Jun 2025', revenue: 6050000, expenses: 3890000, cogs: 2250000, rent: 510000, salaries: 740000, utilities: 390000 },
-            { month: 'Jul 2025', revenue: 6250000, expenses: 3960000, cogs: 2300000, rent: 520000, salaries: 750000, utilities: 390000 },
-            { month: 'Aug 2025', revenue: 6400000, expenses: 4015000, cogs: 2330000, rent: 520000, salaries: 770000, utilities: 395000 },
-            { month: 'Sep 2025', revenue: 6550000, expenses: 4080000, cogs: 2380000, rent: 530000, salaries: 780000, utilities: 390000 },
-            { month: 'Oct 2025', revenue: 6700000, expenses: 4150000, cogs: 2440000, rent: 530000, salaries: 790000, utilities: 390000 },
-            { month: 'Nov 2025', revenue: 6840000, expenses: 4210000, cogs: 2480000, rent: 535000, salaries: 800000, utilities: 395000 },
-            { month: 'Dec 2025', revenue: 6980000, expenses: 4295000, cogs: 2545000, rent: 540000, salaries: 805000, utilities: 405000 },
-            { month: 'Jan 2026', revenue: 7080000, expenses: 4320000, cogs: 2570000, rent: 545000, salaries: 810000, utilities: 395000 },
-            { month: 'Feb 2026', revenue: 7160000, expenses: 4355000, cogs: 2590000, rent: 550000, salaries: 815000, utilities: 400000 },
-            { month: 'Mar 2026', revenue: 6300000, expenses: 4000000, cogs: 2380000, rent: 500000, salaries: 740000, utilities: 380000 },
-            { month: 'Apr 2026', revenue: 7350000, expenses: 4365000, cogs: 2610000, rent: 560000, salaries: 830000, utilities: 365000 }
-        ],
-        newsFallback: {
-            business: [
-                { title: 'Retail spending expands as consumer confidence improves', source: 'Market Wire', publishedAt: '2026-04-11', url: 'https://example.com/business-1' },
-                { title: 'SME lending volume climbs in Q1 amid lower default rates', source: 'Finance Journal', publishedAt: '2026-04-10', url: 'https://example.com/business-2' },
-                { title: 'Local logistics costs cool, improving distributor margins', source: 'Commerce Daily', publishedAt: '2026-04-09', url: 'https://example.com/business-3' }
-            ],
-            technology: [
-                { title: 'AI demand forecasting tools gain traction in retail chains', source: 'Tech Ledger', publishedAt: '2026-04-11', url: 'https://example.com/tech-1' },
-                { title: 'Cloud ERP adoption rises among regional distributors', source: 'Systems Report', publishedAt: '2026-04-10', url: 'https://example.com/tech-2' },
-                { title: 'POS analytics platforms add real-time anomaly alerts', source: 'Digital Ops', publishedAt: '2026-04-09', url: 'https://example.com/tech-3' }
-            ],
-            economy: [
-                { title: 'Inflation eases slightly as food supply conditions improve', source: 'Economic Monitor', publishedAt: '2026-04-11', url: 'https://example.com/economy-1' },
-                { title: 'Peso remains stable against major currencies this week', source: 'Macro Bulletin', publishedAt: '2026-04-10', url: 'https://example.com/economy-2' },
-                { title: 'Industrial output growth supports optimistic Q2 outlook', source: 'National Business Post', publishedAt: '2026-04-09', url: 'https://example.com/economy-3' }
-            ]
-        }
+        economy: [
+            { title: 'Inflation eases slightly as food supply conditions improve', source: 'Economic Monitor', publishedAt: '2026-04-11', url: 'https://example.com/economy-1' },
+            { title: 'Peso remains stable against major currencies this week', source: 'Macro Bulletin', publishedAt: '2026-04-10', url: 'https://example.com/economy-2' },
+            { title: 'Industrial output growth supports optimistic Q2 outlook', source: 'National Business Post', publishedAt: '2026-04-09', url: 'https://example.com/economy-3' }
+        ]
     };
 
     const NAV_ITEMS = [
@@ -108,24 +73,255 @@
         return `${Number(value || 0).toFixed(1)}%`;
     }
 
-    function monthToDate(monthLabel) {
-        return new Date(`${monthLabel} 01`);
+    function toNumber(value) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function monthKeyFromDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    }
+
+    function monthToDate(monthValue) {
+        const text = String(monthValue || '').trim();
+        if (/^\d{4}-\d{2}$/.test(text)) {
+            return new Date(`${text}-01T00:00:00`);
+        }
+
+        return new Date(`${text} 01`);
+    }
+
+    function monthKeyToLabel(monthKey) {
+        const date = monthToDate(monthKey);
+        if (Number.isNaN(date.getTime())) return String(monthKey || 'Unknown');
+
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
+    function parseMonthKey(monthValue, yearValue) {
+        const text = String(monthValue || '').trim();
+
+        if (/^\d{4}-\d{2}$/.test(text)) {
+            return text;
+        }
+
+        const numericYear = Number(yearValue);
+        const numericMonth = Number(monthValue);
+        if (Number.isInteger(numericYear) && Number.isInteger(numericMonth) && numericMonth >= 1 && numericMonth <= 12) {
+            return `${numericYear}-${String(numericMonth).padStart(2, '0')}`;
+        }
+
+        const composed = yearValue ? `${text} 1, ${yearValue}` : `${text} 1`;
+        const parsed = new Date(composed);
+        if (Number.isNaN(parsed.getTime())) {
+            return null;
+        }
+
+        return monthKeyFromDate(parsed);
+    }
+
+    function addMonths(monthKey, offset) {
+        const date = monthToDate(monthKey);
+        if (Number.isNaN(date.getTime())) {
+            return monthKeyFromDate(new Date());
+        }
+
+        const moved = new Date(date.getFullYear(), date.getMonth() + offset, 1);
+        return monthKeyFromDate(moved);
+    }
+
+    function formatChange(current, previous) {
+        const curr = toNumber(current);
+        const prev = toNumber(previous);
+
+        if (prev <= 0) {
+            if (curr <= 0) return '+0.0%';
+            return '+100.0%';
+        }
+
+        const delta = ((curr - prev) / prev) * 100;
+        const sign = delta >= 0 ? '+' : '-';
+        return `${sign}${Math.abs(delta).toFixed(1)}%`;
+    }
+
+    function getMonthBranchEntries() {
+        const entries = new Map();
+
+        function ensureEntry(monthKey, branchId, branchName) {
+            if (!monthKey) return null;
+
+            const normalizedBranchId = String(branchId || 'branch_default');
+            const normalizedBranchName = String(branchName || 'Main Branch');
+            const key = `${monthKey}|${normalizedBranchId}`;
+
+            if (!entries.has(key)) {
+                entries.set(key, {
+                    monthKey,
+                    month: monthKeyToLabel(monthKey),
+                    branchId: normalizedBranchId,
+                    branchName: normalizedBranchName,
+                    revenue: 0,
+                    expenses: 0,
+                    cogs: 0,
+                    rent: 0,
+                    salaries: 0,
+                    utilities: 0
+                });
+            }
+
+            return entries.get(key);
+        }
+
+        readArray(KEYS.submissions).forEach(item => {
+            const monthKey = parseMonthKey(item.month || item.monthKey, item.year);
+            const entry = ensureEntry(monthKey, item.branchId, item.branchName);
+            if (!entry) return;
+
+            entry.revenue = Math.max(entry.revenue, toNumber(item.totalSales));
+            entry.expenses = Math.max(entry.expenses, toNumber(item.totalExpenses));
+
+            if (item.summarySnapshot && item.summarySnapshot.expenses) {
+                entry.cogs = Math.max(entry.cogs, toNumber(item.summarySnapshot.expenses.cogs));
+                entry.rent = Math.max(entry.rent, toNumber(item.summarySnapshot.expenses.rent));
+                entry.salaries = Math.max(entry.salaries, toNumber(item.summarySnapshot.expenses.salaries));
+                entry.utilities = Math.max(entry.utilities, toNumber(item.summarySnapshot.expenses.utilities));
+            }
+        });
+
+        readArray(KEYS.monthlySummaries).forEach(item => {
+            const monthKey = parseMonthKey(item.month || item.monthKey, item.year);
+            const entry = ensureEntry(monthKey, item.branchId, item.branchName);
+            if (!entry) return;
+
+            entry.revenue = Math.max(entry.revenue, toNumber(item.totalSales));
+            entry.expenses = Math.max(entry.expenses, toNumber(item.totalExpenses));
+            entry.cogs = Math.max(entry.cogs, toNumber(item.totalImports));
+        });
+
+        readArray(KEYS.monthlyData).forEach(item => {
+            const monthKey = parseMonthKey(item.monthKey || item.month, item.year);
+            const entry = ensureEntry(monthKey, item.branchId, item.branchName);
+            if (!entry) return;
+
+            entry.revenue = Math.max(entry.revenue, toNumber(item.sales ?? item.revenue ?? item.totalSales));
+            entry.expenses = Math.max(entry.expenses, toNumber(item.expenses ?? item.totalExpenses));
+            entry.cogs = Math.max(entry.cogs, toNumber(item.cogs ?? item.importedPHP ?? item.importedCostPHP));
+            entry.rent = Math.max(entry.rent, toNumber(item.rent));
+            entry.salaries = Math.max(entry.salaries, toNumber(item.salaries));
+            entry.utilities = Math.max(entry.utilities, toNumber(item.utilities));
+        });
+
+        readArray(KEYS.expenses).forEach(item => {
+            if (item && item.deleted) return;
+
+            const monthKey = parseMonthKey(item.monthKey || item.month, item.year);
+            const entry = ensureEntry(monthKey, item.branchId, item.branchName);
+            if (!entry) return;
+
+            const amount = toNumber(item.amountPHP ?? item.amount ?? item.value);
+            const category = String(item.category || '').toLowerCase();
+
+            if (category === 'cogs') entry.cogs += amount;
+            if (category === 'rent') entry.rent += amount;
+            if (category === 'salaries') entry.salaries += amount;
+            if (category === 'utilities') entry.utilities += amount;
+        });
+
+        entries.forEach(entry => {
+            const categoryTotal = entry.cogs + entry.rent + entry.salaries + entry.utilities;
+            if (categoryTotal > 0) {
+                entry.expenses = categoryTotal;
+            }
+
+            entry.month = monthKeyToLabel(entry.monthKey);
+            entry.revenue = Number(entry.revenue.toFixed(2));
+            entry.expenses = Number(entry.expenses.toFixed(2));
+            entry.cogs = Number(entry.cogs.toFixed(2));
+            entry.rent = Number(entry.rent.toFixed(2));
+            entry.salaries = Number(entry.salaries.toFixed(2));
+            entry.utilities = Number(entry.utilities.toFixed(2));
+        });
+
+        return [...entries.values()].sort((a, b) => monthToDate(a.monthKey) - monthToDate(b.monthKey));
     }
 
     function getMonthSeries() {
-        const sorted = [...SAMPLE.monthSeries].sort((a, b) => monthToDate(a.month) - monthToDate(b.month));
-        return sorted;
+        const consolidated = new Map();
+
+        getMonthBranchEntries().forEach(item => {
+            if (!consolidated.has(item.monthKey)) {
+                consolidated.set(item.monthKey, {
+                    monthKey: item.monthKey,
+                    month: monthKeyToLabel(item.monthKey),
+                    revenue: 0,
+                    expenses: 0,
+                    cogs: 0,
+                    rent: 0,
+                    salaries: 0,
+                    utilities: 0
+                });
+            }
+
+            const row = consolidated.get(item.monthKey);
+            row.revenue += item.revenue;
+            row.expenses += item.expenses;
+            row.cogs += item.cogs;
+            row.rent += item.rent;
+            row.salaries += item.salaries;
+            row.utilities += item.utilities;
+        });
+
+        const series = [...consolidated.values()]
+            .sort((a, b) => monthToDate(a.monthKey) - monthToDate(b.monthKey))
+            .map(item => ({
+                ...item,
+                revenue: Number(item.revenue.toFixed(2)),
+                expenses: Number(item.expenses.toFixed(2)),
+                cogs: Number(item.cogs.toFixed(2)),
+                rent: Number(item.rent.toFixed(2)),
+                salaries: Number(item.salaries.toFixed(2)),
+                utilities: Number(item.utilities.toFixed(2))
+            }));
+
+        if (series.length === 0) {
+            const monthKey = monthKeyFromDate(new Date());
+            return [{
+                monthKey,
+                month: monthKeyToLabel(monthKey),
+                revenue: 0,
+                expenses: 0,
+                cogs: 0,
+                rent: 0,
+                salaries: 0,
+                utilities: 0
+            }];
+        }
+
+        return series;
     }
 
     function getKpiSnapshot() {
+        const series = getMonthSeries();
+        const current = series[series.length - 1];
+        const previous = series.length > 1 ? series[series.length - 2] : current;
+
+        const netProfit = current.revenue - current.expenses;
+        const previousProfit = previous.revenue - previous.expenses;
+        const profitMargin = current.revenue > 0 ? (netProfit / current.revenue) * 100 : 0;
+
         return {
-            totalRevenue: SAMPLE.kpi.totalRevenue,
-            totalExpenses: SAMPLE.kpi.totalExpenses,
-            netProfit: SAMPLE.kpi.netProfit,
-            profitMargin: SAMPLE.kpi.profitMargin,
-            revenueChange: SAMPLE.kpi.revenueChange,
-            expensesChange: SAMPLE.kpi.expensesChange,
-            profitChange: SAMPLE.kpi.profitChange,
+            totalRevenue: current.revenue,
+            totalExpenses: current.expenses,
+            netProfit,
+            profitMargin: Number(profitMargin.toFixed(1)),
+            revenueChange: formatChange(current.revenue, previous.revenue),
+            expensesChange: formatChange(current.expenses, previous.expenses),
+            profitChange: formatChange(netProfit, previousProfit),
             risk: getRiskSummary()
         };
     }
@@ -133,9 +329,10 @@
     function getProfitMarginTrend() {
         return getMonthSeries().map(item => {
             const profit = item.revenue - item.expenses;
+            const margin = item.revenue > 0 ? ((profit / item.revenue) * 100) : 0;
             return {
                 month: item.month,
-                margin: Number(((profit / item.revenue) * 100).toFixed(1))
+                margin: Number(margin.toFixed(1))
             };
         });
     }
@@ -143,12 +340,14 @@
     function getExpenseRatioTrend() {
         return getMonthSeries().map(item => ({
             month: item.month,
-            ratio: Number(((item.expenses / item.revenue) * 100).toFixed(1))
+            ratio: Number((item.revenue > 0 ? ((item.expenses / item.revenue) * 100) : 0).toFixed(1))
         }));
     }
 
     function getExpenseBreakdownCurrent() {
-        const current = getMonthSeries()[getMonthSeries().length - 1];
+        const series = getMonthSeries();
+        const current = series[series.length - 1];
+
         return {
             cogs: current.cogs,
             rent: current.rent,
@@ -158,7 +357,42 @@
     }
 
     function getForecastRows() {
-        return SAMPLE.forecast;
+        const series = getMonthSeries();
+        const recent = series.slice(-4);
+        const latest = recent[recent.length - 1];
+
+        let averageGrowth = 0;
+        if (recent.length > 1) {
+            const growthRates = [];
+            for (let i = 1; i < recent.length; i += 1) {
+                const previousRevenue = recent[i - 1].revenue;
+                const currentRevenue = recent[i].revenue;
+                if (previousRevenue > 0) {
+                    growthRates.push((currentRevenue - previousRevenue) / previousRevenue);
+                }
+            }
+
+            if (growthRates.length > 0) {
+                averageGrowth = growthRates.reduce((sum, item) => sum + item, 0) / growthRates.length;
+            }
+        }
+
+        const confidence = [85, 75, 65];
+        const baseMonthKey = latest.monthKey || monthKeyFromDate(new Date());
+        let projected = latest.revenue;
+
+        const rows = [];
+        for (let i = 1; i <= 3; i += 1) {
+            projected = Math.max(0, projected * (1 + averageGrowth));
+            const monthKey = addMonths(baseMonthKey, i);
+            rows.push({
+                month: monthKeyToLabel(monthKey),
+                projectedRevenue: Number(projected.toFixed(2)),
+                confidence: confidence[i - 1]
+            });
+        }
+
+        return rows;
     }
 
     function getRiskSummary() {
@@ -192,15 +426,74 @@
     }
 
     function getBranchComparisonRows() {
-        return SAMPLE.branchComparison;
+        const entries = getMonthBranchEntries();
+
+        if (entries.length === 0) {
+            const latest = getMonthSeries()[getMonthSeries().length - 1];
+            const profit = latest.revenue - latest.expenses;
+            return [{
+                branch: 'All Branches',
+                revenue: latest.revenue,
+                expenses: latest.expenses,
+                profit,
+                margin: latest.revenue > 0 ? Number(((profit / latest.revenue) * 100).toFixed(1)) : 0,
+                rank: '-'
+            }];
+        }
+
+        const latestMonthKey = entries[entries.length - 1].monthKey;
+        const sameMonth = entries
+            .filter(item => item.monthKey === latestMonthKey)
+            .map(item => {
+                const profit = item.revenue - item.expenses;
+                const margin = item.revenue > 0 ? (profit / item.revenue) * 100 : 0;
+                return {
+                    branch: item.branchName || item.branchId,
+                    revenue: item.revenue,
+                    expenses: item.expenses,
+                    profit,
+                    margin: Number(margin.toFixed(1))
+                };
+            })
+            .sort((a, b) => b.profit - a.profit);
+
+        const medals = ['🥇', '🥈', '🥉'];
+        return sameMonth.map((row, index) => ({
+            ...row,
+            rank: medals[index] || `#${index + 1}`
+        }));
     }
 
     function getMomData() {
-        return SAMPLE.mom;
+        const series = getMonthSeries();
+        const current = series[series.length - 1];
+        const previousRaw = series.length > 1 ? series[series.length - 2] : current;
+
+        const currentProfit = current.revenue - current.expenses;
+        const previousProfit = previousRaw.revenue - previousRaw.expenses;
+
+        const safePreviousRevenue = previousRaw.revenue > 0 ? previousRaw.revenue : Math.max(current.revenue, 1);
+        const safePreviousExpenses = previousRaw.expenses > 0 ? previousRaw.expenses : Math.max(current.expenses, 1);
+        const safePreviousProfit = previousProfit !== 0 ? previousProfit : (currentProfit === 0 ? 1 : currentProfit);
+
+        return {
+            previous: {
+                label: previousRaw.month,
+                revenue: Number(safePreviousRevenue.toFixed(2)),
+                expenses: Number(safePreviousExpenses.toFixed(2)),
+                profit: Number(safePreviousProfit.toFixed(2))
+            },
+            current: {
+                label: current.month,
+                revenue: Number(current.revenue.toFixed(2)),
+                expenses: Number(current.expenses.toFixed(2)),
+                profit: Number(currentProfit.toFixed(2))
+            }
+        };
     }
 
     function getNewsFallback(category) {
-        return SAMPLE.newsFallback[category] || SAMPLE.newsFallback.business;
+        return NEWS_FALLBACK[category] || NEWS_FALLBACK.business;
     }
 
     function getNotifications() {
