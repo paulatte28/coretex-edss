@@ -215,11 +215,6 @@
                 </div>
                 
                 <div class="flex items-center space-x-8">
-                    <!-- Demo Seeder (Only shown if data is missing) -->
-                    <button id="seed-btn" onclick="seedDemoData()" class="hidden px-4 py-2 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm">
-                        Seed Demo Data
-                    </button>
-
                     <div class="relative group">
                         <input type="text" placeholder="Search insights..." class="bg-slate-100/50 border-none rounded-2xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 transition-all w-64" />
                         <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -275,76 +270,6 @@
             dropdown.classList.toggle('hidden');
             document.getElementById('notif-dot').classList.add('hidden');
         }
-
-        function seedDemoData() {
-            const history = [
-                { month: 'Oct 2025', sales: 1250000, expenses: 1100000, importedCostPHP: 450000, currency: 'CNY', profit: 150000 },
-                { month: 'Nov 2025', sales: 1420000, expenses: 1050000, importedCostPHP: 380000, currency: 'USD', profit: 370000 },
-                { month: 'Dec 2025', sales: 2100000, expenses: 1200000, importedCostPHP: 520000, currency: 'CNY', profit: 900000 },
-                { month: 'Jan 2026', sales: 1650000, expenses: 1150000, importedCostPHP: 410000, currency: 'USD', profit: 500000 },
-                { month: 'Feb 2026', sales: 1800000, expenses: 1250000, importedCostPHP: 480000, currency: 'JPY', profit: 550000 },
-                { month: 'Mar 2026', sales: 1950000, expenses: 1300000, importedCostPHP: 500000, currency: 'EUR', profit: 650000 }
-            ];
-            localStorage.setItem('coretex_monthly_data', JSON.stringify(history));
-            alert("Demo Database Seeded Successfully. Reloading...");
-            window.location.reload();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const role = localStorage.getItem('coretex_user_role') || 'CEO';
-            const roleBadge = document.getElementById('role-badge');
-            const roleLabel = document.getElementById('user-role-label');
-            const nameLabel = document.getElementById('user-name-label');
-            const avatar = document.getElementById('user-avatar');
-
-            // Apply Role-Based Navigation
-            document.querySelectorAll('nav a').forEach(link => {
-                const path = link.getAttribute('href').toLowerCase();
-                const isAdminModule = path.startsWith('/admin');
-                const isCeoModule = path.startsWith('/ceo');
-                const isFinanceModule = path.startsWith('/finance');
-                const isCashierModule = path.startsWith('/cashier');
-
-                if (role === 'ADMIN') {
-                    if (!isAdminModule) link.style.display = 'none';
-                } else if (role === 'FINANCE') {
-                    if (!isFinanceModule) link.style.display = 'none';
-                } else if (role === 'CASHIER') {
-                    if (!isCashierModule) link.style.display = 'none';
-                } else {
-                    if (!isCeoModule) link.style.display = 'none';
-                }
-            });
-
-            // Update Header Branded UI
-            if (role === 'ADMIN') {
-                roleBadge.innerText = 'Platform Admin';
-                roleBadge.className = 'px-3 py-1 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg';
-                roleLabel.innerText = 'Super Admin';
-                nameLabel.innerText = 'Core System';
-                avatar.innerText = 'SA';
-                avatar.className = 'h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xs font-bold';
-            } else if (role === 'FINANCE') {
-                roleBadge.innerText = 'Finance Auditor';
-                roleBadge.className = 'px-3 py-1 bg-emerald-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg';
-                roleLabel.innerText = 'Accounting';
-                nameLabel.innerText = 'Audit Terminal';
-                avatar.innerText = 'FA';
-                avatar.className = 'h-12 w-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white text-xs font-bold';
-            } else if (role === 'CASHIER') {
-                roleBadge.innerText = 'Cashier Mode';
-                roleBadge.className = 'px-3 py-1 bg-amber-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg';
-                roleLabel.innerText = 'Branch Cashier';
-                nameLabel.innerText = 'POS Terminal';
-                avatar.innerText = 'CA';
-                avatar.className = 'h-12 w-12 bg-amber-600 rounded-2xl flex items-center justify-center text-white text-xs font-bold';
-            }
-
-            // Show seeder if data is flat
-            if (!localStorage.getItem('coretex_monthly_data')) {
-                document.getElementById('seed-btn').classList.remove('hidden');
-            }
-        });
     </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
