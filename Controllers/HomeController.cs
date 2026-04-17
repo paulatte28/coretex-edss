@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using coretex_finalproj.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace coretex_finalproj.Controllers
@@ -7,10 +8,17 @@ namespace coretex_finalproj.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            ILogger<HomeController> logger,
+            SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager)
         {
             _logger = logger;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -24,8 +32,56 @@ namespace coretex_finalproj.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Login()
+        [HttpGet]
+        public IActionResult Login(string? returnUrl = null)
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index");
+            }
+
+            ViewData["ReturnUrl"] = returnUrl ?? string.Empty;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string email, string password, bool remember, string? returnUrl = null)
+        {
+            returnUrl ??= string.Empty;
+            ViewData["ReturnUrl"] = returnUrl;
+            ViewData["Email"] = email;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                ViewData["LoginError"] = "Email and password are required.";
+                return View();
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(email, password, remember, lockoutOnFailure: true);
+            if (result.Succeeded)
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user != null)
+                {
+                    if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
+                    if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
+                    if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
+                    if (await _userManager.IsInRoleAsync(user, "CEO")) return Redirect("/ceo/dashboard");
+                }
+
+                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                return Redirect("/ceo/dashboard");
+            }
+
+            ViewData["LoginError"] = result.IsLockedOut
+                ? "Account locked. Contact administrator."
+                : "Incorrect email or password.";
+
             return View();
         }
 

@@ -1,5 +1,8 @@
 @{
     Layout = null;
+    var loginError = ViewData["LoginError"] as string;
+    var emailValue = ViewData["Email"] as string ?? string.Empty;
+    var returnUrl = ViewData["ReturnUrl"] as string ?? string.Empty;
 }
 
 <!DOCTYPE html>
@@ -108,14 +111,14 @@
         <!-- Login Card -->
         <div class="glass-card rounded-3xl p-8 shadow-2xl">
             <!-- Error Message (hidden by default) -->
-            <div id="error-message" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+            <div id="error-message" class="@(string.IsNullOrEmpty(loginError) ? "hidden" : "") mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <p id="error-text" class="text-red-700 text-sm font-medium">Incorrect email or password</p>
+                    <p id="error-text" class="text-red-700 text-sm font-medium">@(string.IsNullOrEmpty(loginError) ? "Incorrect email or password" : loginError)</p>
                 </div>
             </div>
 
@@ -132,7 +135,10 @@
             </div>
 
             <!-- Login Form -->
-            <form id="login-form" class="space-y-5">
+            <form id="login-form" class="space-y-5" method="post" action="@Url.Action("Login", "Home")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+
                 <!-- Email Field -->
                 <div>
                     <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
@@ -147,7 +153,9 @@
                             id="email" 
                             name="email" 
                             required
+                            value="@emailValue"
                             placeholder="you@company.com"
+                            autocomplete="email"
                             class="input-field w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-secondary focus:bg-white"
                         />
                     </div>
@@ -168,6 +176,7 @@
                             name="password" 
                             required
                             placeholder="••••••••"
+                            autocomplete="current-password"
                             class="input-field w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-secondary focus:bg-white"
                         />
                         <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-4 flex items-center">
@@ -188,7 +197,7 @@
                         <input type="checkbox" id="remember" name="remember" class="w-5 h-5 rounded-lg border-slate-300 text-secondary focus:ring-secondary focus:ring-offset-0 cursor-pointer" />
                         <span class="ml-3 text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Remember me</span>
                     </label>
-                    <a href="#" id="forgot-password-link" class="text-sm font-semibold text-secondary hover:text-primary transition-colors">
+                    <a href="/Identity/Account/ForgotPassword" class="text-sm font-semibold text-secondary hover:text-primary transition-colors">
                         Forgot password?
                     </a>
                 </div>
@@ -210,73 +219,6 @@
                     </svg>
                 </button>
             </form>
-
-            <!-- Divider -->
-            <div class="relative my-8">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-200"></div>
-                </div>
-                <div class="relative flex justify-center text-xs uppercase">
-                    <span class="bg-white px-4 text-slate-400 font-medium">Quick Access (Demo)</span>
-                </div>
-            </div>
-
-            <!-- Quick Access Buttons (for demo purposes) -->
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="quickLogin('CEO')" class="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-left transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-900">CEO</p>
-                            <p class="text-[10px] text-slate-500">Dashboard</p>
-                        </div>
-                    </div>
-                </button>
-                <button onclick="quickLogin('FINANCE')" class="p-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-left transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-900">Finance</p>
-                            <p class="text-[10px] text-slate-500">Officer</p>
-                        </div>
-                    </div>
-                </button>
-                <button onclick="quickLogin('CASHIER')" class="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-left transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-900">Cashier</p>
-                            <p class="text-[10px] text-slate-500">Branch POS</p>
-                        </div>
-                    </div>
-                </button>
-                <button onclick="quickLogin('ADMIN')" class="p-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-left transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-slate-700 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-900">Admin</p>
-                            <p class="text-[10px] text-slate-500">System</p>
-                        </div>
-                    </div>
-                </button>
-            </div>
         </div>
 
         <!-- Footer -->
@@ -287,59 +229,23 @@
         </div>
     </div>
 
-    <!-- Forgot Password Modal -->
-    <div id="forgot-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="glass-card rounded-3xl p-8 max-w-md w-full shadow-2xl fade-in">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900">Reset Password</h3>
-                <p class="text-slate-500 text-sm mt-2">Enter your email and we'll send you a reset link</p>
-            </div>
-            <form id="forgot-form">
-                <input 
-                    type="email" 
-                    id="forgot-email"
-                    placeholder="you@company.com"
-                    required
-                    class="input-field w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-secondary focus:bg-white mb-4"
-                />
-                <button type="submit" class="w-full py-4 bg-secondary text-white font-bold rounded-2xl hover:bg-teal-700 transition-colors">
-                    Send Reset Link
-                </button>
-            </form>
-            <button id="close-forgot-modal" class="w-full py-3 text-slate-500 font-medium mt-3 hover:text-slate-700 transition-colors">
-                Cancel
-            </button>
-        </div>
-    </div>
-
     <script>
-        // Demo credentials for testing
-        const demoCredentials = {
-            'admin@coretex.com': { password: 'admin123', role: 'ADMIN', redirect: '/Admin' },
-            'ceo@coretex.com': { password: 'ceo123', role: 'CEO', redirect: '/ceo/dashboard' },
-            'finance@coretex.com': { password: 'finance123', role: 'FINANCE', redirect: '/finance/dashboard' },
-            'cashier@coretex.com': { password: 'cashier123', role: 'CASHIER', redirect: '/cashier/pos' }
-        };
-
         // Toggle password visibility
         const togglePassword = document.getElementById('toggle-password');
         const passwordInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eye-icon');
         const eyeOffIcon = document.getElementById('eye-off-icon');
 
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            eyeIcon.classList.toggle('hidden');
-            eyeOffIcon.classList.toggle('hidden');
-        });
+        if (togglePassword && passwordInput && eyeIcon && eyeOffIcon) {
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                eyeIcon.classList.toggle('hidden');
+                eyeOffIcon.classList.toggle('hidden');
+            });
+        }
 
-        // Login form submission
+        // Login submit loading state
         const loginForm = document.getElementById('login-form');
         const loginBtn = document.getElementById('login-btn');
         const btnText = document.getElementById('btn-text');
@@ -348,132 +254,21 @@
         const errorMessage = document.getElementById('error-message');
         const errorText = document.getElementById('error-text');
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value.toLowerCase();
-            const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
-
-            // Show loading state
-            btnText.textContent = 'Signing in...';
-            btnArrow.classList.add('hidden');
-            btnSpinner.classList.remove('hidden');
-            loginBtn.disabled = true;
-
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Check credentials (demo mode)
-            const user = demoCredentials[email];
-            
-            if (user && user.password === password) {
-                // Success - store session data
-                const loginData = {
-                    email: email,
-                    role: user.role,
-                    loginTime: new Date().toISOString(),
-                    remember: remember
-                };
-                
-                // Store in localStorage/sessionStorage based on remember me
-                if (remember) {
-                    localStorage.setItem('coretex_session', JSON.stringify(loginData));
-                } else {
-                    sessionStorage.setItem('coretex_session', JSON.stringify(loginData));
-                }
-                localStorage.setItem('coretex_user_role', user.role);
-
-                // Log activity (would call IPGeolocation API in production)
-                console.log('Login successful:', {
-                    ...loginData,
-                    ip: 'Will be captured by IPGeolocation API',
-                    location: 'Will be captured by IPGeolocation API'
-                });
-
-                // Redirect to appropriate dashboard
-                window.location.href = user.redirect;
-            } else {
-                // Error - show message
-                errorMessage.classList.remove('hidden');
-                errorMessage.classList.add('error-shake');
-                
-                if (!user) {
-                    errorText.textContent = 'Incorrect email or password';
-                } else {
-                    errorText.textContent = 'Incorrect password';
-                }
-
-                // Reset button state
-                btnText.textContent = 'Sign In';
-                btnArrow.classList.remove('hidden');
-                btnSpinner.classList.add('hidden');
-                loginBtn.disabled = false;
-
-                // Remove shake animation after it completes
-                setTimeout(() => {
-                    errorMessage.classList.remove('error-shake');
-                }, 500);
-            }
-        });
-
-        // Quick login function (demo)
-        function quickLogin(role) {
-            const roleMap = {
-                'CEO': { email: 'ceo@coretex.com', redirect: '/ceo/dashboard' },
-                'FINANCE': { email: 'finance@coretex.com', redirect: '/finance/dashboard' },
-                'CASHIER': { email: 'cashier@coretex.com', redirect: '/cashier/pos' },
-                'ADMIN': { email: 'admin@coretex.com', redirect: '/Admin' }
-            };
-
-            const userData = roleMap[role];
-            
-            // Store session
-            const loginData = {
-                email: userData.email,
-                role: role,
-                loginTime: new Date().toISOString(),
-                quickAccess: true
-            };
-            
-            sessionStorage.setItem('coretex_session', JSON.stringify(loginData));
-            localStorage.setItem('coretex_user_role', role);
-
-            // Redirect
-            window.location.href = userData.redirect;
+        if (loginForm && loginBtn && btnText && btnArrow && btnSpinner) {
+            loginForm.addEventListener('submit', () => {
+                btnText.textContent = 'Signing in...';
+                btnArrow.classList.add('hidden');
+                btnSpinner.classList.remove('hidden');
+                loginBtn.disabled = true;
+            });
         }
 
-        // Forgot password modal
-        const forgotLink = document.getElementById('forgot-password-link');
-        const forgotModal = document.getElementById('forgot-modal');
-        const closeForgotModal = document.getElementById('close-forgot-modal');
-        const forgotForm = document.getElementById('forgot-form');
-
-        forgotLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            forgotModal.classList.remove('hidden');
-            forgotModal.classList.add('flex');
-        });
-
-        closeForgotModal.addEventListener('click', () => {
-            forgotModal.classList.add('hidden');
-            forgotModal.classList.remove('flex');
-        });
-
-        forgotModal.addEventListener('click', (e) => {
-            if (e.target === forgotModal) {
-                forgotModal.classList.add('hidden');
-                forgotModal.classList.remove('flex');
-            }
-        });
-
-        forgotForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('forgot-email').value;
-            alert(`Password reset link sent to ${email}\n\n(Demo mode - no actual email sent)`);
-            forgotModal.classList.add('hidden');
-            forgotModal.classList.remove('flex');
-        });
+        if (errorMessage && !errorMessage.classList.contains('hidden')) {
+            errorMessage.classList.add('error-shake');
+            setTimeout(() => {
+                errorMessage.classList.remove('error-shake');
+            }, 500);
+        }
 
         // Check for session expired parameter
         const urlParams = new URLSearchParams(window.location.search);
@@ -483,8 +278,10 @@
 
         // Check for account locked
         if (urlParams.get('status') === 'locked') {
-            errorMessage.classList.remove('hidden');
-            errorText.textContent = 'Account locked. Contact administrator.';
+            if (errorMessage && errorText) {
+                errorMessage.classList.remove('hidden');
+                errorText.textContent = 'Account locked. Contact administrator.';
+            }
         }
     </script>
 </body>
