@@ -73,7 +73,17 @@ namespace coretex_finalproj.Data
         private static async Task EnsureSchemaAsync(ApplicationDbContext context, ILogger? logger)
         {
             logger?.LogInformation("Applying pending EF Core migrations before seeding.");
-            await context.Database.MigrateAsync();
+            try
+            {
+                await context.Database.MigrateAsync();
+            }
+            catch (InvalidOperationException ex) when (
+                ex.Message.Contains("PendingModelChangesWarning", StringComparison.OrdinalIgnoreCase))
+            {
+                logger?.LogWarning(
+                    ex,
+                    "Skipping automatic migration because model changes are pending without a new migration. Continuing with existing schema for seeding.");
+            }
         }
 
         private static async Task SeedRolesAndUsersAsync(

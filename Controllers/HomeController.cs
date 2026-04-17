@@ -48,27 +48,33 @@ namespace coretex_finalproj.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password, bool remember, string? returnUrl = null)
         {
+            var loginId = (email ?? string.Empty).Trim();
             returnUrl ??= string.Empty;
             ViewData["ReturnUrl"] = returnUrl;
-            ViewData["Email"] = email;
+            ViewData["Email"] = loginId;
 
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(loginId) || string.IsNullOrWhiteSpace(password))
             {
                 ViewData["LoginError"] = "Email and password are required.";
                 return View();
             }
 
-            var result = await _signInManager.PasswordSignInAsync(email, password, remember, lockoutOnFailure: true);
+            var user = await _userManager.FindByEmailAsync(loginId)
+                ?? await _userManager.FindByNameAsync(loginId);
+
+            if (user == null)
+            {
+                ViewData["LoginError"] = "Incorrect email or password.";
+                return View();
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user, password, remember, lockoutOnFailure: true);
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user != null)
-                {
-                    if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
-                    if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
-                    if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
-                    if (await _userManager.IsInRoleAsync(user, "CEO")) return Redirect("/ceo/dashboard");
-                }
+                if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
+                if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
+                if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
+                if (await _userManager.IsInRoleAsync(user, "CEO")) return Redirect("/ceo/dashboard");
 
                 if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
@@ -80,7 +86,9 @@ namespace coretex_finalproj.Controllers
 
             ViewData["LoginError"] = result.IsLockedOut
                 ? "Account locked. Contact administrator."
-                : "Incorrect email or password.";
+                : result.IsNotAllowed
+                    ? "Sign-in is not allowed for this account."
+                    : "Incorrect email or password.";
 
             return View();
         }
