@@ -1,4 +1,5 @@
 using coretex_finalproj.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,8 @@ namespace coretex_finalproj.Data
         public static async Task SeedDataAsync(IServiceProvider serviceProvider)
         {
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger("DbSeeder");
 
             await EnsureSchemaAsync(context, logger);
@@ -23,9 +26,11 @@ namespace coretex_finalproj.Data
                 return;
             }
 
+            Branch? defaultBranch = null;
+
             if (!await context.Branches.AnyAsync())
             {
-                var defaultBranch = new Branch
+                defaultBranch = new Branch
                 {
                     Id = Guid.NewGuid(),
                     Name = "Main Branch",
@@ -56,12 +61,158 @@ namespace coretex_finalproj.Data
 
                 await context.SaveChangesAsync();
             }
+
+            defaultBranch ??= await context.Branches
+                .OrderByDescending(b => b.IsActive)
+                .ThenBy(b => b.Name)
+                .FirstAsync();
+
+            await SeedRolesAndUsersAsync(userManager, roleManager, defaultBranch.Id, logger);
         }
 
         private static async Task EnsureSchemaAsync(ApplicationDbContext context, ILogger? logger)
         {
             logger?.LogInformation("Applying pending EF Core migrations before seeding.");
             await context.Database.MigrateAsync();
+        }
+
+        private static async Task SeedRolesAndUsersAsync(
+            UserManager<AppUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            Guid defaultBranchId,
+            ILogger? logger)
+        {
+            var roles = new[] { "ADMIN", "CEO", "FINANCE", "CASHIER" };
+
+            foreach (var role in roles)
+            {
+                if (await roleManager.RoleExistsAsync(role))
+                {
+                    continue;
+                }
+
+                var createRoleResult = await roleManager.CreateAsync(new IdentityRole(role));
+                if (!createRoleResult.Succeeded)
+                {
+                    logger?.LogWarning(
+                        "Failed to create role {Role}: {Errors}",
+                        role,
+                        string.Join(", ", createRoleResult.Errors.Select(e => e.Description)));
+                }
+            }
+
+            await EnsureUserAsync(
+                userManager,
+                email: "admin@coretex.com",
+                fullName: "System Administrator",
+                password: "Admin123!",
+                role: "ADMIN",
+                branchId: null,
+                logger: logger);
+
+            await EnsureUserAsync(
+                userManager,
+                email: "ceo@coretex.com",
+                fullName: "Chief Executive Officer",
+                password: "Ceo12345!",
+                role: "CEO",
+                branchId: null,
+                logger: logger);
+
+            await EnsureUserAsync(
+                userManager,
+                email: "finance@coretex.com",
+                fullName: "Finance Officer",
+                password: "Finance123!",
+                role: "FINANCE",
+                branchId: defaultBranchId,
+                logger: logger);
+
+            await EnsureUserAsync(
+                userManager,
+                email: "cashier@coretex.com",
+                fullName: "Branch Cashier",
+                password: "Cashier123!",
+                role: "CASHIER",
+                branchId: defaultBranchId,
+                logger: logger);
+        }
+
+        private static async Task EnsureUserAsync(
+            UserManager<AppUser> userManager,
+            string email,
+            string fullName,
+            string password,
+            string role,
+            Guid? branchId,
+            ILogger? logger)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new AppUser
+                {
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true,
+                    FullName = fullName,
+                    BranchId = branchId
+                };
+
+                var createUserResult = await userManager.CreateAsync(user, password);
+                if (!createUserResult.Succeeded)
+                {
+                    logger?.LogWarning(
+                        "Failed to create user {Email}: {Errors}",
+                        email,
+                        string.Join(", ", createUserResult.Errors.Select(e => e.Description)));
+                    return;
+                }
+
+                logger?.LogInformation("Created default user {Email}.", email);
+            }
+            else
+            {
+                var requiresUpdate = false;
+
+                if (string.IsNullOrWhiteSpace(user.FullName))
+                {
+                    user.FullName = fullName;
+                    requiresUpdate = true;
+                }
+
+                if (branchId.HasValue && user.BranchId != branchId)
+                {
+                    user.BranchId = branchId;
+                    requiresUpdate = true;
+                }
+
+                if (requiresUpdate)
+                {
+                    var updateUserResult = await userManager.UpdateAsync(user);
+                    if (!updateUserResult.Succeeded)
+                    {
+                        logger?.LogWarning(
+                            "Failed to update user {Email}: {Errors}",
+                            email,
+                            string.Join(", ", updateUserResult.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
+
+            if (!await userManager.IsInRoleAsync(user, role))
+            {
+                var addRoleResult = await userManager.AddToRoleAsync(user, role);
+                if (!addRoleResult.Succeeded)
+                {
+                    logger?.LogWarning(
+                        "Failed to assign role {Role} to user {Email}: {Errors}",
+                        role,
+                        email,
+                        string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
+                }
+            }
         }
 
         private static async Task<bool> TableExistsAsync(ApplicationDbContext context, string tableName)
