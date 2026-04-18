@@ -5,6 +5,7 @@ using coretex_finalproj.Services;
 
 namespace coretex_finalproj.Controllers
 {
+    [Authorize(Roles = "CEO,ADMIN")]
     public class ReportController : Controller
     {
         private readonly NotificationService _notificationService;

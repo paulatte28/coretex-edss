@@ -37,7 +37,11 @@ namespace coretex_finalproj.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index");
+                if (User.IsInRole("ADMIN")) return Redirect("/Admin");
+                if (User.IsInRole("FINANCE")) return Redirect("/finance/dashboard");
+                if (User.IsInRole("CASHIER")) return Redirect("/cashier/pos");
+                if (User.IsInRole("CEO")) return Redirect("/ceo/dashboard");
+                return Redirect("/ceo/dashboard");
             }
 
             ViewData["ReturnUrl"] = returnUrl ?? string.Empty;
@@ -91,6 +95,14 @@ namespace coretex_finalproj.Controllers
                     : "Incorrect email or password.";
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login");
         }
 
         public IActionResult Privacy()

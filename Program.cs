@@ -24,6 +24,11 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Home/Login";
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 

@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("coretex-finalproj")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1663b7651143591f99c8a19d9b01bb1b658d6570")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1fc5a27a284cebb997ae7adaaba1573d1d359bef")]
 [assembly: System.Reflection.AssemblyProductAttribute("coretex-finalproj")]
 [assembly: System.Reflection.AssemblyTitleAttribute("coretex-finalproj")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

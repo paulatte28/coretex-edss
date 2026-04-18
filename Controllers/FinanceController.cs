@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace coretex_finalproj.Controllers
 {
+    [Authorize(Roles = "FINANCE")]
     public class FinanceController : Controller
     {
         public IActionResult Index()

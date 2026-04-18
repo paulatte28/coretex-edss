@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace coretex_finalproj.Controllers
 {
+    [Authorize(Roles = "CEO")]
     public class CeoController : Controller
     {
         public IActionResult Index()
