@@ -17,6 +17,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<CurrencyService>();
 builder.Services.AddScoped<AuditLoggingService>();
+builder.Services.AddScoped<AnalyticsService>();
 
 builder.Services
     .AddDefaultIdentity<AppUser>(options =>

@@ -6,11 +6,30 @@ namespace coretex_finalproj.Controllers
     [Authorize(Roles = "ADMIN")]
     public class AdminController : Controller
     {
-        // Admin Dashboard / Overview
-        public IActionResult Index()
+        private readonly Services.AnalyticsService _analytics;
+
+        public AdminController(Services.AnalyticsService analytics)
         {
+            _analytics = analytics;
+        }
+
+        // Admin Dashboard / Overview
+        public async Task<IActionResult> Index()
+        {
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMonthlyAnalytics() => Json(await _analytics.GetMonthlyProfitLossAsync());
+
+        [HttpGet]
+        public async Task<IActionResult> GetBranchAnalytics() => Json(await _analytics.GetBranchPerformanceAsync());
+
+        [HttpGet]
+        public async Task<IActionResult> GetExpenseAnalytics() => Json(await _analytics.GetExpenseCategoriesAsync());
 
         // Branch Management (Davao, Tagum, Digos, etc.)
         public IActionResult BranchManagement()
