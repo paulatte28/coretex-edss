@@ -1,59 +1,92 @@
+using coretex_finalproj.Data;
+using coretex_finalproj.Models;
+using coretex_finalproj.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace coretex_finalproj.Controllers
 {
-    [Authorize(Roles = "FINANCE")]
+    [Authorize(Roles = "FINANCE,ADMIN")]
     public class FinanceController : Controller
     {
+        private readonly ApplicationDbContext _context;
+        private readonly AuditLoggingService _auditLog;
+
+        public FinanceController(ApplicationDbContext context, AuditLoggingService auditLog)
+        {
+            _context = context;
+            _auditLog = auditLog;
+        }
+
         public IActionResult Index()
         {
             return RedirectToAction(nameof(Dashboard));
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            return View();
+            var expenses = await _context.Expenses.Include(e => e.Branch).OrderByDescending(e => e.Date).Take(10).ToListAsync();
+            return View(expenses);
         }
 
-        public IActionResult ExpensesCogs()
+        [HttpGet]
+        public async Task<IActionResult> ExpensesByBranch(Guid? branchId)
         {
-            return View();
+            var expenses = _context.Expenses.Include(e => e.Branch).AsQueryable();
+            if (branchId.HasValue) expenses = expenses.Where(e => e.BranchId == branchId.Value);
+            return View(await expenses.ToListAsync());
         }
 
-        public IActionResult ExpensesRent()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateExpense(Expense expense)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                _context.Expenses.Add(expense);
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("EXPENSE_CREATE", $"Created expense: {expense.Description} for {expense.Amount:C}");
+                return RedirectToAction(nameof(Submissions));
+            }
+            return View(expense);
         }
 
-        public IActionResult ExpensesSalaries()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateExpense(Expense expense)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                _context.Expenses.Update(expense);
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("EXPENSE_UPDATE", $"Updated expense ID: {expense.Id}");
+                return RedirectToAction(nameof(Submissions));
+            }
+            return View(expense);
         }
 
-        public IActionResult ExpensesUtilities()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteExpense(Guid id)
         {
-            return View();
+            var expense = await _context.Expenses.FindAsync(id);
+            if (expense != null)
+            {
+                _context.Expenses.Remove(expense);
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("EXPENSE_DELETE", $"Deleted expense: {expense.Description}");
+            }
+            return RedirectToAction(nameof(Submissions));
         }
 
-        public IActionResult Review()
-        {
-            return View();
-        }
-
-        public IActionResult Submit()
-        {
-            return View();
-        }
-
-        public IActionResult EditSubmission()
-        {
-            return View();
-        }
-
-        public IActionResult Submissions()
-        {
-            return View();
-        }
+        public IActionResult ExpensesCogs() => View();
+        public IActionResult ExpensesRent() => View();
+        public IActionResult ExpensesSalaries() => View();
+        public IActionResult ExpensesUtilities() => View();
+        public IActionResult Review() => View();
+        public IActionResult Submit() => View();
+        public IActionResult EditSubmission() => View();
+        public IActionResult Submissions() => View();
     }
 }

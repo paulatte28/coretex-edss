@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using coretex_finalproj.Models;
+using coretex_finalproj.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,15 +11,18 @@ namespace coretex_finalproj.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
+        private readonly AuditLoggingService _auditLog;
 
         public HomeController(
             ILogger<HomeController> logger,
             SignInManager<AppUser> signInManager,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            AuditLoggingService auditLog)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
+            _auditLog = auditLog;
         }
 
         public IActionResult Index()
@@ -75,6 +79,7 @@ namespace coretex_finalproj.Controllers
             var result = await _signInManager.PasswordSignInAsync(user, password, remember, lockoutOnFailure: true);
             if (result.Succeeded)
             {
+                await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User {loginId} logged in successfully.");
                 if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
                 if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
                 if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
@@ -94,6 +99,7 @@ namespace coretex_finalproj.Controllers
                     ? "Sign-in is not allowed for this account."
                     : "Incorrect email or password.";
 
+            await _auditLog.LogActivityAsync("LOGIN_FAILURE", $"Failed login attempt for {loginId}");
             return View();
         }
 
@@ -101,6 +107,7 @@ namespace coretex_finalproj.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            await _auditLog.LogActivityAsync("LOGOUT", "User logged out.");
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
