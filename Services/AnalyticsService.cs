@@ -18,8 +18,8 @@ namespace coretex_finalproj.Services
 
         public async Task<DashboardSnapshot> GetDashboardSnapshotAsync(Guid? branchId = null)
         {
-            var salesQuery = _context.Sales.AsQueryable();
-            var expensesQuery = _context.Expenses.AsQueryable();
+            var salesQuery = _context.Sales.Where(s => !s.IsArchived).AsQueryable();
+            var expensesQuery = _context.Expenses.Where(e => !e.IsArchived).AsQueryable();
 
             if (branchId.HasValue)
             {
@@ -43,8 +43,8 @@ namespace coretex_finalproj.Services
 
         public async Task<object> GetMonthlyProfitLossAsync(Guid? branchId = null)
         {
-            var salesQuery = _context.Sales.AsQueryable();
-            var expensesQuery = _context.Expenses.AsQueryable();
+            var salesQuery = _context.Sales.Where(s => !s.IsArchived).AsQueryable();
+            var expensesQuery = _context.Expenses.Where(e => !e.IsArchived).AsQueryable();
 
             if (branchId.HasValue)
             {
@@ -76,17 +76,18 @@ namespace coretex_finalproj.Services
         public async Task<object> GetBranchPerformanceAsync()
         {
             return await _context.Branches
+                .Where(b => !b.IsArchived)
                 .Select(b => new {
                     Name = b.Name,
-                    TotalSales = _context.Sales.Where(s => s.BranchId == b.Id).Sum(s => s.Amount),
-                    TotalExpenses = _context.Expenses.Where(e => e.BranchId == b.Id).Sum(e => e.Amount)
+                    TotalSales = _context.Sales.Where(s => s.BranchId == b.Id && !s.IsArchived).Sum(s => s.Amount),
+                    TotalExpenses = _context.Expenses.Where(e => e.BranchId == b.Id && !e.IsArchived).Sum(e => e.Amount)
                 })
                 .ToListAsync();
         }
 
         public async Task<object> GetExpenseCategoriesAsync(Guid? branchId = null)
         {
-            var query = _context.Expenses.AsQueryable();
+            var query = _context.Expenses.Where(e => !e.IsArchived).AsQueryable();
             if (branchId.HasValue) query = query.Where(e => e.BranchId == branchId.Value);
 
             return await query

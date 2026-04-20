@@ -20,5 +20,6 @@ namespace coretex_finalproj.Models
 
         public Guid BranchId { get; set; }
         public Branch? Branch { get; set; }
+        public bool IsArchived { get; set; } = false;
     }
 }

@@ -17,7 +17,7 @@ namespace coretex_finalproj.Models
 
         public bool IsActive { get; set; } = true;
 
-        [StringLength(30)]
         public string BranchCode { get; set; } = string.Empty;
+        public bool IsArchived { get; set; } = false;
     }
 }

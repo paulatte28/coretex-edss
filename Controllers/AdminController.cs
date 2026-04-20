@@ -50,9 +50,15 @@ namespace coretex_finalproj.Controllers
 
         // --- Branch Management ---
 
+        public async Task<IActionResult> Pos()
+        {
+            var sales = await _context.Sales.Where(s => s.Date >= DateTime.Today && !s.IsArchived).ToListAsync();
+            return View(sales);
+        }
+
         public async Task<IActionResult> BranchManagement()
         {
-            var branches = await _context.Branches.ToListAsync();
+            var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             return View(branches);
         }
 

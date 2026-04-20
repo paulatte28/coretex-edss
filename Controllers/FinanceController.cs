@@ -76,14 +76,14 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteExpense(Guid id)
+        public async Task<IActionResult> ArchiveExpense(Guid id)
         {
             var expense = await _context.Expenses.FindAsync(id);
             if (expense != null)
             {
-                _context.Expenses.Remove(expense);
+                expense.IsArchived = true;
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("EXPENSE_DELETE", $"Deleted expense: {expense.Description}");
+                await _auditLog.LogActivityAsync("EXPENSE_ARCHIVE", $"Archived expense: {expense.Description}");
             }
             return RedirectToAction(nameof(Submissions));
         }

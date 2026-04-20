@@ -29,6 +29,11 @@ namespace coretex_finalproj.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateSale(Sale sale)
         {
+            // Auto-Generate Order ID (CTX-YYYY-XXXX)
+            var count = await _context.Sales.CountAsync() + 1;
+            sale.OrderId = $"CTX-{DateTime.Now.Year}-{count:D4}";
+            sale.Date = DateTime.Now;
+
             if (ModelState.IsValid)
             {
                 _context.Sales.Add(sale);
@@ -36,19 +41,19 @@ namespace coretex_finalproj.Controllers
                 await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}");
                 return RedirectToAction(nameof(Pos));
             }
-            return View(nameof(Pos), await _context.Sales.Where(s => s.Date >= DateTime.Today).ToListAsync());
+            return View(nameof(Pos), await _context.Sales.Where(s => s.Date >= DateTime.Today && !s.IsArchived).ToListAsync());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateSaleStatus(Guid id, string status)
+        public async Task<IActionResult> ArchiveSale(Guid id)
         {
             var sale = await _context.Sales.FindAsync(id);
             if (sale != null)
             {
-                sale.Status = status;
+                sale.IsArchived = true;
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("SALE_STATUS_UPDATE", $"Updated sale {sale.OrderId} status to {status}");
+                await _auditLog.LogActivityAsync("SALE_ARCHIVE", $"Archived sale {sale.OrderId}");
             }
             return RedirectToAction(nameof(Pos));
         }
