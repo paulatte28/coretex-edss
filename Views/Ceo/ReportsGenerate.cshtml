@@ -61,10 +61,19 @@
             <input type="text" value="PDF" readonly class="w-full md:w-40 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-700" />
         </div>
 
-        <button id="generate-btn" class="w-full md:w-72 py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
-            <span id="btn-label">Generate Report</span>
-            <span id="btn-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-        </button>
+        <div class="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button id="generate-btn" class="w-full py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                <span id="btn-label">Download PDF</span>
+                <span id="btn-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            </button>
+
+            <div class="flex gap-2">
+                <input id="email-target" type="email" placeholder="ceo@coretex.com" class="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" value="ceo@coretex.com" />
+                <button id="email-btn" class="px-6 py-3.5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-colors">
+                    Email to CEO
+                </button>
+            </div>
+        </div>
 
         <div id="success-box" class="hidden p-4 rounded-xl border border-emerald-200 bg-emerald-50">
             <p id="success-text" class="text-sm font-bold text-emerald-700">Report generated.</p>
@@ -134,8 +143,45 @@
             document.getElementById('success-text').textContent = `Report generated: ${report.title} (${report.periodLabel})`;
 
             button.disabled = false;
-            label.textContent = 'Generate Report';
+            label.textContent = 'Download PDF';
             spinner.classList.add('hidden');
+        }
+
+        async function emailReportToBackend() {
+            const email = document.getElementById('email-target').value;
+            if (!email) {
+                alert('Please enter an email address.');
+                return;
+            }
+
+            const btn = document.getElementById('email-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            const formData = new URLSearchParams();
+            formData.append('emailAddress', email);
+
+            try {
+                const response = await fetch('/Report/GenerateExecutiveReport', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+
+                if (response.ok) {
+                    alert('Report generated, saved to database, and emailed!');
+                    document.getElementById('success-box').classList.remove('hidden');
+                    document.getElementById('success-text').textContent = 'Live executive report has been recorded and dispatched.';
+                } else {
+                    alert('Backend report generation failed. Check server logs.');
+                }
+            } catch (e) {
+                alert('Connection error. Is the server running?');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -148,6 +194,7 @@
 
             document.getElementById('period-type').addEventListener('change', togglePeriodMode);
             document.getElementById('generate-btn').addEventListener('click', generateReport);
+            document.getElementById('email-btn').addEventListener('click', emailReportToBackend);
             togglePeriodMode();
         });
     </script>

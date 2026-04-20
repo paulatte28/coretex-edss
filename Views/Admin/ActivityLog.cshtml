@@ -1,3 +1,4 @@
+@model IEnumerable<coretex_finalproj.Models.ActivityLogEntry>
 @{
     ViewData["Title"] = "Activity Logs";
     Layout = "_AdminLayout";
@@ -14,48 +15,7 @@
                 <span class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Audit Trail</span>
             </div>
             <h2 class="text-3xl font-black text-slate-900 tracking-tight">Activity Logs</h2>
-            <p class="text-sm text-slate-500 mt-1">Track all system activities and user actions with IPGeolocation data</p>
-        </div>
-        <button onclick="exportCSV()" class="px-6 py-3 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-slate-800 transition-colors flex items-center space-x-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            <span>Export CSV</span>
-        </button>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div class="flex flex-wrap items-end gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date From</label>
-                <input type="date" id="filter-date-from" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date To</label>
-                <input type="date" id="filter-date-to" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
-                <select id="filter-user" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-                    <option value="">All Users</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Action Type</label>
-                <select id="filter-type" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-                    <option value="">All Types</option>
-                    <option value="Login">Login</option>
-                    <option value="Logout">Logout</option>
-                    <option value="Data Entry">Data Entry</option>
-                    <option value="Submission">Submission</option>
-                    <option value="User Created">User Created</option>
-                    <option value="User Updated">User Updated</option>
-                    <option value="Threshold Changed">Threshold Changed</option>
-                    <option value="Schedule Updated">Schedule Updated</option>
-                </select>
-            </div>
-            <button onclick="clearFilters()" class="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors text-sm font-bold">
-                Clear Filters
-            </button>
+            <p class="text-sm text-slate-500 mt-1">Track all system activities and real-time integration failures</p>
         </div>
     </div>
 
@@ -63,13 +23,13 @@
     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <h3 class="font-bold text-slate-900">Log Table</h3>
+                <h3 class="font-bold text-slate-900">System Activity & Debug Log</h3>
                 <span class="flex items-center space-x-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
                     <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="font-bold">Live</span>
+                    <span class="font-bold">Database Live</span>
                 </span>
             </div>
-            <p class="text-xs text-slate-400" id="showing-count">Showing 0 logs</p>
+            <p class="text-xs text-slate-400">Showing latest @Model.Count() logs</p>
         </div>
         
         <div class="overflow-x-auto">
@@ -77,23 +37,62 @@
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Timestamp</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">User</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Action</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">IP Address</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Location</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">User / Origin</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Action / Status</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Details / Errors</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Connection</th>
                     </tr>
                 </thead>
-                <tbody id="logs-table" class="divide-y divide-slate-100">
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No activity logs yet.
-                        </td>
-                    </tr>
+                <tbody class="divide-y divide-slate-100">
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
+                                No activity recorded yet.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var log in Model)
+                    {
+                        var statusClass = log.ActionType.Contains("FAILURE") ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700";
+                        if (log.ActionType.Contains("LOGIN")) statusClass = "bg-blue-100 text-blue-700";
+
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <p class="font-bold text-slate-900 text-sm">@log.CreatedAt.ToString("MMM dd, yyyy")</p>
+                                <p class="text-xs text-slate-500">@log.CreatedAt.ToString("HH:mm:ss")</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
+                                        <span class="text-xs font-black text-slate-600">@log.UserName.Substring(0, 1).ToUpper()</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-slate-900 text-sm">@log.UserName</p>
+                                        <p class="text-xs text-slate-500">@log.UserRole</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 @statusClass text-[10px] font-black uppercase rounded-full">@log.ActionType</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <p class="text-xs text-slate-700 font-bold">@log.Description</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <code class="px-2 py-1 bg-slate-100 text-slate-700 text-[10px] rounded font-mono">@log.IpAddress</code>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Scripts removed to prioritize server-side logs -->
+}
 
 <!-- Toast -->
 <div id="toast" class="fixed bottom-6 right-6 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl hidden items-center space-x-3 z-50">

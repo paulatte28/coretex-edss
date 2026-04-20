@@ -20,6 +20,7 @@ namespace coretex_finalproj.Data
         public DbSet<ReportSchedule> ReportSchedules { get; set; } = null!;
         public DbSet<ActivityLogEntry> ActivityLogs { get; set; } = null!;
         public DbSet<BranchSubmission> BranchSubmissions { get; set; } = null!;
+        public DbSet<GeneratedReport> GeneratedReports { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -125,6 +126,18 @@ namespace coretex_finalproj.Data
                 .WithMany()
                 .HasForeignKey(s => s.BranchId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<GeneratedReport>()
+                .HasOne(r => r.Branch)
+                .WithMany()
+                .HasForeignKey(r => r.BranchId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<GeneratedReport>()
+                .HasOne(r => r.GeneratedBy)
+                .WithMany()
+                .HasForeignKey(r => r.GeneratedById)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

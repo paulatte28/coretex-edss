@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace coretex_finalproj.Services
 {
@@ -8,44 +10,65 @@ namespace coretex_finalproj.Services
     {
         private readonly IConfiguration _config;
         private readonly ILogger<NotificationService> _logger;
+        private readonly AuditLoggingService _auditLog;
 
-        public NotificationService(IConfiguration config, ILogger<NotificationService> logger)
+        public NotificationService(IConfiguration config, ILogger<NotificationService> logger, AuditLoggingService auditLog)
         {
             _config = config;
             _logger = logger;
+            _auditLog = auditLog;
         }
 
-        public async Task<bool> SendSmsAlertAsync(string toPhoneNumber, string message)
+        public async Task<bool> SendExecutiveAlertEmailAsync(string toEmail, string alertTitle, string detail)
         {
-            var accountSid = _config["Twilio:AccountSid"];
-            var authToken = _config["Twilio:AuthToken"];
-            var fromNumber = _config["Twilio:FromNumber"];
+            var apiKey = _config["SendGrid:ApiKey"];
+            var fromEmail = _config["SendGrid:FromEmail"] ?? "alerts@coretex.com";
 
-            // SIMULATED implementation of Twilio
-            // Would normally initialize TwilioClient: TwilioClient.Init(accountSid, authToken);
-            // var msg = await MessageResource.CreateAsync(body: message, from: new Twilio.Types.PhoneNumber(fromNumber), to: new Twilio.Types.PhoneNumber(toPhoneNumber));
-            
-            _logger.LogInformation($"[MOCK TWILIO SMS] Sending to {toPhoneNumber}: {message}");
-            await Task.Delay(100); // Simulate network call
-            
-            return true;
+            if (string.IsNullOrEmpty(apiKey) || apiKey.Contains("stub"))
+            {
+                _logger.LogWarning("SendGrid API Key not configured. Logging to Audit Log instead.");
+                await _auditLog.LogActivityAsync("ALERT_SIMULATION", $"[SIMULATED] Email Alert: {alertTitle} - {detail}");
+                return true;
+            }
+
+            return await SendEmailInternalAsync(toEmail, $"[CORETEX CRITICAL] {alertTitle}", $"<h3>Critical System Alert</h3><p>{detail}</p>", "ALERT_SENT", "ALERT_FAILURE");
         }
 
         public async Task<bool> SendExecutiveReportEmailAsync(string toEmail, string subject, string content)
         {
+            return await SendEmailInternalAsync(toEmail, subject, content, "REPORT_EMAIL_SENT", "REPORT_EMAIL_FAILURE");
+        }
+
+        private async Task<bool> SendEmailInternalAsync(string toEmail, string subject, string content, string successType, string failureType)
+        {
             var apiKey = _config["SendGrid:ApiKey"];
+            var fromEmail = _config["SendGrid:FromEmail"] ?? "reports@coretex.com";
 
-            // SIMULATED implementation of SendGrid
-            // var client = new SendGridClient(apiKey);
-            // var from = new EmailAddress("reports@coretex.com", "Coretex System");
-            // var to = new EmailAddress(toEmail);
-            // var msg = MailHelper.CreateSingleEmail(from, to, subject, "Plain text", content);
-            // var response = await client.SendEmailAsync(msg);
+            try
+            {
+                var client = new SendGridClient(apiKey);
+                var from = new EmailAddress(fromEmail, "Coretex Executive System");
+                var to = new EmailAddress(toEmail);
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, string.Empty, content);
+                var response = await client.SendEmailAsync(msg);
 
-            _logger.LogInformation($"[MOCK SENDGRID EMAIL] Sending Email to {toEmail} with Subject: {subject}");
-            await Task.Delay(100);
-
-            return true;
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation($"SendGrid Email sent to {toEmail}");
+                    await _auditLog.LogActivityAsync(successType, $"Email successfully dispatched to {toEmail}");
+                    return true;
+                }
+                
+                _logger.LogWarning($"SendGrid Email failed with status: {response.StatusCode}");
+                await _auditLog.LogActivityAsync(failureType, $"SendGrid API returned status {response.StatusCode}");
+                return false;
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send SendGrid email to {toEmail}");
+                await _auditLog.LogActivityAsync(failureType, $"Email Exception: {ex.Message}");
+                return false;
+            }
         }
     }
 }

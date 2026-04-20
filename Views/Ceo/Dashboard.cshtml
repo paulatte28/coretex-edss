@@ -15,6 +15,9 @@
                     Alerts
                     <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
                 </button>
+                <button id="safe-test-btn" class="ml-2 px-4 py-2 bg-emerald-100 rounded-xl text-emerald-700 hover:bg-emerald-200 transition-colors font-bold text-xs">
+                    Safe Test
+                </button>
                 <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
             </div>
         </div>
@@ -105,6 +108,40 @@
             const ceo = window.CoretexCeo;
             ceo.renderNav('dashboard', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+
+            // Wire the Alerts button for REAL Email Testing
+            document.getElementById('notif-btn').addEventListener('click', function(e) {
+                const email = prompt("Enter your email to receive a Critical Performance Alert:", "admin@coretex.com");
+                if (email) {
+                    const formData = new URLSearchParams();
+                    formData.append('emailAddress', email);
+                    formData.append('alertType', 'THRESHOLD_BREACH');
+
+                    fetch('/Report/TriggerAlertEmail', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    })
+                    .then(r => r.ok ? alert('Priority Alert Emailed!') : alert('Email failed. Check your SendGrid API Key.'));
+                }
+            });
+
+            // Re-purpose Safe Test for simple email verification
+            document.getElementById('safe-test-btn').addEventListener('click', function(e) {
+                const email = prompt("Enter email for a simple test connection:", "admin@coretex.com");
+                if (email) {
+                    const formData = new URLSearchParams();
+                    formData.append('emailAddress', email);
+                    formData.append('alertType', 'SIMPLE_TEST');
+
+                    fetch('/Report/TriggerAlertEmail', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    })
+                    .then(r => r.ok ? alert('Test Email Sent Successfully!') : alert('Failed to reach email server.'));
+                }
+            });
 
             const kpi = ceo.getKpiSnapshot();
             document.getElementById('kpi-revenue').textContent = ceo.money(kpi.totalRevenue);

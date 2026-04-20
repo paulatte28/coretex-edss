@@ -1,16 +1,32 @@
+using coretex_finalproj.Data;
+using coretex_finalproj.Models;
+using coretex_finalproj.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace coretex_finalproj.Controllers
 {
     [Authorize(Roles = "ADMIN")]
     public class AdminController : Controller
     {
-        private readonly Services.AnalyticsService _analytics;
+        private readonly AnalyticsService _analytics;
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly AuditLoggingService _auditLog;
 
-        public AdminController(Services.AnalyticsService analytics)
+        public AdminController(
+            AnalyticsService analytics, 
+            ApplicationDbContext context, 
+            UserManager<AppUser> userManager,
+            AuditLoggingService auditLog)
         {
             _analytics = analytics;
+            _context = context;
+            _userManager = userManager;
+            _auditLog = auditLog;
         }
 
         // Admin Dashboard / Overview
@@ -31,52 +47,117 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> GetExpenseAnalytics() => Json(await _analytics.GetExpenseCategoriesAsync());
 
-        // Branch Management (Davao, Tagum, Digos, etc.)
-        public IActionResult BranchManagement()
+        // --- Branch Management ---
+
+        public async Task<IActionResult> BranchManagement()
         {
-            return View();
+            var branches = await _context.Branches.ToListAsync();
+            return View(branches);
         }
 
-        // User Management (CEO, Finance Officers)
-        public IActionResult UserManagement()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBranch(Branch branch)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                branch.Id = Guid.NewGuid();
+                _context.Branches.Add(branch);
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("BRANCH_CREATE", $"Created branch: {branch.Name} ({branch.BranchCode})");
+                return RedirectToAction(nameof(BranchManagement));
+            }
+            return View(nameof(BranchManagement), await _context.Branches.ToListAsync());
         }
 
-        // KPI Threshold Configuration
-        public IActionResult KPIThresholds()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleBranchStatus(Guid id)
         {
-            return View();
+            var branch = await _context.Branches.FindAsync(id);
+            if (branch != null)
+            {
+                branch.IsActive = !branch.IsActive;
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("BRANCH_STATUS_TOGGLE", $"Toggled status for branch {branch.Name} to {(branch.IsActive ? "Active" : "Inactive")}");
+            }
+            return RedirectToAction(nameof(BranchManagement));
         }
 
-        // Goals & Targets Setting
-        public IActionResult GoalsTargets()
+        // --- User Management ---
+
+        public async Task<IActionResult> UserManagement()
         {
-            return View();
+            var users = await _userManager.Users.Include(u => u.Branch).ToListAsync();
+            ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
+            return View(users);
         }
 
-        // Report Schedule Configuration
-        public IActionResult ReportSchedule()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateUser(string email, string fullName, string role, Guid? branchId, string password)
         {
-            return View();
+            var user = new AppUser
+            {
+                UserName = email,
+                Email = email,
+                FullName = fullName,
+                BranchId = branchId,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, role.ToUpper());
+                await _auditLog.LogActivityAsync("USER_CREATE", $"Created user {email} with role {role}");
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            var users = await _userManager.Users.Include(u => u.Branch).ToListAsync();
+            ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
+            return View(nameof(UserManagement), users);
         }
 
-        // Activity & Audit Log
-        public IActionResult ActivityLog()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetUserPassword(string userId, string newPassword)
         {
-            return View();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+                if (result.Succeeded)
+                {
+                    await _auditLog.LogActivityAsync("USER_PASSWORD_RESET", $"Reset password for user {user.Email}");
+                    TempData["Message"] = $"Password for {user.Email} has been reset.";
+                }
+            }
+            return RedirectToAction(nameof(UserManagement));
         }
 
-        // Branch Submissions Monitoring
-        public IActionResult BranchSubmissions()
-        {
-            return View();
-        }
+        // --- Other Admin Actions ---
 
-        // Audit Trail
-        public IActionResult AuditTrail()
+        public IActionResult KPIThresholds() => View();
+        public IActionResult GoalsTargets() => View();
+        public IActionResult ReportSchedule() => View();
+        public async Task<IActionResult> ActivityLog()
         {
-            return View();
+            var logs = await _context.ActivityLogs
+                .Include(l => l.Branch)
+                .OrderByDescending(l => l.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+            return View(logs);
         }
+        public IActionResult BranchSubmissions() => View();
+        public IActionResult AuditTrail() => View();
     }
 }
+
