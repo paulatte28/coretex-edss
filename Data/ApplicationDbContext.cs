@@ -21,6 +21,7 @@ namespace coretex_finalproj.Data
         public DbSet<ActivityLogEntry> ActivityLogs { get; set; } = null!;
         public DbSet<BranchSubmission> BranchSubmissions { get; set; } = null!;
         public DbSet<GeneratedReport> GeneratedReports { get; set; } = null!;
+        public DbSet<DailySummary> DailySummaries { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -138,6 +139,13 @@ namespace coretex_finalproj.Data
                 .WithMany()
                 .HasForeignKey(r => r.GeneratedById)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<DailySummary>()
+                .Property(d => d.TotalRevenue).HasPrecision(18, 2);
+            builder.Entity<DailySummary>()
+                .Property(d => d.TotalExpenses).HasPrecision(18, 2);
+            builder.Entity<DailySummary>()
+                .Property(d => d.NetProfit).HasPrecision(18, 2);
         }
     }
 }
