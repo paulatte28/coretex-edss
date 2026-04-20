@@ -58,9 +58,18 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
-        public IActionResult Transactions()
+        public async Task<IActionResult> Transactions(string search)
         {
-            return View();
+            var query = _context.Sales.Include(s => s.Branch).AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s => s.OrderId.Contains(search) || s.CustomerName.Contains(search));
+            }
+
+            ViewBag.SearchTerm = search;
+            var sales = await query.OrderByDescending(s => s.Date).ToListAsync();
+            return View(sales);
         }
     }
 }

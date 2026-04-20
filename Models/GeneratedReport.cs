@@ -1,30 +1,35 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace coretex_finalproj.Models
 {
     public class GeneratedReport
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public int Id { get; set; }
 
         [Required]
-        [StringLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; }
+
+        public string PeriodLabel { get; set; }
 
         [Required]
-        public string Content { get; set; } = string.Empty; // HTML or structured summary
+        public string ReportHtml { get; set; }
 
-        public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
+        public string SentToEmail { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        public string ReportType { get; set; } = "Monthly"; // Monthly, Daily, etc.
+        public string SummaryData { get; set; } = string.Empty;
 
-        public Guid? BranchId { get; set; } // Null for global/CEO report
-        public Branch? Branch { get; set; }
+        public DateTime GeneratedAt { get; set; } = DateTime.Now;
+
+        // Relationship fixed: changed from int? to Guid? to match Branch model
+        public Guid? BranchId { get; set; }
+        [ForeignKey("BranchId")]
+        public virtual Branch? Branch { get; set; }
 
         public string? GeneratedById { get; set; }
-        public AppUser? GeneratedBy { get; set; }
+        [ForeignKey("GeneratedById")]
+        public virtual AppUser? GeneratedBy { get; set; }
     }
 }

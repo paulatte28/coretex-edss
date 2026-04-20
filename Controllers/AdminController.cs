@@ -30,22 +30,23 @@ namespace coretex_finalproj.Controllers
         }
 
         // Admin Dashboard / Overview
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(Guid? branchId)
         {
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
             ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
-            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
             return View();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMonthlyAnalytics() => Json(await _analytics.GetMonthlyProfitLossAsync());
+        public async Task<IActionResult> GetMonthlyAnalytics(Guid? branchId) => Json(await _analytics.GetMonthlyProfitLossAsync(branchId));
 
         [HttpGet]
         public async Task<IActionResult> GetBranchAnalytics() => Json(await _analytics.GetBranchPerformanceAsync());
 
         [HttpGet]
-        public async Task<IActionResult> GetExpenseAnalytics() => Json(await _analytics.GetExpenseCategoriesAsync());
+        public async Task<IActionResult> GetExpenseAnalytics(Guid? branchId) => Json(await _analytics.GetExpenseCategoriesAsync(branchId));
 
         // --- Branch Management ---
 
@@ -59,6 +60,12 @@ namespace coretex_finalproj.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBranch(Branch branch)
         {
+            // Check for duplicate branch code
+            if (await _context.Branches.AnyAsync(b => b.BranchCode == branch.BranchCode))
+            {
+                ModelState.AddModelError("BranchCode", "This Branch Code already exists.");
+            }
+
             if (ModelState.IsValid)
             {
                 branch.Id = Guid.NewGuid();
@@ -97,26 +104,34 @@ namespace coretex_finalproj.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(string email, string fullName, string role, Guid? branchId, string password)
         {
-            var user = new AppUser
+            // Check if user already exists
+            if (await _userManager.FindByEmailAsync(email) != null)
             {
-                UserName = email,
-                Email = email,
-                FullName = fullName,
-                BranchId = branchId,
-                EmailConfirmed = true
-            };
-
-            var result = await _userManager.CreateAsync(user, password);
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, role.ToUpper());
-                await _auditLog.LogActivityAsync("USER_CREATE", $"Created user {email} with role {role}");
-                return RedirectToAction(nameof(UserManagement));
+                ModelState.AddModelError("", "A user with this email already exists.");
             }
-
-            foreach (var error in result.Errors)
+            else
             {
-                ModelState.AddModelError("", error.Description);
+                var user = new AppUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FullName = fullName,
+                    BranchId = branchId,
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, role.ToUpper());
+                    await _auditLog.LogActivityAsync("USER_CREATE", $"Created user {email} with role {role.ToUpper()}");
+                    return RedirectToAction(nameof(UserManagement));
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
             }
 
             var users = await _userManager.Users.Include(u => u.Branch).ToListAsync();

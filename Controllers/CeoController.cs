@@ -18,22 +18,23 @@ namespace coretex_finalproj.Controllers
             return RedirectToAction(nameof(Dashboard));
         }
 
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(Guid? branchId)
         {
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
             ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
-            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
             return View();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMonthlyAnalytics() => Json(await _analytics.GetMonthlyProfitLossAsync());
+        public async Task<IActionResult> GetMonthlyAnalytics(Guid? branchId) => Json(await _analytics.GetMonthlyProfitLossAsync(branchId));
 
         [HttpGet]
         public async Task<IActionResult> GetBranchAnalytics() => Json(await _analytics.GetBranchPerformanceAsync());
 
         [HttpGet]
-        public async Task<IActionResult> GetExpenseAnalytics() => Json(await _analytics.GetExpenseCategoriesAsync());
+        public async Task<IActionResult> GetExpenseAnalytics(Guid? branchId) => Json(await _analytics.GetExpenseCategoriesAsync(branchId));
 
         public IActionResult KpiProfitMargin()
         {

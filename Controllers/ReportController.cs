@@ -27,7 +27,7 @@ namespace coretex_finalproj.Controllers
         [HttpPost]
         public async Task<IActionResult> TriggerAlertEmail(string emailAddress, string alertType = "THRESHOLD_BREACH")
         {
-            var message = alertType == "THRESHOLD_BREACH" 
+            var message = alertType == "THRESHOLD_BREACH"
                 ? "Sales Revenue has fallen below the targets for the Central Branch. Immediate review required."
                 : "A new Executive Report has been generated for your review.";
 
@@ -40,7 +40,7 @@ namespace coretex_finalproj.Controllers
         {
             // 1. Gather Real Data via AnalyticsService
             var kpi = await _analytics.GetDashboardSnapshotAsync();
-            
+
             // 2. Build Report Content (HTML)
             var content = $@"
                 <div style='font-family: sans-serif; padding: 20px; color: #333;'>
@@ -94,6 +94,20 @@ namespace coretex_finalproj.Controllers
             var report = await _context.GeneratedReports.FindAsync(id);
             if (report == null) return NotFound();
             return View(report);
+        }
+        [HttpGet]
+        public async Task<IActionResult> ExportReportCsv()
+        {
+            var data = await _analytics.GetDashboardSnapshotAsync();
+            var csv = "Metric,Value\n" +
+                      $"Total Revenue,{data.TotalRevenue}\n" +
+                      $"Total Expenses,{data.TotalExpenses}\n" +
+                      $"Net Profit,{data.NetProfit}\n" +
+                      $"Risk Level,{data.RiskLevel}\n" +
+                      $"Generated At,{DateTime.Now}";
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
+            return File(bytes, "text/csv", $"CoretexReport_{DateTime.Now:yyyyMMdd}.csv");
         }
     }
 }

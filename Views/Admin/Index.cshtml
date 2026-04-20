@@ -14,6 +14,21 @@
             <p class="text-sm text-slate-500 mt-1">Welcome back! Manage your CORETEX EDSS system.</p>
         </div>
         <div class="flex space-x-3">
+            <a href="/Profile" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black hover:scale-105 transition-all shadow-xl">
+                👤 Account Settings
+            </a>
+            <div class="dropdown relative group">
+                <button class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black hover:bg-slate-50 transition-all flex items-center gap-2">
+                    🏢 Switch Branch
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 hidden group-hover:block z-50">
+                    <a href="/Admin" class="block px-4 py-2 text-xs font-bold hover:bg-slate-50 rounded-lg">View All Branches</a>
+                    <div class="border-t border-slate-50 my-1"></div>
+                    <a href="/Admin?branchId=davao-main" class="block px-4 py-2 text-xs hover:bg-slate-50 rounded-lg">Davao Main</a>
+                    <a href="/Admin?branchId=cebu-branch" class="block px-4 py-2 text-xs hover:bg-slate-50 rounded-lg">Cebu Branch</a>
+                </div>
+            </div>
             <div class="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center space-x-2">
                 <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                 <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">System Active</span>

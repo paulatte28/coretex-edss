@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace coretex_finalproj.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialBranchSchema : Migration
+    public partial class InitialSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -310,8 +310,8 @@ namespace coretex_finalproj.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -355,8 +355,8 @@ namespace coretex_finalproj.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -368,6 +368,38 @@ namespace coretex_finalproj.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GeneratedReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PeriodLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportHtml = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SentToEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SummaryData = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GeneratedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    GeneratedById = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GeneratedReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GeneratedReports_AspNetUsers_GeneratedById",
+                        column: x => x.GeneratedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_GeneratedReports_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateIndex(
@@ -436,6 +468,16 @@ namespace coretex_finalproj.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GeneratedReports_BranchId",
+                table: "GeneratedReports",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GeneratedReports_GeneratedById",
+                table: "GeneratedReports",
+                column: "GeneratedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GoalTargets_BranchId_MetricName_IsActive",
                 table: "GoalTargets",
                 columns: new[] { "BranchId", "MetricName", "IsActive" });
@@ -487,6 +529,9 @@ namespace coretex_finalproj.Migrations
 
             migrationBuilder.DropTable(
                 name: "Expenses");
+
+            migrationBuilder.DropTable(
+                name: "GeneratedReports");
 
             migrationBuilder.DropTable(
                 name: "GoalTargets");

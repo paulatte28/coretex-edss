@@ -10,5 +10,6 @@ namespace coretex_finalproj.Models
         public Guid? BranchId { get; set; }
 
         public Branch? Branch { get; set; }
+        public string? ProfilePicturePath { get; set; }
     }
 }

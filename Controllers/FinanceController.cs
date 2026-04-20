@@ -31,11 +31,19 @@ namespace coretex_finalproj.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExpensesByBranch(Guid? branchId)
+        public async Task<IActionResult> ExpensesByBranch(Guid? branchId, string search)
         {
-            var expenses = _context.Expenses.Include(e => e.Branch).AsQueryable();
-            if (branchId.HasValue) expenses = expenses.Where(e => e.BranchId == branchId.Value);
-            return View(await expenses.ToListAsync());
+            var query = _context.Expenses.Include(e => e.Branch).AsQueryable();
+            
+            if (branchId.HasValue) query = query.Where(e => e.BranchId == branchId.Value);
+            
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(e => e.Description.Contains(search) || e.Category.Contains(search));
+            }
+
+            ViewBag.SearchTerm = search;
+            return View(await query.OrderByDescending(e => e.Date).ToListAsync());
         }
 
         [HttpPost]

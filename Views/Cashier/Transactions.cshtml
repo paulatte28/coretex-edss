@@ -1,3 +1,4 @@
+@model IEnumerable<coretex_finalproj.Models.Sale>
 @{
     ViewData["Title"] = "Transaction History";
     Layout = "_AdminLayout";
@@ -6,37 +7,18 @@
 <div class="space-y-8">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-            <div class="flex flex-wrap items-center gap-2 mb-2">
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="branch-name">Branch: Loading...</span>
-                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="cashier-name">Cashier: Loading...</span>
-            </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Transaction History</h2>
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Filter, edit, and soft-delete POS entries</p>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Transaction History</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Real-time database records</p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="/cashier/pos" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">
-                Back to POS
-            </a>
-            <a href="/cashier/daily-summary" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">
-                Daily Summary
-            </a>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date From</label>
-                <input type="date" id="date-from" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500" />
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date To</label>
-                <input type="date" id="date-to" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500" />
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Product Name Search</label>
-                <input type="text" id="product-search" placeholder="Search product" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500" />
-            </div>
+            <form method="get" class="flex items-center gap-2">
+                <input type="text" name="search" value="@ViewBag.SearchTerm" placeholder="Order ID or Customer..." class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none w-64" />
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-black rounded-xl hover:bg-indigo-700 transition-all">Search</button>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+                {
+                    <a href="/Cashier/Transactions" class="text-xs text-slate-400 hover:text-slate-600 font-bold">Clear</a>
+                }
+            </form>
         </div>
     </div>
 
@@ -46,372 +28,33 @@
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Time</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Product</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Qty</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Unit Price</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Total</th>
-                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Order ID</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount</th>
+                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
                     </tr>
                 </thead>
-                <tbody id="transactions-table" class="divide-y divide-slate-100">
-                    <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">No transactions found.</td>
-                    </tr>
+                <tbody class="divide-y divide-slate-100">
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">No records found matching your search.</td>
+                        </tr>
+                    }
+                    @foreach (var sale in Model)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-slate-600">@sale.Date.ToString("MMM dd, yyyy HH:mm")</td>
+                            <td class="px-6 py-4 text-sm font-black text-slate-900">#@sale.OrderId</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">@sale.CustomerName</td>
+                            <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">@sale.Amount.ToString("C")</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-full">@sale.Status</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
-
-        <div class="p-4 border-t border-slate-100 flex items-center justify-between">
-            <p id="showing-text" class="text-sm text-slate-500">Showing 0 records</p>
-            <div class="flex items-center gap-2">
-                <button id="prev-btn" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50" onclick="prevPage()" disabled>Previous</button>
-                <span id="page-text" class="text-sm text-slate-600 px-2">Page 1 of 1</span>
-                <button id="next-btn" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50" onclick="nextPage()" disabled>Next</button>
-            </div>
-        </div>
     </div>
 </div>
-
-<div id="edit-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="text-xl font-black text-slate-900">Edit Transaction</h3>
-            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-        <div class="p-6 space-y-4">
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">Product</label>
-                <input id="edit-product" type="text" maxlength="100" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Qty</label>
-                    <input id="edit-qty" type="number" min="1" step="1" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Unit Price (₱)</label>
-                    <input id="edit-price" type="number" min="0.01" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
-                </div>
-            </div>
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Total</span>
-                <span id="edit-total" class="text-lg font-black text-slate-900">₱0.00</span>
-            </div>
-            <div class="flex items-center gap-3 pt-2">
-                <button onclick="saveEdit()" class="flex-1 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">Save Changes</button>
-                <button onclick="closeEditModal()" class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="delete-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        <div class="p-6 text-center">
-            <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0" /></svg>
-            </div>
-            <h3 class="text-xl font-black text-slate-900">Delete Transaction?</h3>
-            <p class="text-sm text-slate-500 mt-2">This performs a soft delete and removes it from active views.</p>
-            <div class="flex items-center gap-3 mt-6">
-                <button onclick="closeDeleteModal()" class="flex-1 px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
-                <button onclick="confirmDelete()" class="flex-1 px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">Delete</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
-    <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-        <span id="toast-text" class="font-bold text-sm">Saved.</span>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        const POS_STORAGE_KEY = 'coretex_pos_transactions';
-        const PAGE_SIZE = 20;
-
-        let currentCashier = null;
-        let currentBranch = null;
-
-        let filteredRecords = [];
-        let currentPage = 1;
-        let editTargetId = null;
-        let deleteTargetId = null;
-
-        document.addEventListener('DOMContentLoaded', function () {
-            resolveContext();
-
-            document.getElementById('date-from').addEventListener('change', applyFilters);
-            document.getElementById('date-to').addEventListener('change', applyFilters);
-            document.getElementById('product-search').addEventListener('input', applyFilters);
-            document.getElementById('edit-qty').addEventListener('input', updateEditTotal);
-            document.getElementById('edit-price').addEventListener('input', updateEditTotal);
-
-            applyFilters();
-        });
-
-        function resolveContext() {
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-
-            currentCashier = users.find(u => u.role === 'Branch Cashier' && u.status === 'Active')
-                || users.find(u => u.role === 'Branch Cashier')
-                || { id: 'cashier_demo', name: 'Demo Cashier', branchId: null };
-
-            currentBranch = branches.find(b => b.id === currentCashier.branchId)
-                || branches[0]
-                || { id: 'branch_default', name: 'Davao Main' };
-
-            document.getElementById('cashier-name').textContent = `Cashier: ${currentCashier.name || 'Demo Cashier'}`;
-            document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Davao Main'}`;
-        }
-
-        function getAllRecords() {
-            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
-
-            return all
-                .filter(item => !item.deleted)
-                .filter(item => (item.branchId || 'branch_default') === (currentBranch.id || 'branch_default'))
-                .filter(item => (item.cashierId || 'cashier_demo') === (currentCashier.id || 'cashier_demo'))
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        }
-
-        function applyFilters() {
-            const allRecords = getAllRecords();
-
-            const dateFrom = document.getElementById('date-from').value;
-            const dateTo = document.getElementById('date-to').value;
-            const search = document.getElementById('product-search').value.trim().toLowerCase();
-
-            filteredRecords = allRecords.filter(item => {
-                const recordDate = new Date(item.timestamp);
-
-                const matchesFrom = !dateFrom || recordDate >= new Date(dateFrom + 'T00:00:00');
-                const matchesTo = !dateTo || recordDate <= new Date(dateTo + 'T23:59:59.999');
-                const matchesSearch = !search || String(item.productName || '').toLowerCase().includes(search);
-
-                return matchesFrom && matchesTo && matchesSearch;
-            });
-
-            currentPage = 1;
-            renderPage();
-        }
-
-        function renderPage() {
-            const table = document.getElementById('transactions-table');
-            const start = (currentPage - 1) * PAGE_SIZE;
-            const end = start + PAGE_SIZE;
-            const pageData = filteredRecords.slice(start, end);
-
-            if (pageData.length === 0) {
-                table.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">No transactions found.</td>
-                    </tr>`;
-            } else {
-                table.innerHTML = pageData.map(item => {
-                    const timestamp = new Date(item.timestamp);
-                    const isEditable = isToday(timestamp);
-
-                    const dateText = timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const timeText = timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-                    return `
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm text-slate-600">${dateText}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">${timeText}</td>
-                            <td class="px-6 py-4 text-sm font-semibold text-slate-900">${escapeHtml(item.productName)}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600 text-right">${Number(item.quantity || 0)}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600 text-right">${formatCurrency(item.unitPrice)}</td>
-                            <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${formatCurrency(item.lineTotal)}</td>
-                            <td class="px-6 py-4 text-center">
-                                <div class="inline-flex items-center gap-2">
-                                    <button
-                                        onclick="openEditModal('${item.id}')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-lg ${isEditable ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} transition-colors"
-                                        ${isEditable ? '' : 'disabled'}
-                                        title="${isEditable ? 'Edit' : 'Only today\'s transactions can be edited'}"
-                                    >Edit</button>
-                                    <button onclick="openDeleteModal('${item.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-bold rounded-lg hover:bg-red-100 transition-colors">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            const totalPages = Math.max(1, Math.ceil(filteredRecords.length / PAGE_SIZE));
-            const showingText = `Showing ${pageData.length} of ${filteredRecords.length} records`;
-
-            document.getElementById('showing-text').textContent = showingText;
-            document.getElementById('page-text').textContent = `Page ${currentPage} of ${totalPages}`;
-            document.getElementById('prev-btn').disabled = currentPage <= 1;
-            document.getElementById('next-btn').disabled = currentPage >= totalPages;
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderPage();
-            }
-        }
-
-        function nextPage() {
-            const totalPages = Math.max(1, Math.ceil(filteredRecords.length / PAGE_SIZE));
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderPage();
-            }
-        }
-
-        function openEditModal(id) {
-            const all = getAllRecords();
-            const target = all.find(item => item.id === id);
-            if (!target) return;
-
-            if (!isToday(new Date(target.timestamp))) {
-                alert('Only today\'s transactions can be edited.');
-                return;
-            }
-
-            editTargetId = id;
-            document.getElementById('edit-product').value = target.productName || '';
-            document.getElementById('edit-qty').value = Number(target.quantity || 1);
-            document.getElementById('edit-price').value = Number(target.unitPrice || 0).toFixed(2);
-            updateEditTotal();
-
-            const modal = document.getElementById('edit-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeEditModal() {
-            editTargetId = null;
-            const modal = document.getElementById('edit-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function updateEditTotal() {
-            const qty = parseInt(document.getElementById('edit-qty').value, 10) || 0;
-            const price = parseFloat(document.getElementById('edit-price').value) || 0;
-            const total = qty * price;
-            document.getElementById('edit-total').textContent = formatCurrency(total);
-        }
-
-        function saveEdit() {
-            if (!editTargetId) return;
-
-            const product = document.getElementById('edit-product').value.trim();
-            const qty = parseInt(document.getElementById('edit-qty').value, 10);
-            const price = parseFloat(document.getElementById('edit-price').value);
-
-            if (!product || product.length > 100) {
-                alert('Product is required and must be 100 characters or fewer.');
-                return;
-            }
-            if (!Number.isInteger(qty) || qty < 1) {
-                alert('Quantity must be at least 1.');
-                return;
-            }
-            if (Number.isNaN(price) || price < 0.01) {
-                alert('Unit Price must be at least 0.01.');
-                return;
-            }
-
-            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
-            const index = all.findIndex(item => item.id === editTargetId);
-            if (index < 0) return;
-
-            if (!isToday(new Date(all[index].timestamp))) {
-                alert('Only today\'s transactions can be edited.');
-                return;
-            }
-
-            all[index].productName = product;
-            all[index].quantity = qty;
-            all[index].unitPrice = price;
-            all[index].lineTotal = qty * price;
-            all[index].updatedAt = new Date().toISOString();
-
-            localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(all));
-
-            closeEditModal();
-            applyFilters();
-            showToast('Transaction updated.');
-        }
-
-        function openDeleteModal(id) {
-            deleteTargetId = id;
-            const modal = document.getElementById('delete-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeDeleteModal() {
-            deleteTargetId = null;
-            const modal = document.getElementById('delete-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function confirmDelete() {
-            if (!deleteTargetId) return;
-
-            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
-            const index = all.findIndex(item => item.id === deleteTargetId);
-            if (index < 0) return;
-
-            all[index].deleted = true;
-            all[index].deletedAt = new Date().toISOString();
-
-            localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(all));
-
-            closeDeleteModal();
-            applyFilters();
-            showToast('Transaction deleted.');
-        }
-
-        function isToday(date) {
-            const now = new Date();
-            return date.getFullYear() === now.getFullYear()
-                && date.getMonth() === now.getMonth()
-                && date.getDate() === now.getDate();
-        }
-
-        function formatCurrency(value) {
-            return `₱${Number(value || 0).toLocaleString('en-PH', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })}`;
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-text').textContent = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-
-            setTimeout(function () {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2600);
-        }
-
-        function escapeHtml(value) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-
-            return String(value || '').replace(/[&<>"']/g, char => map[char]);
-        }
-    </script>
-}

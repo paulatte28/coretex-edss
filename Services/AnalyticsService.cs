@@ -1,5 +1,9 @@
 using coretex_finalproj.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace coretex_finalproj.Services
 {
@@ -12,61 +16,94 @@ namespace coretex_finalproj.Services
             _context = context;
         }
 
-        public async Task<object> GetMonthlyProfitLossAsync()
+        public async Task<DashboardSnapshot> GetDashboardSnapshotAsync(Guid? branchId = null)
         {
-            var sales = await _context.Sales
+            var salesQuery = _context.Sales.AsQueryable();
+            var expensesQuery = _context.Expenses.AsQueryable();
+
+            if (branchId.HasValue)
+            {
+                salesQuery = salesQuery.Where(s => s.BranchId == branchId.Value);
+                expensesQuery = expensesQuery.Where(e => e.BranchId == branchId.Value);
+            }
+
+            var sales = await salesQuery.SumAsync(s => s.Amount);
+            var expenses = await expensesQuery.SumAsync(e => e.Amount);
+            var profit = sales - expenses;
+            var riskLevel = profit < 0 ? "Critical" : profit < 50000 ? "Warning" : "Healthy";
+
+            return new DashboardSnapshot
+            {
+                TotalRevenue = sales,
+                TotalExpenses = expenses,
+                NetProfit = profit,
+                RiskLevel = riskLevel
+            };
+        }
+
+        public async Task<object> GetMonthlyProfitLossAsync(Guid? branchId = null)
+        {
+            var salesQuery = _context.Sales.AsQueryable();
+            var expensesQuery = _context.Expenses.AsQueryable();
+
+            if (branchId.HasValue)
+            {
+                salesQuery = salesQuery.Where(s => s.BranchId == branchId.Value);
+                expensesQuery = expensesQuery.Where(e => e.BranchId == branchId.Value);
+            }
+
+            var rawData = await salesQuery
                 .GroupBy(s => new { s.Date.Year, s.Date.Month })
-                .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(s => s.Amount) })
+                .Select(g => new { 
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Sales = g.Sum(s => s.Amount)
+                })
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
                 .ToListAsync();
 
-            var expenses = await _context.Expenses
-                .GroupBy(e => new { e.Date.Year, e.Date.Month })
-                .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(e => e.Amount) })
-                .ToListAsync();
+            var data = rawData.Select(x => new {
+                Month = $"{x.Year}-{x.Month:D2}",
+                Sales = x.Sales,
+                Expenses = expensesQuery
+                        .Where(e => e.Date.Year == x.Year && e.Date.Month == x.Month)
+                        .Sum(e => e.Amount)
+            }).ToList();
 
-            var months = sales.Select(s => new { s.Year, s.Month })
-                .Union(expenses.Select(e => new { e.Year, e.Month }))
-                .OrderBy(m => m.Year).ThenBy(m => m.Month)
-                .ToList();
-
-            return months.Select(m => {
-                var monthSales = sales.FirstOrDefault(s => s.Year == m.Year && s.Month == m.Month)?.Total ?? 0;
-                var monthExpenses = expenses.FirstOrDefault(e => e.Year == m.Year && e.Month == m.Month)?.Total ?? 0;
-                return new {
-                    Month = $"{m.Year}-{m.Month:D2}",
-                    Sales = monthSales,
-                    Expenses = monthExpenses,
-                    Profit = monthSales - monthExpenses
-                };
-            });
+            return data;
         }
 
         public async Task<object> GetBranchPerformanceAsync()
         {
             return await _context.Branches
                 .Select(b => new {
-                    BranchName = b.Name,
+                    Name = b.Name,
                     TotalSales = _context.Sales.Where(s => s.BranchId == b.Id).Sum(s => s.Amount),
                     TotalExpenses = _context.Expenses.Where(e => e.BranchId == b.Id).Sum(e => e.Amount)
-                })
-                .Select(b => new {
-                    b.BranchName,
-                    b.TotalSales,
-                    b.TotalExpenses,
-                    Profit = b.TotalSales - b.TotalExpenses
                 })
                 .ToListAsync();
         }
 
-        public async Task<object> GetExpenseCategoriesAsync()
+        public async Task<object> GetExpenseCategoriesAsync(Guid? branchId = null)
         {
-            return await _context.Expenses
+            var query = _context.Expenses.AsQueryable();
+            if (branchId.HasValue) query = query.Where(e => e.BranchId == branchId.Value);
+
+            return await query
                 .GroupBy(e => e.Category)
-                .Select(g => new {
-                    Category = g.Key,
-                    Amount = g.Sum(e => e.Amount)
+                .Select(g => new { 
+                    Category = g.Key, 
+                    Amount = g.Sum(e => e.Amount) 
                 })
                 .ToListAsync();
         }
+    }
+
+    public class DashboardSnapshot
+    {
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalExpenses { get; set; }
+        public decimal NetProfit { get; set; }
+        public string RiskLevel { get; set; } = "Healthy";
     }
 }
