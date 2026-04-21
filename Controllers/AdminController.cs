@@ -36,6 +36,12 @@ namespace coretex_finalproj.Controllers
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
             ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
             ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
+            
+            // Analytics for the widgets
+            ViewBag.UserCount = await _userManager.Users.CountAsync();
+            ViewBag.BranchCount = await _context.Branches.Where(b => !b.IsArchived).CountAsync();
+            ViewBag.TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount);
+
             return View();
         }
 
@@ -93,6 +99,20 @@ namespace coretex_finalproj.Controllers
                 branch.IsActive = !branch.IsActive;
                 await _context.SaveChangesAsync();
                 await _auditLog.LogActivityAsync("BRANCH_STATUS_TOGGLE", $"Toggled status for branch {branch.Name} to {(branch.IsActive ? "Active" : "Inactive")}");
+            }
+            return RedirectToAction(nameof(BranchManagement));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveBranch(Guid id)
+        {
+            var branch = await _context.Branches.FindAsync(id);
+            if (branch != null)
+            {
+                branch.IsArchived = true;
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("BRANCH_ARCHIVE", $"Archived branch: {branch.Name}");
             }
             return RedirectToAction(nameof(BranchManagement));
         }
@@ -177,7 +197,15 @@ namespace coretex_finalproj.Controllers
                 .ToListAsync();
             return View(logs);
         }
-        public IActionResult BranchSubmissions() => View();
+        public async Task<IActionResult> BranchSubmissions()
+        {
+            var submissions = await _context.BranchSubmissions
+                .Include(s => s.Branch)
+                .OrderByDescending(s => s.SubmittedAt)
+                .ToListAsync();
+            return View(submissions);
+        }
+
         public IActionResult AuditTrail() => View();
     }
 }
