@@ -10,12 +10,12 @@ namespace coretex_finalproj.Models
         public int Id { get; set; }
 
         [Required]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
-        public string PeriodLabel { get; set; }
+        public string PeriodLabel { get; set; } = string.Empty;
 
         [Required]
-        public string ReportHtml { get; set; }
+        public string ReportHtml { get; set; } = string.Empty;
 
         public string SentToEmail { get; set; } = string.Empty;
 

@@ -20,7 +20,15 @@ namespace coretex_finalproj.Models
         [StringLength(450)]
         public string? SubmittedByUserId { get; set; }
 
-        public DateTime? SubmittedAt { get; set; }
+        public DateTime SubmittedAt { get; set; } = DateTime.Now;
+
+        [Required]
+        [Range(0, 999999999)]
+        public decimal SalesRevenue { get; set; }
+
+        [Required]
+        [Range(0, 999999999)]
+        public decimal Expenses { get; set; }
 
         [Required]
         [StringLength(20)]

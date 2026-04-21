@@ -65,7 +65,7 @@
 </div>
 
 <!-- Password Reset Modal -->
-<div id="password-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div id="password-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
         <h3 class="text-2xl font-black text-slate-900 mb-2">Reset Password</h3>
         <p id="password-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
@@ -84,7 +84,7 @@
 </div>
 
 <!-- Add User Modal -->
-<div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div id="add-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
         <h3 class="text-2xl font-black text-slate-900 mb-6">Provision New User</h3>
         <form asp-action="CreateUser" method="post" class="space-y-4">
@@ -108,9 +108,12 @@
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign Branch</label>
                 <select name="branchId" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
                     <option value="">All Branches (HQ)</option>
-                    @foreach (var b in ViewBag.Branches as List<Branch>)
+                    @if (ViewBag.Branches != null)
                     {
-                        <option value="@b.Id">@b.Name</option>
+                        foreach (var b in ViewBag.Branches as List<Branch>)
+                        {
+                            <option value="@b.Id">@b.Name</option>
+                        }
                     }
                 </select>
             </div>
