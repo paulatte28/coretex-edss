@@ -22,7 +22,6 @@ namespace coretex_finalproj.Data
         public DbSet<BranchSubmission> BranchSubmissions { get; set; } = null!;
         public DbSet<GeneratedReport> GeneratedReports { get; set; } = null!;
         public DbSet<DailySummary> DailySummaries { get; set; } = null!;
-        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<BranchGoal> BranchGoals { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)

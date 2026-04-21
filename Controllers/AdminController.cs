@@ -195,6 +195,22 @@ namespace coretex_finalproj.Controllers
             return RedirectToAction(nameof(UserManagement));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateUserRole(string userId, string newRole)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, roles);
+                await _userManager.AddToRoleAsync(user, newRole.ToUpper());
+                await _auditLog.LogActivityAsync("USER_ROLE_UPDATE", $"Changed role for {user.Email} to {newRole.ToUpper()}");
+                TempData["Message"] = $"Role updated for {user.Email}.";
+            }
+            return RedirectToAction(nameof(UserManagement));
+        }
+
         // --- Other Admin Actions ---
 
         [HttpPost]

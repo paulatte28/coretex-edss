@@ -98,14 +98,7 @@ namespace coretex_finalproj.Services
                 })
                 .ToListAsync();
         }
-    }
 
-    public class DashboardSnapshot
-    {
-        public decimal TotalRevenue { get; set; }
-        public decimal TotalExpenses { get; set; }
-        public decimal NetProfit { get; set; }
-        public string RiskLevel { get; set; } = "Healthy";
         public async Task<decimal> GetSalesForecastAsync(Guid? branchId)
         {
             var today = DateTime.Today;
@@ -126,5 +119,13 @@ namespace coretex_finalproj.Services
             var dailyAvg = pastSales.Sum(s => s.Amount) / (decimal)totalDays;
             return dailyAvg * 30; // Predicted for next 30 days
         }
+    }
+
+    public class DashboardSnapshot
+    {
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalExpenses { get; set; }
+        public decimal NetProfit { get; set; }
+        public string RiskLevel { get; set; } = "Healthy";
     }
 }

@@ -1,4 +1,6 @@
 @model IEnumerable<coretex_finalproj.Models.AppUser>
+@inject Microsoft.AspNetCore.Identity.UserManager<coretex_finalproj.Models.AppUser> _userManager
+@inject coretex_finalproj.Data.ApplicationDbContext _context
 @{
     ViewData["Title"] = "User Management";
     Layout = "_AdminLayout";
@@ -31,6 +33,7 @@
                     <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Full Name</th>
                     <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Email Address</th>
                     <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Branch Assigned</th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">System Role</th>
                     <th class="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>
                 </tr>
             </thead>
@@ -48,13 +51,21 @@
                         </td>
                         <td class="px-8 py-4 text-sm text-slate-500 font-medium">@user.Email</td>
                         <td class="px-8 py-4">
-                            <span class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-full">
-                                @(user.Branch?.Name ?? "All Branches")
+                            <span class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-full border border-slate-200">
+                                @(user.Branch?.Name ?? "HQ / GLOBAL")
+                            </span>
+                        </td>
+                        <td class="px-8 py-4">
+                             <span class="px-3 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase rounded-full">
+                                @((await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "USER")
                             </span>
                         </td>
                         <td class="px-8 py-4 flex items-center justify-center gap-2">
                              <button onclick="openPasswordModal('@user.Id', '@user.Email')" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Reset Password">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                             </button>
+                             <button onclick="openRoleModal('@user.Id', '@user.Email')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Edit Permissions">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                              </button>
                         </td>
                     </tr>
@@ -108,9 +119,9 @@
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign Branch</label>
                 <select name="branchId" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
                     <option value="">All Branches (HQ)</option>
-                    @if (ViewBag.Branches != null)
+                    @if (ViewBag.Branches is List<Branch> userBranches)
                     {
-                        foreach (var b in ViewBag.Branches as List<Branch>)
+                        foreach (var b in userBranches)
                         {
                             <option value="@b.Id">@b.Name</option>
                         }
@@ -129,6 +140,30 @@
     </div>
 </div>
 
+<!-- Role Update Modal -->
+<div id="role-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+        <h3 class="text-2xl font-black text-slate-900 mb-2">Change Account Rights</h3>
+        <p id="role-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
+        <form asp-action="UpdateUserRole" method="post" class="space-y-4">
+            <input type="hidden" name="userId" id="role-target-id" />
+            <div>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Select Primary Role</label>
+                <select name="newRole" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
+                    <option value="CEO">CEO / EXECUTIVE</option>
+                    <option value="FINANCE">FINANCE OFFICER</option>
+                    <option value="CASHIER">BRANCH CASHIER</option>
+                    <option value="USER">BASIC STAFF</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" onclick="closeRoleModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
+                <button type="submit" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100">Apply New Role</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
@@ -139,5 +174,12 @@
             document.getElementById('password-modal').classList.remove('hidden'); 
         }
         function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
+        
+        function openRoleModal(id, email) {
+            document.getElementById('role-target-id').value = id;
+            document.getElementById('role-email').textContent = email;
+            document.getElementById('role-modal').classList.remove('hidden');
+        }
+        function closeRoleModal() { document.getElementById('role-modal').classList.add('hidden'); }
     </script>
 }
