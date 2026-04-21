@@ -41,6 +41,18 @@ namespace coretex_finalproj.Controllers
             ViewBag.UserCount = await _userManager.Users.CountAsync();
             ViewBag.BranchCount = await _context.Branches.Where(b => !b.IsArchived).CountAsync();
             ViewBag.TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount);
+            ViewBag.ForecastRevenue = await _analytics.GetSalesForecastAsync(branchId);
+
+            // Backend #5: Strategic Alert Scanning
+            var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            var highRiskList = new List<string>();
+            foreach(var b in branches)
+            {
+                var rev = await _context.Sales.Where(s => !s.IsArchived && s.BranchId == b.Id).SumAsync(s => s.Amount);
+                var exp = await _context.Expenses.Where(e => !e.IsArchived && e.BranchId == b.Id).SumAsync(e => e.Amount);
+                if(rev > 0 && (exp/rev) > 0.8m) highRiskList.Add(b.Name);
+            }
+            ViewBag.HighRiskAlerts = highRiskList;
 
             return View();
         }
@@ -185,9 +197,42 @@ namespace coretex_finalproj.Controllers
 
         // --- Other Admin Actions ---
 
-        public IActionResult KPIThresholds() => View();
+        [HttpPost]
+        public async Task<IActionResult> SetGoal(Guid branchId, decimal targetRevenue, int month, int year)
+        {
+            var goal = new BranchGoal { BranchId = branchId, TargetRevenue = targetRevenue, Month = month, Year = year };
+            _context.BranchGoals.Add(goal);
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("GOAL_SET", $"Set strategic revenue goal for branch: {targetRevenue:C0}");
+            return RedirectToAction(nameof(KPIThresholds));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteGoal(Guid id)
+        {
+            var goal = await _context.BranchGoals.FindAsync(id);
+            if (goal != null) { _context.BranchGoals.Remove(goal); await _context.SaveChangesAsync(); }
+            return RedirectToAction(nameof(KPIThresholds));
+        }
+
+        public async Task<IActionResult> KPIThresholds()
+        {
+            var goals = await _context.BranchGoals.Include(g => g.Branch).ToListAsync();
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            return View(goals);
+        }
         public IActionResult GoalsTargets() => View();
-        public IActionResult ReportSchedule() => View();
+        public async Task<IActionResult> ReportSchedule()
+        {
+            var summary = new BusinessSummaryViewModel
+            {
+                TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount),
+                TotalExpenses = await _context.Expenses.Where(e => !e.IsArchived).SumAsync(e => e.Amount),
+                ActiveBranches = await _context.Branches.Where(b => !b.IsArchived).CountAsync()
+            };
+            summary.NetProfit = summary.TotalRevenue - summary.TotalExpenses;
+            return View(summary);
+        }
         public async Task<IActionResult> ActivityLog()
         {
             var logs = await _context.ActivityLogs
@@ -206,7 +251,14 @@ namespace coretex_finalproj.Controllers
             return View(submissions);
         }
 
-        public IActionResult AuditTrail() => View();
+        public async Task<IActionResult> AuditTrail()
+        {
+            var logs = await _context.ActivityLogs
+                .OrderByDescending(l => l.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+            return View(logs);
+        }
     }
 }
 

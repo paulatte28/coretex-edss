@@ -106,5 +106,25 @@ namespace coretex_finalproj.Services
         public decimal TotalExpenses { get; set; }
         public decimal NetProfit { get; set; }
         public string RiskLevel { get; set; } = "Healthy";
+        public async Task<decimal> GetSalesForecastAsync(Guid? branchId)
+        {
+            var today = DateTime.Today;
+            var threeMonthsAgo = today.AddMonths(-3);
+
+            var pastSales = await _context.Sales
+                .Where(s => !s.IsArchived && s.Date >= threeMonthsAgo)
+                .Where(s => !branchId.HasValue || s.BranchId == branchId)
+                .OrderBy(s => s.Date)
+                .ToListAsync();
+
+            if (pastSales.Count < 2) return 0;
+
+            // Simple average daily sales * 30 days
+            var totalDays = (pastSales.Max(s => s.Date) - pastSales.Min(s => s.Date)).TotalDays;
+            if (totalDays <= 0) return 0;
+
+            var dailyAvg = pastSales.Sum(s => s.Amount) / (decimal)totalDays;
+            return dailyAvg * 30; // Predicted for next 30 days
+        }
     }
 }

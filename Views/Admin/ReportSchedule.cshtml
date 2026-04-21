@@ -1,682 +1,94 @@
+@model coretex_finalproj.Models.BusinessSummaryViewModel
 @{
-    ViewData["Title"] = "Report Scheduling";
+    ViewData["Title"] = "Executive Reports";
     Layout = "_AdminLayout";
 }
 
 <div class="space-y-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between no-print">
         <div>
-            <div class="flex items-center space-x-3 mb-2">
-                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </a>
-                <span class="px-3 py-1 bg-rose-100 text-rose-700 font-black text-[10px] uppercase tracking-widest rounded-full">Auto Reports</span>
-            </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Report Scheduling</h2>
-            <p class="text-sm text-slate-500 mt-1">Schedule automated PDF reports delivered via SendGrid.</p>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Executive Summaries</h2>
+            <p class="text-sm text-slate-500 mt-1">Generate strategic intelligence reports for stakeholders</p>
+        </div>
+        <div class="flex gap-3">
+             <button onclick="window.print()" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Print Report
+            </button>
         </div>
     </div>
 
-    <!-- Info Banner -->
-    <div class="bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-2xl p-6">
-        <div class="flex items-start space-x-4">
-            <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            </div>
+    <!-- The Report Document -->
+    <div class="bg-white rounded-[3rem] p-12 shadow-2xl border border-slate-100 max-w-5xl mx-auto print:shadow-none print:border-none print:p-0">
+        <!-- Logo & Header -->
+        <div class="flex justify-between items-center border-b-4 border-indigo-600 pb-8 mb-12">
             <div>
-                <h4 class="font-bold text-rose-900">How Automated Reports Work</h4>
-                <p class="text-sm text-rose-700 mt-1">Configure the schedule below to automatically generate and email PDF reports to the CEO. Reports are delivered via <strong>SendGrid API</strong>.</p>
+                <h1 class="text-5xl font-black text-slate-900 tracking-tighter">CORETEX<span class="text-indigo-600">.</span></h1>
+                <p class="text-slate-400 font-black uppercase tracking-[0.3em] text-xs mt-2">Executive Decision Support System</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-black text-slate-900 uppercase">Monthly Performance Report</p>
+                <p class="text-slate-500 text-xs">Generated: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+                <p class="text-indigo-600 font-bold text-xs">Period: @DateTime.Now.ToString("MMMM yyyy")</p>
             </div>
         </div>
-    </div>
 
-    <!-- Schedule Configuration Form -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 bg-slate-50">
-            <h3 class="font-bold text-slate-900">Schedule Configuration</h3>
-            <p class="text-xs text-slate-500 mt-1">Configure automated report delivery settings</p>
-        </div>
-        
-        <form id="schedule-form" class="p-8">
-            <!-- Enable Toggle -->
-            <div class="flex items-center justify-between p-6 bg-slate-50 rounded-2xl mb-8">
-                <div>
-                    <h4 class="font-bold text-slate-900">Enable Auto-Reports</h4>
-                    <p class="text-sm text-slate-500 mt-1">Turn on to activate automated report delivery</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="enable-reports" class="sr-only peer">
-                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-rose-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-600"></div>
-                </label>
+        <!-- 3-Column Summary Stats -->
+        <div class="grid grid-cols-3 gap-8 mb-16">
+            <div class="bg-slate-50 p-8 rounded-[2rem]">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Revenue</p>
+                <h4 class="text-3xl font-black text-slate-900">₱@Model.TotalRevenue.ToString("N2")</h4>
             </div>
+            <div class="bg-slate-50 p-8 rounded-[2rem]">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Expenses</p>
+                <h4 class="text-3xl font-black text-slate-900">₱@Model.TotalExpenses.ToString("N2")</h4>
+            </div>
+            <div class="bg-indigo-600 p-8 rounded-[2rem] text-white">
+                <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-2">Net Profit</p>
+                <h4 class="text-3xl font-black text-white">₱@Model.NetProfit.ToString("N2")</h4>
+            </div>
+        </div>
 
-            <div id="schedule-fields" class="space-y-8 opacity-50 pointer-events-none">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Frequency -->
-                    <div class="space-y-3">
-                        <label class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-700">Frequency</span>
-                        </label>
-                        <select id="frequency" onchange="toggleDayOfWeek()" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-lg font-bold appearance-none cursor-pointer"
-                            style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2394a3b8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em 1.5em;">
-                            <option value="daily">Daily</option>
-                            <option value="weekly" selected>Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
-                    </div>
-
-                    <!-- Day of Week (shown only for Weekly) -->
-                    <div id="day-of-week-field" class="space-y-3">
-                        <label class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-700">Day of Week</span>
-                        </label>
-                        <select id="day-of-week" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-lg font-bold appearance-none cursor-pointer"
-                            style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2394a3b8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em 1.5em;">
-                            <option value="1" selected>Monday</option>
-                            <option value="2">Tuesday</option>
-                            <option value="3">Wednesday</option>
-                            <option value="4">Thursday</option>
-                            <option value="5">Friday</option>
-                            <option value="6">Saturday</option>
-                            <option value="0">Sunday</option>
-                        </select>
-                    </div>
-
-                    <!-- Time -->
-                    <div class="space-y-3">
-                        <label class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-700">Time</span>
-                        </label>
-                        <input type="time" id="report-time" value="08:00" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-lg font-bold">
-                    </div>
-
-                    <!-- Recipients -->
-                    <div class="space-y-3">
-                        <label class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-700">Recipients</span>
-                            <span class="text-xs text-slate-400">CEO email(s)</span>
-                        </label>
-                        <div id="recipients-container" class="space-y-2">
-                            <!-- Recipients will be populated dynamically -->
+        <!-- Insights Grid -->
+        <div class="grid grid-cols-2 gap-12 mb-16">
+            <div>
+                <h5 class="text-xs font-black text-indigo-600 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Operational Insights</h5>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <div class="w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shrink-0 mt-1">
+                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Report Types -->
-                <div class="space-y-4">
-                    <label class="text-sm font-bold text-slate-700">Report Types</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <label class="flex items-center p-4 bg-slate-50 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-rose-300 transition-all has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50">
-                            <input type="checkbox" id="report-executive" class="w-5 h-5 text-rose-600 rounded focus:ring-rose-500" checked>
-                            <div class="ml-3">
-                                <p class="font-bold text-slate-900">Executive Summary</p>
-                                <p class="text-xs text-slate-500">Overall business performance</p>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-4 bg-slate-50 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-rose-300 transition-all has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50">
-                            <input type="checkbox" id="report-branch" class="w-5 h-5 text-rose-600 rounded focus:ring-rose-500">
-                            <div class="ml-3">
-                                <p class="font-bold text-slate-900">Branch Comparison</p>
-                                <p class="text-xs text-slate-500">Compare all branches</p>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-4 bg-slate-50 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-rose-300 transition-all has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50">
-                            <input type="checkbox" id="report-kpi" class="w-5 h-5 text-rose-600 rounded focus:ring-rose-500">
-                            <div class="ml-3">
-                                <p class="font-bold text-slate-900">KPI Report</p>
-                                <p class="text-xs text-slate-500">Detailed KPI metrics</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
+                        <p class="text-slate-600 text-sm">System healthy with all @Model.ActiveBranches active branches.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center shrink-0 mt-1">
+                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        </div>
+                        <p class="text-slate-600 text-sm">Revenue trend shows stability across core regions.</p>
+                    </li>
+                </ul>
             </div>
-
-            <!-- Divider -->
-            <div class="border-t border-slate-200 my-8"></div>
-
-            <!-- Preview Section -->
-            <div class="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl p-6 mb-8">
-                <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center">
-                        <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-xs text-rose-600 uppercase tracking-widest font-bold">Next Scheduled Report</p>
-                        <p id="next-report-preview" class="text-lg font-black text-rose-900">Not scheduled</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Save Button -->
-            <div class="flex items-center justify-between">
-                <p class="text-sm text-slate-500">
-                    <svg class="w-4 h-4 inline mr-1 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    Reports delivered via SendGrid API
-                </p>
-                <button type="submit" class="px-8 py-4 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition-colors flex items-center space-x-2 shadow-lg shadow-rose-500/20">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span>Save Schedule</span>
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Recent Reports Sent -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
-                <h3 class="font-bold text-slate-900">Recent Reports Sent</h3>
-                <p class="text-xs text-slate-500 mt-1">History of delivered reports</p>
+                <h5 class="text-xs font-black text-rose-600 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Forecasting Alerts</h5>
+                <div class="p-6 bg-rose-50 rounded-3xl border border-rose-100">
+                    <p class="text-rose-900 font-bold text-sm mb-2">Attention Required</p>
+                    <p class="text-rose-700 text-xs leading-relaxed">Branch audit trails indicate increasing operational costs. Recommend reviewing KPI goals for next month.</p>
+                </div>
             </div>
         </div>
-        <div id="reports-history" class="divide-y divide-slate-100">
-            <!-- Report history will be rendered here -->
-        </div>
-        <div id="reports-empty-state" class="p-12 text-center">
-            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            </div>
-            <h4 class="font-bold text-slate-900 mb-2">No reports sent yet</h4>
-            <p class="text-sm text-slate-500">Enable auto-reports to start receiving scheduled reports</p>
+
+        <!-- Footer -->
+        <div class="text-center pt-12 border-t border-slate-50">
+            <p class="text-[10px] text-slate-300 font-black uppercase tracking-widest italic">Coretex Proprietary Strategic Document • Internal Use Only</p>
         </div>
     </div>
 </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-<!-- Success Toast -->
-<div id="toast" class="fixed bottom-6 right-6 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl hidden items-center space-x-3 z-50 transform transition-all">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    <span id="toast-message" class="font-bold">Schedule saved successfully!</span>
-</div>
-
-@section Scripts {
-    <script>
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-        // Load saved schedule
-        function loadSchedule() {
-            const saved = JSON.parse(localStorage.getItem('coretex_report_schedule') || '{}');
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            
-            // Populate CEO recipients
-            const ceos = users.filter(u => u.role === 'CEO' && u.status === 'Active');
-            const container = document.getElementById('recipients-container');
-            
-            if (ceos.length === 0) {
-                container.innerHTML = `
-                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
-                        <p class="font-bold">No CEO users found</p>
-                        <p class="text-xs mt-1">Add a CEO user in User Management first</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = ceos.map(ceo => `
-                    <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
-                        <input type="checkbox" name="recipients" value="${ceo.email}" class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500" ${saved.recipients?.includes(ceo.email) ? 'checked' : ''}>
-                        <div class="ml-3">
-                            <p class="font-bold text-slate-900 text-sm">${ceo.name}</p>
-                            <p class="text-xs text-slate-500">${ceo.email}</p>
-                        </div>
-                    </label>
-                `).join('');
-            }
-            
-            // Load saved values
-            if (saved.enabled !== undefined) {
-                document.getElementById('enable-reports').checked = saved.enabled;
-                toggleScheduleFields();
-            }
-            if (saved.frequency) {
-                document.getElementById('frequency').value = saved.frequency;
-                toggleDayOfWeek();
-            }
-            if (saved.dayOfWeek !== undefined) {
-                document.getElementById('day-of-week').value = saved.dayOfWeek;
-            }
-            if (saved.time) {
-                document.getElementById('report-time').value = saved.time;
-            }
-            if (saved.reportTypes) {
-                document.getElementById('report-executive').checked = saved.reportTypes.includes('executive');
-                document.getElementById('report-branch').checked = saved.reportTypes.includes('branch');
-                document.getElementById('report-kpi').checked = saved.reportTypes.includes('kpi');
-            }
-            
-            updatePreview();
-        }
-
-        // Toggle schedule fields based on enable toggle
-        function toggleScheduleFields() {
-            const enabled = document.getElementById('enable-reports').checked;
-            const fields = document.getElementById('schedule-fields');
-            
-            if (enabled) {
-                fields.classList.remove('opacity-50', 'pointer-events-none');
-            } else {
-                fields.classList.add('opacity-50', 'pointer-events-none');
-            }
-            
-            updatePreview();
-        }
-
-        // Toggle day of week field based on frequency
-        function toggleDayOfWeek() {
-            const frequency = document.getElementById('frequency').value;
-            const dayField = document.getElementById('day-of-week-field');
-            
-            if (frequency === 'weekly') {
-                dayField.classList.remove('hidden');
-            } else {
-                dayField.classList.add('hidden');
-            }
-            
-            updatePreview();
-        }
-
-        // Update preview
-        function updatePreview() {
-            const preview = document.getElementById('next-report-preview');
-            const enabled = document.getElementById('enable-reports').checked;
-            
-            if (!enabled) {
-                preview.textContent = 'Auto-reports disabled';
-                return;
-            }
-            
-            const frequency = document.getElementById('frequency').value;
-            const time = document.getElementById('report-time').value;
-            const dayOfWeek = parseInt(document.getElementById('day-of-week').value);
-            
-            // Calculate next report date
-            const now = new Date();
-            let nextDate = new Date();
-            
-            if (frequency === 'daily') {
-                nextDate.setDate(now.getDate() + 1);
-            } else if (frequency === 'weekly') {
-                const currentDay = now.getDay();
-                let daysUntil = dayOfWeek - currentDay;
-                if (daysUntil <= 0) daysUntil += 7;
-                nextDate.setDate(now.getDate() + daysUntil);
-            } else if (frequency === 'monthly') {
-                nextDate.setMonth(now.getMonth() + 1);
-                nextDate.setDate(1);
-            }
-            
-            const [hours, minutes] = time.split(':');
-            const formattedTime = new Date(2000, 0, 1, hours, minutes).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-            
-            const formattedDate = `${dayNames[nextDate.getDay()]}, ${monthNames[nextDate.getMonth()]} ${nextDate.getDate()}, ${nextDate.getFullYear()}`;
-            
-            preview.textContent = `${formattedDate} at ${formattedTime}`;
-        }
-
-        // Save schedule
-        document.getElementById('schedule-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const recipients = Array.from(document.querySelectorAll('input[name="recipients"]:checked')).map(cb => cb.value);
-            const reportTypes = [];
-            if (document.getElementById('report-executive').checked) reportTypes.push('executive');
-            if (document.getElementById('report-branch').checked) reportTypes.push('branch');
-            if (document.getElementById('report-kpi').checked) reportTypes.push('kpi');
-            
-            const schedule = {
-                enabled: document.getElementById('enable-reports').checked,
-                frequency: document.getElementById('frequency').value,
-                dayOfWeek: parseInt(document.getElementById('day-of-week').value),
-                time: document.getElementById('report-time').value,
-                recipients: recipients,
-                reportTypes: reportTypes,
-                updatedAt: new Date().toISOString()
-            };
-
-            localStorage.setItem('coretex_report_schedule', JSON.stringify(schedule));
-            
-            // Log activity
-            logActivity('Schedule Updated', 'Report schedule configuration updated', 'schedule');
-            
-            // Show success toast
-            showToast('Schedule saved successfully!');
-        });
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            toast.classList.remove('hidden');
-            toast.classList.add('flex');
-            
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('flex');
-            }, 3000);
-        }
-
-        function logActivity(action, description, type) {
-            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            activities.unshift({
-                id: Date.now(),
-                action,
-                description,
-                type,
-                timestamp: new Date().toISOString(),
-                user: 'System Administrator'
-            });
-            activities = activities.slice(0, 100);
-            localStorage.setItem('coretex_activities', JSON.stringify(activities));
-        }
-
-        // Render reports history
-        function renderReportsHistory() {
-            const container = document.getElementById('reports-history');
-            const emptyState = document.getElementById('reports-empty-state');
-            const history = JSON.parse(localStorage.getItem('coretex_reports_history') || '[]');
-
-            if (history.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            container.innerHTML = history.slice(0, 10).map(report => `
-                <div class="p-6 hover:bg-slate-50 transition-colors">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">${report.type}</h4>
-                                <p class="text-sm text-slate-500">Sent to ${report.recipients.length} recipient(s)</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold text-slate-900">${formatDate(report.sentAt)}</p>
-                            <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-emerald-100 text-emerald-700">Delivered</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function formatDate(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
-        }
-
-        // Event listeners
-        document.getElementById('enable-reports').addEventListener('change', toggleScheduleFields);
-        document.getElementById('frequency').addEventListener('change', function() {
-            toggleDayOfWeek();
-            updatePreview();
-        });
-        document.getElementById('day-of-week').addEventListener('change', updatePreview);
-        document.getElementById('report-time').addEventListener('change', updatePreview);
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSchedule();
-            renderReportsHistory();
-        });
-    </script>
-}
-            const select = document.getElementById('schedule-branch');
-            
-            if (scope === 'specific') {
-                container.classList.remove('hidden');
-                select.required = true;
-                populateBranches();
-            } else {
-                container.classList.add('hidden');
-                select.required = false;
-                select.value = '';
-            }
-        }
-
-        function populateBranches() {
-            const select = document.getElementById('schedule-branch');
-            select.innerHTML = '<option value="">Select Branch</option>';
-            
-            branches.filter(b => b.status === 'active').forEach(branch => {
-                select.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
-            });
-        }
-
-        function getScheduleDescription(schedule) {
-            let desc = '';
-            
-            switch(schedule.frequency) {
-                case 'daily':
-                    desc = `Daily at ${schedule.time}`;
-                    break;
-                case 'weekly':
-                    desc = `Every ${dayLabels[schedule.dayOfWeek]} at ${schedule.time}`;
-                    break;
-                case 'monthly':
-                    const dateStr = schedule.dateOfMonth === 'last' ? 'last day' : `${schedule.dateOfMonth}th`;
-                    desc = `Monthly on the ${dateStr} at ${schedule.time}`;
-                    break;
-            }
-            
-            return desc;
-        }
-
-        function renderSchedules() {
-            const container = document.getElementById('schedule-list');
-            const emptyState = document.getElementById('empty-state');
-            const frequencyFilter = document.getElementById('filter-frequency').value;
-
-            let filteredSchedules = schedules.filter(s => {
-                return !frequencyFilter || s.frequency === frequencyFilter;
-            });
-
-            updateStats();
-
-            if (filteredSchedules.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            container.innerHTML = filteredSchedules.map(schedule => {
-                const branch = schedule.branchId ? branches.find(b => b.id === schedule.branchId) : null;
-                const recipientCount = schedule.recipients.split('\n').filter(r => r.trim()).length;
-
-                return `
-                    <div class="p-6 hover:bg-slate-50 transition-colors">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 ${schedule.status === 'active' ? 'bg-rose-100' : 'bg-slate-100'} rounded-xl flex items-center justify-center">
-                                    <svg class="w-6 h-6 ${schedule.status === 'active' ? 'text-rose-600' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                </div>
-                                <div>
-                                    <div class="flex items-center space-x-2">
-                                        <h4 class="font-bold text-slate-900">${schedule.name}</h4>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${schedule.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${schedule.status}</span>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-rose-100 text-rose-700">${frequencyLabels[schedule.frequency]}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-3 mt-1">
-                                        <span class="text-sm text-slate-600">${reportTypeLabels[schedule.type]}</span>
-                                        ${branch ? `<span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">${branch.name}</span>` : '<span class="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">All Branches</span>'}
-                                    </div>
-                                    <div class="flex items-center space-x-3 mt-2 text-xs text-slate-400">
-                                        <span class="flex items-center space-x-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            <span>${getScheduleDescription(schedule)}</span>
-                                        </span>
-                                        <span class="flex items-center space-x-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                            <span>${recipientCount} recipient${recipientCount !== 1 ? 's' : ''}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="toggleScheduleStatus('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-amber-100 hover:text-amber-600 transition-colors" title="${schedule.status === 'active' ? 'Pause' : 'Activate'}">
-                                    ${schedule.status === 'active' 
-                                        ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-                                        : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-                                    }
-                                </button>
-                                <button onclick="editSchedule('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-rose-100 hover:text-rose-600 transition-colors" title="Edit">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                </button>
-                                <button onclick="deleteSchedule('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors" title="Delete">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function toggleScheduleStatus(id) {
-            const schedule = schedules.find(s => s.id === id);
-            if (schedule) {
-                schedule.status = schedule.status === 'active' ? 'paused' : 'active';
-                schedule.updatedAt = new Date().toISOString();
-                localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
-                renderSchedules();
-                logActivity('Schedule Updated', `${schedule.status === 'active' ? 'Activated' : 'Paused'}: ${schedule.name}`, 'schedule');
-            }
-        }
-
-        function openScheduleModal(scheduleId = null) {
-            const modal = document.getElementById('schedule-modal');
-            const title = document.getElementById('modal-title');
-            const form = document.getElementById('schedule-form');
-            
-            form.reset();
-            document.getElementById('schedule-id').value = '';
-            document.getElementById('branch-select-container').classList.add('hidden');
-            toggleFrequencyOptions();
-
-            if (scheduleId) {
-                const schedule = schedules.find(s => s.id === scheduleId);
-                if (schedule) {
-                    title.textContent = 'Edit Schedule';
-                    document.getElementById('schedule-id').value = schedule.id;
-                    document.getElementById('schedule-name').value = schedule.name;
-                    document.getElementById('schedule-type').value = schedule.type;
-                    document.getElementById('schedule-frequency').value = schedule.frequency;
-                    document.getElementById('schedule-time').value = schedule.time;
-                    document.getElementById('schedule-scope').value = schedule.branchId ? 'specific' : 'all';
-                    document.getElementById('schedule-recipients').value = schedule.recipients;
-                    document.getElementById('schedule-status').value = schedule.status;
-                    
-                    toggleFrequencyOptions();
-                    
-                    if (schedule.frequency === 'weekly') {
-                        document.getElementById('schedule-day').value = schedule.dayOfWeek;
-                    } else if (schedule.frequency === 'monthly') {
-                        document.getElementById('schedule-date').value = schedule.dateOfMonth;
-                    }
-                    
-                    if (schedule.branchId) {
-                        document.getElementById('branch-select-container').classList.remove('hidden');
-                        populateBranches();
-                        document.getElementById('schedule-branch').value = schedule.branchId;
-                    }
-                }
-            } else {
-                title.textContent = 'Add Report Schedule';
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeScheduleModal() {
-            document.getElementById('schedule-modal').classList.add('hidden');
-        }
-
-        function editSchedule(id) {
-            openScheduleModal(id);
-        }
-
-        function deleteSchedule(id) {
-            document.getElementById('delete-schedule-id').value = id;
-            document.getElementById('delete-modal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-        }
-
-        function confirmDelete() {
-            const id = document.getElementById('delete-schedule-id').value;
-            const schedule = schedules.find(s => s.id === id);
-            schedules = schedules.filter(s => s.id !== id);
-            localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
-            closeDeleteModal();
-            renderSchedules();
-            logActivity('Schedule Deleted', `Removed schedule: ${schedule?.name}`, 'schedule');
-        }
-
-        function logActivity(action, description, type) {
-            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            activities.unshift({
-                id: Date.now(),
-                action,
-                description,
-                type,
-                timestamp: new Date().toISOString(),
-                user: 'System Administrator'
-            });
-            activities = activities.slice(0, 100);
-            localStorage.setItem('coretex_activities', JSON.stringify(activities));
-        }
-
-        document.getElementById('schedule-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const id = document.getElementById('schedule-id').value;
-            const frequency = document.getElementById('schedule-frequency').value;
-            const scope = document.getElementById('schedule-scope').value;
-            
-            // Validate branch for specific scope
-            if (scope === 'specific' && !document.getElementById('schedule-branch').value) {
-                alert('Please select a branch.');
-                return;
-            }
-
-            const scheduleData = {
-                id: id || 'schedule_' + Date.now(),
-                name: document.getElementById('schedule-name').value,
-                type: document.getElementById('schedule-type').value,
-                frequency: frequency,
-                time: document.getElementById('schedule-time').value,
-                dayOfWeek: frequency === 'weekly' ? parseInt(document.getElementById('schedule-day').value) : null,
-                dateOfMonth: frequency === 'monthly' ? document.getElementById('schedule-date').value : null,
-                branchId: scope === 'specific' ? document.getElementById('schedule-branch').value : null,
-                recipients: document.getElementById('schedule-recipients').value,
-                status: document.getElementById('schedule-status').value,
-                createdAt: id ? schedules.find(s => s.id === id)?.createdAt : new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            if (id) {
-                const index = schedules.findIndex(s => s.id === id);
-                schedules[index] = scheduleData;
-                logActivity('Schedule Updated', `Updated schedule: ${scheduleData.name}`, 'schedule');
-            } else {
-                schedules.push(scheduleData);
-                logActivity('Schedule Created', `Added schedule: ${scheduleData.name}`, 'schedule');
-            }
-
-            localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
-            closeScheduleModal();
-            renderSchedules();
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', renderSchedules);
-    </script>
-}
+<style>
+    @@media print {
+        .no-print { display: none !important; }
+        body { background-color: white !important; }
+        nav { display: none !important; }
+        main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
+    }
+</style>
