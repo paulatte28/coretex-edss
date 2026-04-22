@@ -46,6 +46,13 @@
                                 <div class="w-5 h-5 bg-slate-100 rounded-lg flex items-center justify-center text-[10px] font-black text-slate-500">IP</div>
                                 <span class="text-xs font-bold text-slate-400">@log.IpAddress</span>
                             </div>
+                            @if (!string.IsNullOrEmpty(log.Location))
+                            {
+                                <div class="flex items-center gap-2">
+                                    <div class="w-5 h-5 bg-indigo-50 rounded-lg flex items-center justify-center text-[10px] font-black text-indigo-500">🌍</div>
+                                    <span class="text-xs font-bold text-indigo-500/80">@log.Location</span>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

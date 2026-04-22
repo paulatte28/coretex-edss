@@ -13,9 +13,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Register generic API services
+builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<GeolocationService>();
 builder.Services.AddScoped<AuditLoggingService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<SummaryProcessingService>();

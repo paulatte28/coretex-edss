@@ -9,10 +9,13 @@ namespace coretex_finalproj.Services
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuditLoggingService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        private readonly GeolocationService _geoService;
+
+        public AuditLoggingService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, GeolocationService geoService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _geoService = geoService;
         }
 
         public async Task LogActivityAsync(string actionType, string description)
@@ -38,6 +41,8 @@ namespace coretex_finalproj.Services
             }
 
             var role = user?.FindFirstValue(ClaimTypes.Role) ?? "Member";
+            var ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+            var geo = await _geoService.GetLocationAsync(ipAddress);
 
             var log = new ActivityLogEntry
             {
@@ -46,7 +51,8 @@ namespace coretex_finalproj.Services
                 UserRole = role,
                 ActionType = actionType,
                 Description = description,
-                IpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString() ?? "0.0.0.0",
+                IpAddress = ipAddress,
+                Location = $"{geo.City}, {geo.CountryName}",
                 BranchId = branchId,
                 CreatedAt = DateTime.UtcNow
             };
