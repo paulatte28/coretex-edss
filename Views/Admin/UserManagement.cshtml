@@ -3,21 +3,30 @@
 @inject coretex_finalproj.Data.ApplicationDbContext _context
 @{
     ViewData["Title"] = "User Management";
+
     Layout = "_AdminLayout";
 }
 
 <div class="space-y-8">
     @if (TempData["Error"] != null)
+
     {
         <div class="p-4 bg-rose-50 border border-rose-100 text-rose-700 rounded-2xl flex items-center gap-3 animate-pulse">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
             <span class="font-bold">@TempData["Error"]</span>
         </div>
     }
     @if (TempData["Message"] != null)
+
     {
         <div class="p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-2xl flex items-center gap-3">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span class="font-bold">@TempData["Message"]</span>
         </div>
     }
@@ -27,15 +36,23 @@
         <div>
             <div class="flex items-center space-x-3 mb-2">
                 <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
                 </a>
-                <span class="px-3 py-1 bg-purple-100 text-purple-700 font-black text-[10px] uppercase tracking-widest rounded-full">Access Control</span>
+                <span
+                    class="px-3 py-1 bg-purple-100 text-purple-700 font-black text-[10px] uppercase tracking-widest rounded-full">Access
+                    Control</span>
             </div>
             <h2 class="text-3xl font-black text-slate-900 tracking-tight">System Users</h2>
             <p class="text-sm text-slate-500 mt-1">Manage @Model.Count() team members and their permissions</p>
         </div>
-        <button onclick="openAddModal()" class="px-6 py-3 bg-purple-600 text-white font-bold text-sm rounded-xl hover:bg-purple-700 hover:scale-105 transition-all flex items-center space-x-2 shadow-lg shadow-purple-100">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m3 8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h13z" /></svg>
+        <button onclick="openAddModal()"
+            class="px-6 py-3 bg-purple-600 text-white font-bold text-sm rounded-xl hover:bg-purple-700 hover:scale-105 transition-all flex items-center space-x-2 shadow-lg shadow-purple-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m3 8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h13z" />
+            </svg>
             <span>Provision User</span>
         </button>
     </div>
@@ -45,20 +62,27 @@
         <table class="w-full">
             <thead class="bg-slate-50">
                 <tr>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Full Name</th>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Email Address</th>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Branch Assigned</th>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">System Role</th>
-                    <th class="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Full Name</th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Email Address</th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Branch Assigned</th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        System Role</th>
+                    <th class="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @foreach (var user in Model)
+
                 {
                     <tr class="hover:bg-slate-50 group transition-colors">
                         <td class="px-8 py-4">
                             <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-sm">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-sm">
                                     @(user.FullName?.Length > 0 ? user.FullName.Substring(0, 1).ToUpper() : "U")
                                 </div>
                                 <span class="font-bold text-slate-900">@user.FullName</span>
@@ -66,22 +90,34 @@
                         </td>
                         <td class="px-8 py-4 text-sm text-slate-500 font-medium">@user.Email</td>
                         <td class="px-8 py-4">
-                            <span class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-full border border-slate-200">
+                            <span
+                                class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-full border border-slate-200">
                                 @(user.Branch?.Name ?? "HQ / GLOBAL")
                             </span>
                         </td>
                         <td class="px-8 py-4">
-                             <span class="px-3 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase rounded-full">
+                            <span
+                                class="px-3 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase rounded-full">
                                 @((await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "USER")
                             </span>
                         </td>
                         <td class="px-8 py-4 flex items-center justify-center gap-2">
-                             <button onclick="openPasswordModal('@user.Id', '@user.Email')" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Reset Password">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-                             </button>
-                             <button onclick="openRoleModal('@user.Id', '@user.Email')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Edit Permissions">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-                             </button>
+                            <button onclick="openPasswordModal('@user.Id', '@user.Email')"
+                                class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                title="Reset Password">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                            </button>
+                            <button onclick="openRoleModal('@user.Id', '@user.Email')"
+                                class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                title="Edit Permissions">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                </svg>
+                            </button>
                         </td>
                     </tr>
                 }
@@ -94,16 +130,22 @@
 <div id="password-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
         <h3 class="text-2xl font-black text-slate-900 mb-2">Reset Password</h3>
-        <p id="password-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
-        <form asp-action="ResetUserPassword" method="post" class="space-y-4">
-            <input type="hidden" name="userId" id="password-target-id" />
+        <p id="pass-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
+        <form asp-action="ResetUserPassword" method="post" class="space-y-4" onsubmit="return validatePassword()">
+            <input type="hidden" name="userId" id="pass-target-id" />
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">New Password</label>
-                <input name="newPassword" type="password" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-100 outline-none transition-all" />
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">New Security
+                    Password</label>
+                <input type="password" name="newPassword" id="new-password-input"
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-bold"
+                    placeholder="••••••••" required />
             </div>
             <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closePasswordModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
-                <button type="submit" class="flex-1 py-3 bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-100 hover:bg-amber-600 transition-all">Reset Password</button>
+                <button type="button" onclick="closePasswordModal()"
+                    class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
+                <button type="submit"
+                    class="flex-1 py-3 bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-100 hover:bg-amber-600 transition-all">Reset
+                    Password</button>
             </div>
         </form>
     </div>
@@ -116,40 +158,54 @@
         <form asp-action="CreateUser" method="post" class="space-y-4">
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Full Name</label>
-                <input name="fullName" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
+                <input name="fullName" required
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
             </div>
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Email Address</label>
-                <input name="email" type="email" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Email
+                    Address</label>
+                <input name="email" type="email" required
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
             </div>
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Role</label>
-                <select name="role" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
+                <select name="role" required
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
                     <option value="CEO">CEO</option>
                     <option value="FINANCE">Finance Officer</option>
                     <option value="CASHIER">Branch Cashier</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign Branch</label>
-                <select name="branchId" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign
+                    Branch</label>
+                <select name="branchId"
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
                     <option value="">All Branches (HQ)</option>
                     @if (ViewBag.Branches is List<Branch> userBranches)
+
                     {
+
                         foreach (var b in userBranches)
+
                         {
                             <option value="@b.Id">@b.Name</option>
                         }
+
                     }
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Initial Password</label>
-                <input name="password" type="password" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Initial
+                    Password</label>
+                <input name="password" type="password" required
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
             </div>
             <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeAddModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
-                <button type="submit" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl">Create Account</button>
+                <button type="button" onclick="closeAddModal()"
+                    class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
+                <button type="submit" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl">Create
+                    Account</button>
             </div>
         </form>
     </div>
@@ -160,11 +216,14 @@
     <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
         <h3 class="text-2xl font-black text-slate-900 mb-2">Change Account Rights</h3>
         <p id="role-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
-        <form asp-action="UpdateUserRole" method="post" class="space-y-4" onsubmit="return confirm('CRITICAL SECURITY ACTION: You are about to change system access rights. Do you have official authorization to proceed?')">
+        <form asp-action="UpdateUserRole" method="post" class="space-y-4"
+            onsubmit="return confirm('CRITICAL SECURITY ACTION: You are about to change system access rights. Do you have official authorization to proceed?')">
             <input type="hidden" name="userId" id="role-target-id" />
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Select Primary Role</label>
-                <select name="newRole" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Select Primary
+                    Role</label>
+                <select name="newRole"
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
                     <option value="CEO">CEO / EXECUTIVE</option>
                     <option value="FINANCE">FINANCE OFFICER</option>
                     <option value="CASHIER">BRANCH CASHIER</option>
@@ -172,8 +231,11 @@
                 </select>
             </div>
             <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeRoleModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
-                <button type="submit" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100">Apply New Role</button>
+                <button type="button" onclick="closeRoleModal()"
+                    class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
+                <button type="submit"
+                    class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100">Apply
+                    New Role</button>
             </div>
         </form>
     </div>
@@ -183,13 +245,24 @@
     <script>
         function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
-        function openPasswordModal(id, email) { 
-            document.getElementById('password-target-id').value = id;
-            document.getElementById('password-email').textContent = email;
-            document.getElementById('password-modal').classList.remove('hidden'); 
+        function openPasswordModal(id, email) {
+            document.getElementById('pass-target-id').value = id;
+            document.getElementById('pass-email').textContent = email;
+            document.getElementById('password-modal').classList.remove('hidden');
         }
         function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
-        
+
+        function validatePassword() {
+            const pass = document.getElementById('new-password-input').value;
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{6,}$/;
+
+            if (!regex.test(pass)) {
+                alert('SECURITY VIOLATION: Password must be at least 6 characters and include Uppercase, Lowercase, Number, and Special Character (@@$!%*?&).');
+                return false;
+            }
+            return confirm('Are you sure you want to change this user\'s static credentials?');
+        }
+
         function openRoleModal(id, email) {
             document.getElementById('role-target-id').value = id;
             document.getElementById('role-email').textContent = email;

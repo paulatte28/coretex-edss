@@ -188,8 +188,12 @@ namespace coretex_finalproj.Controllers
                 var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
                 if (result.Succeeded)
                 {
-                    await _auditLog.LogActivityAsync("USER_PASSWORD_RESET", $"Reset password for user {user.Email}");
-                    TempData["Message"] = $"Password for {user.Email} has been reset.";
+                    await _auditLog.LogActivityAsync("USER_PASSWORD_RESET", $"Successfully reset security credentials for: {user.Email}");
+                    TempData["Message"] = $"Password for {user.Email} has been reset successfully.";
+                }
+                else
+                {
+                    TempData["Error"] = "PASSWORD REJECTED: " + string.Join(" ", result.Errors.Select(e => e.Description));
                 }
             }
             return RedirectToAction(nameof(UserManagement));
