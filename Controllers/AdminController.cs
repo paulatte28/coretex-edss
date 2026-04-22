@@ -200,14 +200,25 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> UpdateUserRole(string userId, string newRole)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
+            if (user == null) return RedirectToAction(nameof(UserManagement));
+
+            // SECURITY GUARD LOGIC: Check if we are demoting the only CEO
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Contains("CEO") && !newRole.Equals("CEO", StringComparison.OrdinalIgnoreCase))
             {
-                var roles = await _userManager.GetRolesAsync(user);
-                await _userManager.RemoveFromRolesAsync(user, roles);
-                await _userManager.AddToRoleAsync(user, newRole.ToUpper());
-                await _auditLog.LogActivityAsync("USER_ROLE_UPDATE", $"Changed role for {user.Email} to {newRole.ToUpper()}");
-                TempData["Message"] = $"Role updated for {user.Email}.";
+                var allCeos = await _userManager.GetUsersInRoleAsync("CEO");
+                if (allCeos.Count <= 1)
+                {
+                    TempData["Error"] = "SECURITY LOCK: Cannot demote the last remaining CEO. System must have at least one executive lead.";
+                    return RedirectToAction(nameof(UserManagement));
+                }
             }
+
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            await _userManager.AddToRoleAsync(user, newRole.ToUpper());
+            await _auditLog.LogActivityAsync("SECURITY_EVENT", $"Admin manually overrode role for {user.Email} to {newRole.ToUpper()}");
+            
+            TempData["Message"] = $"Authorization updated for {user.Email}.";
             return RedirectToAction(nameof(UserManagement));
         }
 

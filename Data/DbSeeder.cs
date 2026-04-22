@@ -92,7 +92,7 @@ namespace coretex_finalproj.Data
             Guid defaultBranchId,
             ILogger? logger)
         {
-            var roles = new[] { "ADMIN", "CEO", "FINANCE", "CASHIER" };
+            var roles = new[] { "ADMIN", "CEO", "FINANCE", "CASHIER", "USER" };
 
             foreach (var role in roles)
             {
