@@ -109,6 +109,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ceo = window.CoretexCeo;
+
+            // LIVE SQL DATA INJECTION
+            const snapshot = @Html.Raw(Json.Serialize(ViewBag.Snapshot));
+            const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData));
+            const branchData = @Html.Raw(Json.Serialize(ViewBag.BranchData));
+
             ceo.renderNav('dashboard', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
@@ -147,75 +153,69 @@
             });
 
             const kpi = ceo.getKpiSnapshot();
-            document.getElementById('kpi-revenue').textContent = ceo.money(kpi.totalRevenue);
-            document.getElementById('kpi-expenses').textContent = ceo.money(kpi.totalExpenses);
-            document.getElementById('kpi-profit').textContent = ceo.money(kpi.netProfit);
-            document.getElementById('kpi-margin').textContent = ceo.pct(kpi.profitMargin);
+            if (snapshot) {
+                document.getElementById('kpi-revenue').textContent = ceo.money(snapshot.totalRevenue);
+                document.getElementById('kpi-expenses').textContent = ceo.money(snapshot.totalExpenses);
+                document.getElementById('kpi-profit').textContent = ceo.money(snapshot.netProfit);
+                document.getElementById('kpi-margin').textContent = ceo.pct(snapshot.totalRevenue > 0 ? (snapshot.netProfit / snapshot.totalRevenue * 100) : 0);
 
-            document.getElementById('kpi-revenue-change').textContent = `↑ ${kpi.revenueChange.replace('+', '')} vs last month`;
-            document.getElementById('kpi-expenses-change').textContent = `↑ ${kpi.expensesChange.replace('+', '')} vs last month`;
-            document.getElementById('kpi-profit-change').textContent = `↑ ${kpi.profitChange.replace('+', '')} vs last month`;
-            document.getElementById('kpi-margin-status').textContent = kpi.risk.code === 'GREEN' ? '🟢 Healthy' : kpi.risk.code === 'YELLOW' ? '🟡 Warning' : '🔴 Critical';
-
-            document.getElementById('risk-indicator').textContent = `${kpi.risk.icon} ${kpi.risk.code}`;
-            document.getElementById('risk-text').textContent = kpi.risk.detail;
-
-            const riskWidget = document.getElementById('risk-widget');
-            if (kpi.risk.code === 'RED') {
-                riskWidget.className = 'mt-4 p-6 rounded-2xl border border-red-200 bg-red-50';
-                document.getElementById('risk-indicator').className = 'text-4xl font-black text-red-700';
-                document.getElementById('risk-text').className = 'text-sm font-bold text-red-700 mt-2';
-            } else if (kpi.risk.code === 'YELLOW') {
-                riskWidget.className = 'mt-4 p-6 rounded-2xl border border-amber-200 bg-amber-50';
-                document.getElementById('risk-indicator').className = 'text-4xl font-black text-amber-700';
-                document.getElementById('risk-text').className = 'text-sm font-bold text-amber-700 mt-2';
+                const riskEl = document.getElementById('risk-indicator');
+                const riskText = document.getElementById('risk-text');
+                const riskWidget = document.getElementById('risk-widget');
+                
+                riskEl.textContent = (snapshot.riskLevel || 'Healthy').toUpperCase();
+                riskText.textContent = `Business Health: ${snapshot.riskLevel || 'Healthy'}`;
+                
+                if (snapshot.riskLevel === 'Critical') {
+                    riskWidget.className = 'mt-4 p-6 rounded-2xl border border-red-200 bg-red-50';
+                    riskEl.className = 'text-4xl font-black text-red-700';
+                    riskText.className = 'text-sm font-bold text-red-700 mt-2';
+                }
             }
 
-            const series = ceo.getMonthSeries();
-            const labels = series.map(x => x.month);
-            const revenues = series.map(x => x.revenue);
-            const expenses = series.map(x => x.expenses);
-            const profits = series.map(x => x.revenue - x.expenses);
+            if (monthlyData && monthlyData.length > 0) {
+                const labels = monthlyData.map(x => x.month);
+                ceo.makeChart('chart-revenue-expenses', {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: 'Revenue', data: monthlyData.map(x => x.sales), backgroundColor: 'rgba(16,185,129,0.65)', borderColor: 'rgba(16,185,129,1)', borderWidth: 1 },
+                            { label: 'Expenses', data: monthlyData.map(x => x.expenses), backgroundColor: 'rgba(248,113,113,0.65)', borderColor: 'rgba(248,113,113,1)', borderWidth: 1 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
 
-            ceo.makeChart('chart-revenue-expenses', {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'Revenue', data: revenues, backgroundColor: 'rgba(16,185,129,0.65)', borderColor: 'rgba(16,185,129,1)', borderWidth: 1 },
-                        { label: 'Expenses', data: expenses, backgroundColor: 'rgba(248,113,113,0.65)', borderColor: 'rgba(248,113,113,1)', borderWidth: 1 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+                ceo.makeChart('chart-profit-trend', {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Profit',
+                            data: monthlyData.map(x => x.sales - x.expenses),
+                            borderColor: 'rgba(59,130,246,1)',
+                            backgroundColor: 'rgba(59,130,246,0.15)',
+                            fill: true,
+                            tension: 0.35
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
 
-            ceo.makeChart('chart-profit-trend', {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Profit',
-                        data: profits,
-                        borderColor: 'rgba(59,130,246,1)',
-                        backgroundColor: 'rgba(59,130,246,0.15)',
-                        fill: true,
-                        tension: 0.35
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const branches = ceo.getBranchComparisonRows();
-            document.getElementById('branch-table').innerHTML = branches.map(b => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${b.branch}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.revenue)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.expenses)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.profit)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(b.margin)}</td>
-                    <td class="px-6 py-4 text-center text-lg">${b.rank}</td>
-                </tr>
-            `).join('');
+            if (branchData && branchData.length > 0) {
+                document.getElementById('branch-table').innerHTML = branchData.map((b, i) => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${b.name}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.totalSales)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.totalExpenses)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.totalSales - b.totalExpenses)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(b.totalSales > 0 ? (b.totalSales - b.totalExpenses)/b.totalSales*100 : 0)}</td>
+                        <td class="px-6 py-4 text-center text-lg">#${i+1}</td>
+                    </tr>
+                `).join('');
+            }
 
             const alerts = ceo.readReports().slice(0, 1);
             const notifs = document.getElementById('notif-badge').textContent;

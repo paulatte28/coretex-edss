@@ -24,6 +24,7 @@ namespace coretex_finalproj.Controllers
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
             ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
             ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
+            ViewBag.Snapshot = await _analytics.GetDashboardSnapshotAsync(branchId);
             return View();
         }
 
@@ -38,8 +39,14 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> KpiProfitMargin()
         {
-            var data = await _analytics.GetMonthlyProfitLossAsync();
-            return View(data);
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
+            
+            // Get HQ threshold or first active
+            var threshold = await _context.KpiThresholds.FirstOrDefaultAsync(t => t.IsActive);
+            ViewBag.Threshold = threshold?.MinProfitMargin ?? 15m;
+
+            return View();
         }
 
         public async Task<IActionResult> KpiExpenseRatio()

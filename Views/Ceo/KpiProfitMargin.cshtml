@@ -67,58 +67,64 @@
             ceo.renderNav('profit-margin', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const kpi = ceo.getKpiSnapshot();
-            document.getElementById('current-margin').textContent = ceo.pct(kpi.profitMargin);
+            const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData));
+            const branchData = @Html.Raw(Json.Serialize(ViewBag.BranchData));
+            const threshold = @(ViewBag.Threshold ?? 15);
 
-            const thresholds = JSON.parse(localStorage.getItem('coretex_kpi_thresholds') || '{}');
-            const threshold = Number(thresholds.minProfitMargin || 15);
-            document.getElementById('threshold-text').textContent = `Threshold: ${threshold.toFixed(1)}%`;
+            if (monthlyData && monthlyData.length > 0) {
+                const latest = monthlyData[monthlyData.length - 1];
+                const profit = latest.sales - latest.expenses;
+                const margin = latest.sales > 0 ? (profit / latest.sales * 100) : 0;
+                
+                document.getElementById('current-margin').textContent = ceo.pct(margin);
+                document.getElementById('threshold-text').textContent = `Threshold: ${Number(threshold).toFixed(1)}%`;
 
-            const above = kpi.profitMargin >= threshold;
-            document.getElementById('margin-status').textContent = above ? '🟢 Above Threshold' : '🔴 Below Threshold';
-            document.getElementById('margin-status').className = `text-2xl font-black mt-2 ${above ? 'text-emerald-700' : 'text-red-700'}`;
+                const above = margin >= threshold;
+                document.getElementById('margin-status').textContent = above ? '🟢 Above Threshold' : '🔴 Below Threshold';
+                document.getElementById('margin-status').className = `text-2xl font-black mt-2 ${above ? 'text-emerald-700' : 'text-red-700'}`;
 
-            const trend = ceo.getProfitMarginTrend();
-            ceo.makeChart('chart-margin', {
-                type: 'line',
-                data: {
-                    labels: trend.map(x => x.month),
-                    datasets: [
-                        {
-                            label: 'Profit Margin',
-                            data: trend.map(x => x.margin),
-                            borderColor: 'rgba(16,185,129,1)',
-                            backgroundColor: 'rgba(16,185,129,0.15)',
-                            fill: true,
-                            tension: 0.35
-                        },
-                        {
-                            label: 'Threshold',
-                            data: trend.map(() => threshold),
-                            borderColor: 'rgba(239,68,68,1)',
-                            borderDash: [6, 6],
-                            pointRadius: 0,
-                            fill: false,
-                            tension: 0
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { ticks: { callback: value => `${value}%` } } }
-                }
-            });
+                ceo.makeChart('chart-margin', {
+                    type: 'line',
+                    data: {
+                        labels: monthlyData.map(x => x.month),
+                        datasets: [
+                            {
+                                label: 'Profit Margin',
+                                data: monthlyData.map(x => x.sales > 0 ? (x.sales - x.expenses)/x.sales*100 : 0),
+                                borderColor: 'rgba(16,185,129,1)',
+                                backgroundColor: 'rgba(16,185,129,0.15)',
+                                fill: true,
+                                tension: 0.35
+                            },
+                            {
+                                label: 'Threshold',
+                                data: monthlyData.map(() => threshold),
+                                borderColor: 'rgba(239,68,68,1)',
+                                borderDash: [6, 6],
+                                pointRadius: 0,
+                                fill: false,
+                                tension: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { ticks: { callback: value => `${value}%` } } }
+                    }
+                });
+            }
 
-            const rows = ceo.getBranchComparisonRows();
-            document.getElementById('branch-breakdown').innerHTML = rows.map(row => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${row.branch}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.revenue)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.expenses)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(row.margin)}</td>
-                </tr>
-            `).join('');
+            if (branchData && branchData.length > 0) {
+                document.getElementById('branch-breakdown').innerHTML = branchData.map(b => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${b.name}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.totalSales)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(b.totalExpenses)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(b.totalSales > 0 ? (b.totalSales - b.totalExpenses)/b.totalSales*100 : 0)}</td>
+                    </tr>
+                `).join('');
+            }
         });
     </script>
 }
