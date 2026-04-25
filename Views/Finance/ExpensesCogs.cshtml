@@ -34,7 +34,7 @@
                 </div>
 
                 <form id="cogs-form" class="p-8 space-y-6" autocomplete="off">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-2">
                             <label for="cogs-amount" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount</label>
                             <input id="cogs-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all" placeholder="0.00" />
@@ -47,6 +47,11 @@
                                 <option value="PHP">PHP</option>
                                 <option value="EUR">EUR</option>
                             </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="btn-refresh" type="button" class="w-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest py-3 px-4 rounded-xl hover:bg-slate-800 transition-all shadow-sm">
+                                Get Latest Rate
+                            </button>
                         </div>
                     </div>
 
@@ -134,6 +139,7 @@
 
             document.getElementById('cogs-currency').addEventListener('change', refreshConversion);
             document.getElementById('cogs-amount').addEventListener('input', refreshConversion);
+            document.getElementById('btn-refresh').addEventListener('click', refreshConversion);
             document.getElementById('cogs-form').addEventListener('submit', saveExpense);
 
             await loadSavedData();
@@ -176,7 +182,7 @@
             document.getElementById('rate-source').textContent = result.source;
         }
 
-        function saveExpense(event) {
+        async function saveExpense(event) {
             event.preventDefault();
 
             const flow = window.CoretexFinanceFlow;
@@ -188,6 +194,9 @@
                 alert('Amount is required and must be greater than 0.');
                 return;
             }
+
+            // Ensure conversion is fresh before saving
+            await refreshConversion();
 
             try {
                 const saved = await flow.saveExpense('cogs', {
