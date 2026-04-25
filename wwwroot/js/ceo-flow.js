@@ -611,24 +611,9 @@
     }
 
     async function fetchNews(category) {
-        const key = localStorage.getItem(KEYS.newsApiKey);
-
-        if (!key) {
-            return {
-                source: 'fallback',
-                articles: getNewsFallback(category)
-            };
-        }
-
         try {
-            let endpoint = '';
-            if (category === 'economy') {
-                endpoint = `https://newsapi.org/v2/everything?q=economy&language=en&pageSize=8&sortBy=publishedAt&apiKey=${encodeURIComponent(key)}`;
-            } else {
-                endpoint = `https://newsapi.org/v2/top-headlines?category=${encodeURIComponent(category)}&language=en&pageSize=8&apiKey=${encodeURIComponent(key)}`;
-            }
-
-            const response = await fetch(endpoint);
+            const response = await fetch(`/Ceo/GetLiveNews?category=${encodeURIComponent(category)}`);
+            
             if (!response.ok) throw new Error('News API request failed.');
             const data = await response.json();
 

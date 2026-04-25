@@ -53,46 +53,63 @@
             ceo.renderNav('forecast', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const history = ceo.getMonthSeries();
-            const forecast = ceo.getForecastRows();
+            const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData));
+            const forecastAmt = @(ViewBag.ForecastAmount ?? 0);
 
-            const labels = history.map(h => h.month).concat(forecast.map(f => f.month));
-            const historicalValues = history.map(h => h.revenue).concat(forecast.map(() => null));
-            const projectedValues = history.map(() => null).concat(forecast.map(f => f.projectedRevenue));
+            if (monthlyData && monthlyData.length > 0) {
+                const history = monthlyData.map(x => ({ month: x.month, revenue: x.sales }));
+                
+                // Construct 3-month simple projection based on the AI amount
+                const lastMonthStr = history[history.length - 1].month;
+                const forecast = [
+                    { month: "Next Month", projectedRevenue: forecastAmt, confidence: 85 },
+                    { month: "Month +2", projectedRevenue: forecastAmt * 1.05, confidence: 70 },
+                    { month: "Month +3", projectedRevenue: forecastAmt * 1.10, confidence: 55 }
+                ];
 
-            ceo.makeChart('chart-forecast', {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [
-                        {
-                            label: 'Historical Revenue',
-                            data: historicalValues,
-                            borderColor: 'rgba(59,130,246,1)',
-                            backgroundColor: 'rgba(59,130,246,0.15)',
-                            tension: 0.35,
-                            fill: true
-                        },
-                        {
-                            label: 'Projected Revenue',
-                            data: projectedValues,
-                            borderColor: 'rgba(16,185,129,1)',
-                            borderDash: [6, 6],
-                            tension: 0.35,
-                            fill: false
-                        }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+                const labels = history.map(h => h.month).concat(forecast.map(f => f.month));
+                const historicalValues = history.map(h => h.revenue).concat(forecast.map(() => null));
+                const projectedValues = history.map(() => null).concat(forecast.map(f => f.projectedRevenue));
 
-            document.getElementById('forecast-table').innerHTML = forecast.map(row => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${row.month}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.projectedRevenue)}</td>
-                    <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-black rounded-full">${row.confidence}%</span></td>
-                </tr>
-            `).join('');
+                // Bridge the gap for visualization
+                if (historicalValues.length > 0 && projectedValues.length > history.length) {
+                    projectedValues[history.length - 1] = historicalValues[history.length - 1];
+                }
+
+                ceo.makeChart('chart-forecast', {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'Historical Revenue',
+                                data: historicalValues,
+                                borderColor: 'rgba(59,130,246,1)',
+                                backgroundColor: 'rgba(59,130,246,0.15)',
+                                tension: 0.35,
+                                fill: true
+                            },
+                            {
+                                label: 'Projected Revenue',
+                                data: projectedValues,
+                                borderColor: 'rgba(16,185,129,1)',
+                                borderDash: [6, 6],
+                                tension: 0.35,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                document.getElementById('forecast-table').innerHTML = forecast.map(row => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${row.month}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.projectedRevenue)}</td>
+                        <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-black rounded-full">${row.confidence}%</span></td>
+                    </tr>
+                `).join('');
+            }
         });
     </script>
 }

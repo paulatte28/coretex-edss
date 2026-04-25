@@ -31,7 +31,8 @@ namespace coretex_finalproj.Controllers
             if (sale == null) return BadRequest("Invalid sale data.");
 
             // Get the logged-in user's branch
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             if (user == null || user.BranchId == null) return BadRequest("User not assigned to a branch.");
 
             // Auto-Generate Order ID (CTX-YYYY-XXXX)

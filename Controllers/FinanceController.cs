@@ -54,7 +54,8 @@ namespace coretex_finalproj.Controllers
             if (expense == null) return BadRequest("Invalid expense data.");
 
             // Get the logged-in user's branch
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             if (user == null || user.BranchId == null) return BadRequest("User not assigned to a branch.");
             
             expense.BranchId = user.BranchId.Value;
@@ -131,7 +132,8 @@ namespace coretex_finalproj.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitMonth(int year, int month, string notes)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
 
             // Check if already submitted

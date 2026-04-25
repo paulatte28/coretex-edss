@@ -1,16 +1,22 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace coretex_finalproj.Controllers
 {
     [Authorize(Roles = "CEO")]
     public class CeoController : Controller
     {
+        private readonly Data.ApplicationDbContext _context;
         private readonly Services.AnalyticsService _analytics;
+        private readonly Services.NewsService _news;
 
-        public CeoController(Services.AnalyticsService analytics)
+        public CeoController(Data.ApplicationDbContext context, Services.AnalyticsService analytics, Services.NewsService news)
         {
+            _context = context;
             _analytics = analytics;
+            _news = news;
         }
 
         public IActionResult Index()
@@ -38,6 +44,14 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> GetExpenseAnalytics(Guid? branchId) => Json(await _analytics.GetExpenseCategoriesAsync(branchId));
 
+        [HttpGet]
+        public async Task<IActionResult> GetLiveNews(string category)
+        {
+            var newsJson = await _news.GetLiveNewsAsync(category);
+            if (string.IsNullOrEmpty(newsJson)) return BadRequest();
+            return Content(newsJson, "application/json");
+        }
+
         public async Task<IActionResult> KpiProfitMargin()
         {
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
@@ -52,13 +66,16 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> KpiExpenseRatio()
         {
-            var data = await _analytics.GetExpenseCategoriesAsync();
-            return View(data);
+            ViewBag.Snapshot = await _analytics.GetDashboardSnapshotAsync();
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
+            return View();
         }
 
         public async Task<IActionResult> AnalyticsForecast()
         {
-            ViewBag.Forecast = await _analytics.GetSalesForecastAsync(null);
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.ForecastAmount = await _analytics.GetSalesForecastAsync(null);
             return View();
         }
 

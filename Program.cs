@@ -22,6 +22,7 @@ builder.Services.AddScoped<AuditLoggingService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<SummaryProcessingService>();
 builder.Services.AddScoped<ExchangeRateService>();
+builder.Services.AddScoped<NewsService>();
 
 builder.Services
     .AddDefaultIdentity<AppUser>(options =>

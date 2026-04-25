@@ -47,43 +47,50 @@
             ceo.renderNav('expense-ratio', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const kpi = ceo.getKpiSnapshot();
-            const ratio = (kpi.totalExpenses / kpi.totalRevenue) * 100;
-            document.getElementById('current-ratio').textContent = ceo.pct(ratio);
+            const snapshot = @Html.Raw(Json.Serialize(ViewBag.Snapshot));
+            const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData));
+            const expenseData = @Html.Raw(Json.Serialize(ViewBag.ExpenseData));
 
-            const breakdown = ceo.getExpenseBreakdownCurrent();
-            ceo.makeChart('chart-donut', {
-                type: 'doughnut',
-                data: {
-                    labels: ['COGS', 'Rent', 'Salaries', 'Utilities'],
-                    datasets: [{
-                        data: [breakdown.cogs, breakdown.rent, breakdown.salaries, breakdown.utilities],
-                        backgroundColor: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            if (snapshot) {
+                const ratio = snapshot.totalRevenue > 0 ? (snapshot.totalExpenses / snapshot.totalRevenue * 100) : 0;
+                document.getElementById('current-ratio').textContent = ceo.pct(ratio);
+            }
 
-            const trend = ceo.getExpenseRatioTrend();
-            ceo.makeChart('chart-trend', {
-                type: 'line',
-                data: {
-                    labels: trend.map(x => x.month),
-                    datasets: [{
-                        label: 'Expense Ratio',
-                        data: trend.map(x => x.ratio),
-                        borderColor: 'rgba(59,130,246,1)',
-                        backgroundColor: 'rgba(59,130,246,0.15)',
-                        fill: true,
-                        tension: 0.35
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { ticks: { callback: value => `${value}%` } } }
-                }
-            });
+            if (expenseData && expenseData.length > 0) {
+                ceo.makeChart('chart-donut', {
+                    type: 'doughnut',
+                    data: {
+                        labels: expenseData.map(x => x.category),
+                        datasets: [{
+                            data: expenseData.map(x => x.amount),
+                            backgroundColor: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#6366f1']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            if (monthlyData && monthlyData.length > 0) {
+                ceo.makeChart('chart-trend', {
+                    type: 'line',
+                    data: {
+                        labels: monthlyData.map(x => x.month),
+                        datasets: [{
+                            label: 'Expense Ratio',
+                            data: monthlyData.map(x => x.sales > 0 ? (x.expenses / x.sales * 100) : 0),
+                            borderColor: 'rgba(59,130,246,1)',
+                            backgroundColor: 'rgba(59,130,246,0.15)',
+                            fill: true,
+                            tension: 0.35
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { ticks: { callback: value => `${value}%` } } }
+                    }
+                });
+            }
         });
     </script>
 }
