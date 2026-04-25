@@ -16,6 +16,8 @@ namespace coretex_finalproj.Models
         [DataType(DataType.Currency)]
         public decimal Amount { get; set; }
 
+        public string Currency { get; set; } = "PHP";
+
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
         public Guid BranchId { get; set; }

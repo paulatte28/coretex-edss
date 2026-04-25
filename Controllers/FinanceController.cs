@@ -12,11 +12,13 @@ namespace coretex_finalproj.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly AuditLoggingService _auditLog;
+        private readonly ExchangeRateService _exchangeRateService;
 
-        public FinanceController(ApplicationDbContext context, AuditLoggingService auditLog)
+        public FinanceController(ApplicationDbContext context, AuditLoggingService auditLog, ExchangeRateService exchangeRateService)
         {
             _context = context;
             _auditLog = auditLog;
+            _exchangeRateService = exchangeRateService;
         }
 
         public IActionResult Index()
@@ -47,17 +49,47 @@ namespace coretex_finalproj.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateExpense(Expense expense)
+        public async Task<IActionResult> CreateExpense([FromBody] Expense expense)
         {
+            if (expense == null) return BadRequest("Invalid expense data.");
+
+            // Get the logged-in user's branch
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            if (user == null || user.BranchId == null) return BadRequest("User not assigned to a branch.");
+            
+            expense.BranchId = user.BranchId.Value;
+
             if (ModelState.IsValid)
             {
+                // Convert to PHP if necessary before saving
+                if (expense.Currency != "PHP")
+                {
+                    decimal convertedAmount = await _exchangeRateService.ConvertToPhpAsync(expense.Currency, expense.Amount);
+                    // Add an audit note about the conversion
+                    await _auditLog.LogActivityAsync("CURRENCY_CONVERSION", $"Converted {expense.Amount:C} {expense.Currency} to {convertedAmount:C} PHP for Expense: {expense.Description}");
+                    
+                    expense.Amount = convertedAmount;
+                    expense.Currency = "PHP"; // Save as normalized PHP
+                }
+
                 _context.Expenses.Add(expense);
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("EXPENSE_CREATE", $"Created expense: {expense.Description} for {expense.Amount:C}");
-                return RedirectToAction(nameof(Submissions));
+                await _auditLog.LogActivityAsync("EXPENSE_CREATE", $"Created expense: {expense.Description} for {expense.Amount:C} PHP");
+                return Json(new { success = true, id = expense.Id, amount = expense.Amount });
             }
-            return View(expense);
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        [HttpGet]
+        [AllowAnonymous] // Allow frontend script to fetch without antiforgery token issues easily
+        public async Task<IActionResult> GetExchangeRate(string currency)
+        {
+            if (string.IsNullOrEmpty(currency) || currency.ToUpper() == "PHP")
+                return Json(new { rate = 1.0 });
+
+            // Using $1 to trick our service to just get the raw rate
+            decimal rate = await _exchangeRateService.ConvertToPhpAsync(currency, 1.0m);
+            return Json(new { rate = rate });
         }
 
         [HttpPost]
@@ -96,5 +128,49 @@ namespace coretex_finalproj.Controllers
         public IActionResult Submit() => View();
         public IActionResult EditSubmission() => View();
         public IActionResult Submissions() => View();
+        [HttpPost]
+        public async Task<IActionResult> SubmitMonth(int year, int month, string notes)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
+
+            // Check if already submitted
+            var existing = await _context.BranchSubmissions
+                .AnyAsync(s => s.BranchId == user.BranchId && s.SubmissionYear == year && s.SubmissionMonth == month);
+            
+            if (existing) return BadRequest("Month already submitted.");
+
+            // Calculate totals from database
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1);
+
+            var totalSales = await _context.Sales
+                .Where(s => s.BranchId == user.BranchId && s.Date >= startDate && s.Date < endDate && !s.IsArchived)
+                .SumAsync(s => s.Amount);
+
+            var totalExpenses = await _context.Expenses
+                .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived)
+                .SumAsync(e => e.Amount);
+
+            var submission = new BranchSubmission
+            {
+                BranchId = user.BranchId.Value,
+                SubmissionYear = year,
+                SubmissionMonth = month,
+                SubmittedByUserId = user.Id,
+                SubmittedAt = DateTime.Now,
+                SalesRevenue = totalSales,
+                Expenses = totalExpenses,
+                Status = "Submitted",
+                Notes = notes ?? ""
+            };
+
+            _context.BranchSubmissions.Add(submission);
+            await _context.SaveChangesAsync();
+
+            await _auditLog.LogActivityAsync("MONTH_SUBMIT", $"Finalized submission for {year}-{month:D2}. Revenue: {totalSales:C}, Expenses: {totalExpenses:C}");
+
+            return Json(new { success = true, submissionId = submission.Id });
+        }
     }
 }

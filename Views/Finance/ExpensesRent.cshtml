@@ -168,7 +168,7 @@
             }
 
             try {
-                const saved = flow.saveExpense('rent', {
+                const saved = await flow.saveExpense('rent', {
                     amount: amount,
                     originalAmount: amount,
                     currency: currency,

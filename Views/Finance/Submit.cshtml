@@ -192,13 +192,13 @@
             modal.classList.remove('flex');
         }
 
-        function confirmSubmission() {
+        async function confirmSubmission() {
             const flow = window.CoretexFinanceFlow;
             const button = document.getElementById('confirm-btn');
             button.disabled = true;
 
             try {
-                const result = flow.submitMonth(monthKey);
+                const result = await flow.submitMonth(monthKey);
 
                 document.getElementById('success-panel').classList.remove('hidden');
                 document.getElementById('success-main').textContent = `✅ Data submitted successfully for ${result.monthLabel}.`;

@@ -26,18 +26,19 @@ namespace coretex_finalproj.Services
             var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
             
             // Try to find BranchId from claims
-            var branchIdClaim = user?.FindFirstValue("BranchId");
             Guid branchId = Guid.Empty;
-            if (Guid.TryParse(branchIdClaim, out Guid bId))
+            var branchIdClaim = user?.FindFirstValue("BranchId");
+            if (!string.IsNullOrEmpty(branchIdClaim) && Guid.TryParse(branchIdClaim, out Guid bId))
             {
                 branchId = bId;
             }
 
-            // Fallback to Main Branch if not set and user is authenticated
-            if (branchId == Guid.Empty && user?.Identity?.IsAuthenticated == true)
+            // Fallback: If no branch from claims (e.g. login failure or anonymous), use MAIN or first available branch
+            if (branchId == Guid.Empty)
             {
-                 var mainBranch = _context.Branches.FirstOrDefault(b => b.BranchCode == "MAIN");
-                 if (mainBranch != null) branchId = mainBranch.Id;
+                 var branch = _context.Branches.FirstOrDefault(b => b.BranchCode == "MAIN") 
+                            ?? _context.Branches.FirstOrDefault();
+                 if (branch != null) branchId = branch.Id;
             }
 
             var role = user?.FindFirstValue(ClaimTypes.Role) ?? "Member";

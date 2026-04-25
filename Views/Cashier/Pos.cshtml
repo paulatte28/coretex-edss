@@ -1,3 +1,4 @@
+@model IEnumerable<coretex_finalproj.Models.Sale>
 @{
     ViewData["Title"] = "Cashier POS";
     Layout = "_AdminLayout";
@@ -237,45 +238,71 @@
             };
         }
 
-        function saveTransaction(mode) {
+        async function saveTransaction(mode) {
             const parsed = validateForm();
             if (!parsed) return;
 
-            const timestamp = new Date().toISOString();
-            const transactionId = generateTransactionId();
+            const saveBtn = document.getElementById(mode === 'clear' ? 'save-and-clear' : 'save-and-add');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> Saving...';
 
-            const transaction = {
-                id: transactionId,
-                transactionId,
-                productName: parsed.productName,
-                quantity: parsed.quantity,
-                unitPrice: parsed.unitPrice,
-                lineTotal: parsed.lineTotal,
-                cashierId: currentCashier.id || 'cashier_demo',
-                cashierName: currentCashier.name || 'Demo Cashier',
-                branchId: currentBranch.id || 'branch_default',
-                branchName: currentBranch.name || 'Davao Main',
-                timestamp
-            };
+            try {
+                const response = await fetch('/Cashier/CreateSale', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        productName: parsed.productName,
+                        quantity: parsed.quantity,
+                        unitPrice: parsed.unitPrice,
+                        amount: parsed.lineTotal,
+                        customerName: "Walk-in Customer"
+                    })
+                });
 
-            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
-            all.unshift(transaction);
-            localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(all.slice(0, 1000)));
+                const result = await response.json();
 
-            showToast(`Transaction saved! ${formatCurrency(parsed.lineTotal)}`);
-            renderTodaySummary();
-            loadSuggestions();
+                if (result.success) {
+                    showToast(`Success! Order ${result.orderId} saved to database.`);
+                    
+                    // We can still keep a local log for immediate UI response if we want, 
+                    // but the source of truth is now SQL.
+                    const transaction = {
+                        transactionId: result.orderId,
+                        productName: parsed.productName,
+                        quantity: parsed.quantity,
+                        unitPrice: parsed.unitPrice,
+                        lineTotal: parsed.lineTotal,
+                        timestamp: new Date().toISOString()
+                    };
 
-            if (mode === 'clear') {
-                clearForm();
-                document.getElementById('product-name').focus();
-                return;
+                    const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
+                    all.unshift(transaction);
+                    localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(all.slice(0, 1000)));
+
+                    renderTodaySummary();
+                    loadSuggestions();
+
+                    if (mode === 'clear') {
+                        clearForm();
+                        document.getElementById('product-name').focus();
+                    } else {
+                        document.getElementById('quantity').value = '1';
+                        updateLineTotal();
+                        document.getElementById('quantity').focus();
+                        document.getElementById('quantity').select();
+                    }
+                } else {
+                    alert('Error: ' + (result.errors ? result.errors.join(', ') : 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('POS Save Error:', error);
+                alert('Could not connect to the server. Transaction not saved.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = mode === 'clear' ? 'Save Transaction' : 'Save & Add Another';
             }
-
-            document.getElementById('quantity').value = '1';
-            updateLineTotal();
-            document.getElementById('quantity').focus();
-            document.getElementById('quantity').select();
         }
 
         function clearForm() {

@@ -26,22 +26,29 @@ namespace coretex_finalproj.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateSale(Sale sale)
+        public async Task<IActionResult> CreateSale([FromBody] Sale sale)
         {
+            if (sale == null) return BadRequest("Invalid sale data.");
+
+            // Get the logged-in user's branch
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            if (user == null || user.BranchId == null) return BadRequest("User not assigned to a branch.");
+
             // Auto-Generate Order ID (CTX-YYYY-XXXX)
             var count = await _context.Sales.CountAsync() + 1;
             sale.OrderId = $"CTX-{DateTime.Now.Year}-{count:D4}";
             sale.Date = DateTime.Now;
+            sale.BranchId = user.BranchId.Value;
 
             if (ModelState.IsValid)
             {
                 _context.Sales.Add(sale);
                 await _context.SaveChangesAsync();
                 await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}");
-                return RedirectToAction(nameof(Pos));
+                return Json(new { success = true, orderId = sale.OrderId, amount = sale.Amount });
             }
-            return View(nameof(Pos), await _context.Sales.Where(s => s.Date >= DateTime.Today && !s.IsArchived).ToListAsync());
+
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
         [HttpPost]

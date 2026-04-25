@@ -290,6 +290,63 @@ namespace coretex_finalproj.Controllers
                 .ToListAsync();
             return View(logs);
         }
+        // --- Strategic Goals & KPI Backend ---
+
+        [HttpPost]
+        public async Task<IActionResult> SaveKpiThreshold([FromBody] KpiThreshold threshold)
+        {
+            if (threshold == null) return BadRequest();
+
+            var existing = await _context.KpiThresholds
+                .FirstOrDefaultAsync(t => t.BranchId == threshold.BranchId && t.IsActive);
+
+            if (existing != null)
+            {
+                existing.MinProfitMargin = threshold.MinProfitMargin;
+                existing.MaxExpenseRatio = threshold.MaxExpenseRatio;
+                existing.MinMonthlyProfit = threshold.MinMonthlyProfit;
+                existing.RiskAlertLevel = threshold.RiskAlertLevel;
+                _context.KpiThresholds.Update(existing);
+            }
+            else
+            {
+                _context.KpiThresholds.Add(threshold);
+            }
+
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("KPI_CONFIG", "Updated strategic KPI safety thresholds for the company.");
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveGoalTarget([FromBody] GoalTarget goal)
+        {
+            if (goal == null) return BadRequest();
+
+            if (goal.Id == Guid.Empty) goal.Id = Guid.NewGuid();
+            
+            var existing = await _context.GoalTargets.FindAsync(goal.Id);
+            if (existing != null)
+            {
+                _context.Entry(existing).CurrentValues.SetValues(goal);
+            }
+            else
+            {
+                _context.GoalTargets.Add(goal);
+            }
+
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("GOAL_CREATE", $"Set strategic {goal.MetricName} target: {goal.TargetValue}");
+            return Json(new { success = true, id = goal.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetKpiThresholds(Guid branchId)
+        {
+            var threshold = await _context.KpiThresholds
+                .FirstOrDefaultAsync(t => t.BranchId == branchId && t.IsActive);
+            return Json(threshold);
+        }
     }
 }
 

@@ -190,7 +190,7 @@
             }
 
             try {
-                const saved = flow.saveExpense('cogs', {
+                const saved = await flow.saveExpense('cogs', {
                     originalAmount: amount,
                     currency,
                     exchangeRate: currentRate,

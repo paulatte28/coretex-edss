@@ -363,7 +363,7 @@
         return changes;
     }
 
-    function saveExpense(category, payload, options) {
+    async function saveExpense(category, payload, options) {
         if (!CATEGORY_LABELS[category]) {
             throw new Error('Unknown expense category.');
         }
@@ -379,65 +379,62 @@
             throw new Error(`Expenses are locked for ${formatMonthLabel(monthKey)}. Use Edit Submitted Data.`);
         }
 
-        const expenses = readArray(STORAGE_KEYS.expenses);
-        const index = expenses.findIndex(item => item.monthKey === monthKey && item.branchId === branchId && item.category === category && !item.deleted);
-        const existing = index >= 0 ? expenses[index] : null;
-
         const normalized = normalizeExpensePayload(category, payload || {});
-        const nowIso = new Date().toISOString();
 
-        const record = {
-            id: existing ? existing.id : uid('finexp'),
-            monthKey,
-            category,
-            currency: normalized.currency,
-            exchangeRate: normalized.exchangeRate,
-            originalAmount: normalized.originalAmount,
-            amountPHP: normalized.amountPHP,
-            description: normalized.description,
-            notes: normalized.notes,
-            branchId,
-            branchName,
-            financeOfficerId: context.financeOfficer.id,
-            financeOfficerName: context.financeOfficer.name,
-            createdAt: existing ? existing.createdAt : nowIso,
-            updatedAt: nowIso
-        };
-
-        const changes = diffExpense(existing, record);
-
-        if (existing) {
-            expenses[index] = record;
-        } else {
-            expenses.unshift(record);
-        }
-
-        write(STORAGE_KEYS.expenses, expenses.slice(0, 2000));
-
-        if (changes.length > 0) {
-            const action = existing ? 'Expense Updated' : 'Expense Created';
-            const details = `${CATEGORY_LABELS[category]} for ${formatMonthLabel(monthKey)} (${formatCurrency(record.amountPHP)})`;
-            logActivity(action, details, 'finance', context.financeOfficer.name);
-
-            changes.forEach(change => {
-                logAudit({
-                    user: context.financeOfficer.name,
-                    module: 'Finance Expenses',
-                    action,
-                    fieldChanged: `${CATEGORY_LABELS[category]} - ${change.field}`,
-                    oldValue: change.oldValue,
-                    newValue: change.newValue,
-                    recordId: record.id,
-                    details: reason ? `Reason: ${reason}` : ''
-                });
+        // CALL BACKEND
+        try {
+            const response = await fetch('/Finance/CreateExpense', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    description: normalized.description || `Monthly ${CATEGORY_LABELS[category]}`,
+                    category: CATEGORY_LABELS[category],
+                    amount: normalized.originalAmount,
+                    currency: normalized.currency,
+                    date: new Date().toISOString()
+                })
             });
-        }
 
-        return {
-            record,
-            changes,
-            created: !existing
-        };
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.errors ? result.errors.join(', ') : 'Server failed to save expense.');
+            }
+            
+            // If successful, we can also sync to localStorage for the "Summary Table" legacy views 
+            // if you want to keep them working without a full page refresh.
+            const expenses = readArray(STORAGE_KEYS.expenses);
+            const index = expenses.findIndex(item => item.monthKey === monthKey && item.branchId === branchId && item.category === category && !item.deleted);
+            const existing = index >= 0 ? expenses[index] : null;
+
+            const record = {
+                id: result.id || (existing ? existing.id : uid('finexp')),
+                monthKey,
+                category,
+                currency: normalized.currency,
+                exchangeRate: normalized.exchangeRate,
+                originalAmount: normalized.originalAmount,
+                amountPHP: result.amount || normalized.amountPHP,
+                description: normalized.description,
+                notes: normalized.notes,
+                branchId,
+                branchName,
+                createdAt: existing ? existing.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (existing) {
+                expenses[index] = record;
+            } else {
+                expenses.unshift(record);
+            }
+
+            write(STORAGE_KEYS.expenses, expenses.slice(0, 2000));
+            return { record, created: !existing };
+
+        } catch (error) {
+            console.error('Expense Save Error:', error);
+            throw new Error('Database Error: ' + error.message);
+        }
     }
 
     function upsertSubmission(submission) {
@@ -569,7 +566,7 @@
         return breaches;
     }
 
-    function submitMonth(monthKey) {
+    async function submitMonth(monthKey) {
         const context = getContext();
         const branchId = context.branch.id;
         const existing = getSubmission(monthKey, branchId);
@@ -578,64 +575,61 @@
             throw new Error(`Data for ${formatMonthLabel(monthKey)} is already submitted and locked.`);
         }
 
-        const snapshot = getSnapshot(monthKey, branchId);
-        const nowIso = new Date().toISOString();
+        const [year, month] = monthKey.split('-').map(Number);
+        
+        try {
+            const response = await fetch('/Finance/SubmitMonth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    year,
+                    month,
+                    notes: 'Submitted via Coretex Finance Flow'
+                })
+            });
 
-        const submission = {
-            id: existing ? existing.id : uid('submission'),
-            month: monthKey,
-            branchId,
-            branchName: context.branch.name,
-            financeOfficerId: context.financeOfficer.id,
-            financeOfficerName: context.financeOfficer.name,
-            totalSales: snapshot.totalRevenue,
-            totalExpenses: snapshot.expenses.total,
-            netProfit: snapshot.netProfit,
-            totalTransactionCount: snapshot.totalTransactions,
-            topProduct: snapshot.topProduct,
-            status: 'Submitted',
-            locked: true,
-            submittedAt: existing ? existing.submittedAt : nowIso,
-            updatedAt: nowIso,
-            editWindowUntil: existing ? existing.editWindowUntil : new Date(Date.now() + (48 * 60 * 60 * 1000)).toISOString(),
-            adminUnlocked: Boolean(existing && existing.adminUnlocked),
-            summarySnapshot: snapshot
-        };
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error('Server failed to finalize submission.');
+            }
 
-        upsertSubmission(submission);
-        upsertSummaryTables(submission, snapshot);
+            // Sync localStorage for immediate UI update
+            const snapshot = getSnapshot(monthKey, branchId);
+            const nowIso = new Date().toISOString();
 
-        const action = existing ? 'Submission Updated' : 'Submission Created';
-        logActivity(action, `${formatMonthLabel(monthKey)} data submitted for ${context.branch.name}.`, 'submission', context.financeOfficer.name);
+            const submission = {
+                id: result.submissionId || uid('submission'),
+                month: monthKey,
+                branchId,
+                branchName: context.branch.name,
+                financeOfficerId: context.financeOfficer.id,
+                financeOfficerName: context.financeOfficer.name,
+                totalSales: snapshot.totalRevenue,
+                totalExpenses: snapshot.expenses.total,
+                netProfit: snapshot.netProfit,
+                totalTransactionCount: snapshot.totalTransactions,
+                topProduct: snapshot.topProduct,
+                status: 'Submitted',
+                locked: true,
+                submittedAt: nowIso,
+                updatedAt: nowIso,
+                editWindowUntil: new Date(Date.now() + (48 * 60 * 60 * 1000)).toISOString(),
+                summarySnapshot: snapshot
+            };
 
-        logAudit({
-            user: context.financeOfficer.name,
-            module: 'Finance Submission',
-            action,
-            fieldChanged: 'status',
-            oldValue: existing ? (existing.status || 'Draft') : 'Not Submitted',
-            newValue: 'Submitted',
-            recordId: submission.id,
-            details: `Phase 5 EDSS processing triggered for ${formatMonthLabel(monthKey)}.`
-        });
+            upsertSubmission(submission);
+            upsertSummaryTables(submission, snapshot);
 
-        const breaches = evaluateKpiBreaches(submission, snapshot);
+            return {
+                submission,
+                snapshot,
+                monthLabel: formatMonthLabel(monthKey)
+            };
 
-        if (breaches.length > 0) {
-            logActivity(
-                'Threshold Alert Triggered',
-                `KPI threshold breached for ${formatMonthLabel(monthKey)}. Twilio SMS alert sent to CEO (simulated).`,
-                'submission',
-                context.financeOfficer.name
-            );
+        } catch (error) {
+            console.error('Submission Error:', error);
+            throw new Error('Database Error: ' + error.message);
         }
-
-        return {
-            submission,
-            snapshot,
-            breaches,
-            monthLabel: formatMonthLabel(monthKey)
-        };
     }
 
     function getEditDiff(monthKey, edits, branchId) {
@@ -808,19 +802,21 @@
         }
 
         try {
-            const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${clean}`);
+            // Securely call our own backend API instead of the public one
+            const response = await fetch(`/Finance/GetExchangeRate?currency=${clean}`);
             if (!response.ok) {
-                throw new Error('Failed to load exchange rate.');
+                throw new Error('Failed to load secure exchange rate from backend.');
             }
 
             const data = await response.json();
-            const rate = toNumber(data && data.rates ? data.rates.PHP : 0);
+            const rate = toNumber(data && data.rate ? data.rate : 0);
             if (!rate) {
-                throw new Error('Missing PHP conversion rate.');
+                throw new Error('Missing conversion rate from backend.');
             }
 
-            return { rate: toMoney(rate), source: 'live' };
+            return { rate: toMoney(rate), source: 'Live Server API' };
         } catch (_error) {
+            console.error('Exchange Rate Error:', _error);
             return { rate: toMoney(FALLBACK_RATES[clean] || FALLBACK_RATES.USD), source: 'cached' };
         }
     }
