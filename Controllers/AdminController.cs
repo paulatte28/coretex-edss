@@ -43,14 +43,23 @@ namespace coretex_finalproj.Controllers
             ViewBag.TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount);
             ViewBag.ForecastRevenue = await _analytics.GetSalesForecastAsync(branchId);
 
-            // Backend #5: Strategic Alert Scanning
+            // Backend #5: Strategic Alert Scanning (Upgraded to use Database Thresholds)
             var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             var highRiskList = new List<string>();
+            
             foreach(var b in branches)
             {
                 var rev = await _context.Sales.Where(s => !s.IsArchived && s.BranchId == b.Id).SumAsync(s => s.Amount);
                 var exp = await _context.Expenses.Where(e => !e.IsArchived && e.BranchId == b.Id).SumAsync(e => e.Amount);
-                if(rev > 0 && (exp/rev) > 0.8m) highRiskList.Add(b.Name);
+                
+                // Fetch specific threshold for this branch, or use default (80%)
+                var threshold = await _context.KpiThresholds.FirstOrDefaultAsync(t => t.BranchId == b.Id && t.IsActive);
+                decimal maxRatio = threshold != null ? (threshold.MaxExpenseRatio / 100m) : 0.8m;
+
+                if(rev > 0 && (exp/rev) > maxRatio) 
+                {
+                    highRiskList.Add(b.Name);
+                }
             }
             ViewBag.HighRiskAlerts = highRiskList;
 

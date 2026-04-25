@@ -36,53 +36,64 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> GetExpenseAnalytics(Guid? branchId) => Json(await _analytics.GetExpenseCategoriesAsync(branchId));
 
-        public IActionResult KpiProfitMargin()
+        public async Task<IActionResult> KpiProfitMargin()
         {
+            var data = await _analytics.GetMonthlyProfitLossAsync();
+            return View(data);
+        }
+
+        public async Task<IActionResult> KpiExpenseRatio()
+        {
+            var data = await _analytics.GetExpenseCategoriesAsync();
+            return View(data);
+        }
+
+        public async Task<IActionResult> AnalyticsForecast()
+        {
+            ViewBag.Forecast = await _analytics.GetSalesForecastAsync(null);
             return View();
         }
 
-        public IActionResult KpiExpenseRatio()
+        public async Task<IActionResult> AnalyticsExpenseTrend()
         {
+            var data = await _analytics.GetExpenseCategoriesAsync();
+            return View(data);
+        }
+
+        public async Task<IActionResult> KpiRiskScore()
+        {
+            var snapshot = await _analytics.GetDashboardSnapshotAsync();
+            return View(snapshot);
+        }
+
+        public async Task<IActionResult> AnalyticsHealthSummary()
+        {
+            var snapshot = await _analytics.GetDashboardSnapshotAsync();
+            return View(snapshot);
+        }
+
+        public async Task<IActionResult> BranchesCompare()
+        {
+            var data = await _analytics.GetBranchPerformanceAsync();
+            return View(data);
+        }
+
+        public async Task<IActionResult> AnalyticsMom()
+        {
+            var data = await _analytics.GetMonthlyProfitLossAsync();
+            return View(data);
+        }
+
+        public async Task<IActionResult> Charts()
+        {
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
             return View();
         }
 
-        public IActionResult AnalyticsForecast()
+        public async Task<IActionResult> AnalyticsPredictive()
         {
-            return View();
-        }
-
-        public IActionResult AnalyticsExpenseTrend()
-        {
-            return View();
-        }
-
-        public IActionResult KpiRiskScore()
-        {
-            return View();
-        }
-
-        public IActionResult AnalyticsHealthSummary()
-        {
-            return View();
-        }
-
-        public IActionResult BranchesCompare()
-        {
-            return View();
-        }
-
-        public IActionResult AnalyticsMom()
-        {
-            return View();
-        }
-
-        public IActionResult Charts()
-        {
-            return View();
-        }
-
-        public IActionResult AnalyticsPredictive()
-        {
+            ViewBag.Forecast = await _analytics.GetSalesForecastAsync(null);
             return View();
         }
 
@@ -93,12 +104,12 @@ namespace coretex_finalproj.Controllers
 
         public IActionResult ReportsGenerate()
         {
-            return View();
+            return RedirectToAction("ReportSchedule", "Admin");
         }
 
         public IActionResult Reports()
         {
-            return View();
+            return RedirectToAction("BranchSubmissions", "Admin");
         }
     }
 }
