@@ -8,7 +8,19 @@
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight">CEO Dashboard</h2>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">KPI summary, interactive charts, branch comparisons, and risk alerts</p>
+                <div class="flex items-center gap-3 mt-2">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Active Intelligence Feed</p>
+                    <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <form method="get" action="/ceo/dashboard" class="flex items-center gap-2">
+                        <select name="branchId" onchange="this.form.submit()" class="bg-slate-50 border-none text-[10px] font-black uppercase tracking-widest text-indigo-600 rounded-lg focus:ring-0 cursor-pointer py-1 px-2">
+                            <option value="">All Branches (HQ)</option>
+                            @foreach(var b in (List<coretex_finalproj.Models.Branch>)ViewBag.Branches)
+                            {
+                                <option value="@b.Id" selected="@(ViewBag.SelectedBranchId == b.Id)">@b.Name</option>
+                            }
+                        </select>
+                    </form>
+                </div>
             </div>
             <div class="relative">
                 <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">

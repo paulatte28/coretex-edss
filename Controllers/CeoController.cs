@@ -21,6 +21,7 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> Dashboard(Guid? branchId)
         {
             ViewBag.SelectedBranchId = branchId;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
             ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
             ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);

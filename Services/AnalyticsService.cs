@@ -30,13 +30,22 @@ namespace coretex_finalproj.Services
             var sales = await salesQuery.SumAsync(s => s.Amount);
             var expenses = await expensesQuery.SumAsync(e => e.Amount);
             var profit = sales - expenses;
-            var riskLevel = profit < 0 ? "Critical" : profit < 50000 ? "Warning" : "Healthy";
+            var margin = sales > 0 ? (profit / sales) * 100 : 0;
+
+            // Fetch dynamic threshold from DB
+            var threshold = await _context.KpiThresholds.FirstOrDefaultAsync(t => t.IsActive);
+            var minMargin = threshold?.MinProfitMargin ?? 15m;
+            
+            var riskLevel = "Healthy";
+            if (margin < minMargin) riskLevel = "Warning";
+            if (profit < 0) riskLevel = "Critical";
 
             return new DashboardSnapshot
             {
                 TotalRevenue = sales,
                 TotalExpenses = expenses,
                 NetProfit = profit,
+                ProfitMargin = margin,
                 RiskLevel = riskLevel
             };
         }
@@ -126,6 +135,7 @@ namespace coretex_finalproj.Services
         public decimal TotalRevenue { get; set; }
         public decimal TotalExpenses { get; set; }
         public decimal NetProfit { get; set; }
+        public decimal ProfitMargin { get; set; }
         public string RiskLevel { get; set; } = "Healthy";
     }
 }
