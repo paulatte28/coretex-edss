@@ -84,5 +84,41 @@ namespace coretex_finalproj.Controllers
             var sales = await query.OrderByDescending(s => s.Date).ToListAsync();
             return View(sales);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetDailySummary(DateTime date)
+        {
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
+
+            var startDate = date.Date;
+            var endDate = startDate.AddDays(1);
+
+            var sales = await _context.Sales
+                .Where(s => s.BranchId == user.BranchId && s.Date >= startDate && s.Date < endDate && !s.IsArchived)
+                .OrderByDescending(s => s.Date)
+                .ToListAsync();
+
+            var totalSales = sales.Sum(s => s.Amount);
+            var topProduct = sales.GroupBy(s => s.ProductName)
+                .OrderByDescending(g => g.Sum(x => x.Quantity))
+                .Select(g => new { Name = g.Key, Qty = g.Sum(x => x.Quantity) })
+                .FirstOrDefault();
+
+            return Json(new
+            {
+                totalTransactions = sales.Count,
+                totalSales,
+                topProductName = topProduct?.Name ?? "-",
+                topProductQty = topProduct?.Qty ?? 0,
+                transactions = sales.Select(s => new {
+                    productName = s.ProductName,
+                    quantity = s.Quantity,
+                    unitPrice = s.UnitPrice,
+                    lineTotal = s.Amount,
+                    timestamp = s.Date
+                })
+            });
+        }
     }
 }

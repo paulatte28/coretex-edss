@@ -128,7 +128,7 @@
         let monthKey = null;
         let context = null;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const flow = window.CoretexFinanceFlow;
             monthKey = flow.getCurrentMonthKey();
             context = flow.getContext();
@@ -138,14 +138,14 @@
             document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
             document.getElementById('confirm-message').textContent = `Submit data for ${flow.formatMonthLabel(monthKey)}? This will trigger EDSS processing.`;
 
-            renderSnapshot();
+            await renderSnapshot();
             bindChecklist();
-            checkExistingSubmission();
+            await checkExistingSubmission();
         });
 
-        function renderSnapshot() {
+        async function renderSnapshot() {
             const flow = window.CoretexFinanceFlow;
-            const snapshot = flow.getSnapshot(monthKey, context.branch.id);
+            const snapshot = await flow.fetchSnapshot(monthKey);
 
             document.getElementById('row-total-tx').textContent = String(snapshot.totalTransactions);
             document.getElementById('row-total-revenue').textContent = flow.formatCurrency(snapshot.totalRevenue);
@@ -171,13 +171,13 @@
             document.getElementById('submit-btn').disabled = !allChecked;
         }
 
-        function checkExistingSubmission() {
+        async function checkExistingSubmission() {
             const flow = window.CoretexFinanceFlow;
-            const existing = flow.getSubmission(monthKey, context.branch.id);
-            if (!existing) return;
+            const snapshot = await flow.fetchSnapshot(monthKey);
+            if (!snapshot.isLocked) return;
 
             document.getElementById('already-submitted').classList.remove('hidden');
-            document.getElementById('submitted-meta').textContent = `Submitted on ${flow.formatDateTime(existing.submittedAt)} | Status: ${existing.status || 'Submitted'}`;
+            document.getElementById('submitted-meta').textContent = `Submitted on ${flow.formatDateTime(snapshot.submissionDate)} | Status: ${snapshot.submissionStatus || 'Submitted'}`;
         }
 
         function openConfirmModal() {

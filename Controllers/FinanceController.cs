@@ -174,5 +174,80 @@ namespace coretex_finalproj.Controllers
 
             return Json(new { success = true, submissionId = submission.Id });
         }
+        [HttpGet]
+        public async Task<IActionResult> GetFinanceSnapshot(int year, int month)
+        {
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
+
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1);
+
+            var sales = await _context.Sales
+                .Where(s => s.BranchId == user.BranchId && s.Date >= startDate && s.Date < endDate && !s.IsArchived)
+                .ToListAsync();
+
+            var expenses = await _context.Expenses
+                .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived)
+                .ToListAsync();
+
+            var submission = await _context.BranchSubmissions
+                .FirstOrDefaultAsync(s => s.BranchId == user.BranchId && s.SubmissionYear == year && s.SubmissionMonth == month);
+
+            var totalRevenue = sales.Sum(s => s.Amount);
+            var totalTransactions = sales.Count;
+            
+            var expenseBreakdown = new
+            {
+                cogs = expenses.Where(e => e.Category == "COGS").Sum(e => e.Amount),
+                rent = expenses.Where(e => e.Category == "Rent").Sum(e => e.Amount),
+                salaries = expenses.Where(e => e.Category == "Salaries").Sum(e => e.Amount),
+                utilities = expenses.Where(e => e.Category == "Utilities").Sum(e => e.Amount),
+                total = expenses.Sum(e => e.Amount)
+            };
+
+            var topProduct = sales.GroupBy(s => s.ProductName)
+                .OrderByDescending(g => g.Count())
+                .Select(g => new { Name = g.Key, Qty = g.Count() })
+                .FirstOrDefault();
+
+            return Json(new
+            {
+                totalRevenue,
+                totalTransactions,
+                expenseBreakdown,
+                netProfit = totalRevenue - expenseBreakdown.total,
+                topProduct = topProduct?.Name ?? "-",
+                topProductQty = topProduct?.Qty ?? 0,
+                submissionStatus = submission?.Status ?? "Not Submitted",
+                isLocked = submission != null,
+                submissionDate = submission?.SubmittedAt
+            });
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetSubmissionHistory()
+        {
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
+
+            var history = await _context.BranchSubmissions
+                .Where(s => s.BranchId == user.BranchId)
+                .OrderByDescending(s => s.SubmissionYear)
+                .ThenByDescending(s => s.SubmissionMonth)
+                .Select(s => new {
+                    id = s.Id,
+                    month = $"{s.SubmissionYear}-{s.SubmissionMonth:D2}",
+                    submittedAt = s.SubmittedAt,
+                    totalSales = s.SalesRevenue,
+                    totalExpenses = s.Expenses,
+                    netProfit = s.SalesRevenue - s.Expenses,
+                    status = s.Status
+                })
+                .ToListAsync();
+
+            return Json(history);
+        }
     }
 }

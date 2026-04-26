@@ -112,30 +112,37 @@
             document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Davao Main'}`;
         }
 
-        function renderSummary() {
+        async function renderSummary() {
             const selectedDate = document.getElementById('summary-date').value;
-            const transactions = getTransactionsForDate(selectedDate);
+            
+            try {
+                const response = await fetch(`/Cashier/GetDailySummary?date=${selectedDate}`);
+                if (!response.ok) throw new Error('Failed to fetch summary');
+                const data = await response.json();
 
-            const dateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-PH', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-            });
-            document.getElementById('selected-date-label').textContent = dateLabel;
+                const dateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-PH', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                document.getElementById('selected-date-label').textContent = dateLabel;
 
-            const totalTransactions = transactions.length;
-            const totalSales = transactions.reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
+                document.getElementById('total-transactions').textContent = data.totalTransactions.toString();
+                document.getElementById('total-sales').textContent = formatCurrency(data.totalSales);
+                document.getElementById('daily-total').textContent = formatCurrency(data.totalSales);
 
-            document.getElementById('total-transactions').textContent = totalTransactions.toString();
-            document.getElementById('total-sales').textContent = formatCurrency(totalSales);
-            document.getElementById('daily-total').textContent = formatCurrency(totalSales);
+                document.getElementById('top-product').textContent = data.topProductName;
+                document.getElementById('top-product-qty').textContent = data.topProductQty > 0 ? `${data.topProductQty} sold` : 'No sales';
 
-            renderTopProduct(transactions);
-            renderMiniTable(transactions);
+                renderMiniTable(data.transactions);
+            } catch (error) {
+                console.error('Summary Load Error:', error);
+                alert('Unable to load daily summary from server.');
+            }
         }
 
-        function getTransactionsForDate(dateKey) {
+        function getTransactionsForDate(dateKey) { // Legacy placeholder
             const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
 
             return all

@@ -85,20 +85,20 @@
     <script>
         let context = null;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const flow = window.CoretexFinanceFlow;
             context = flow.getContext();
 
             document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
             document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
 
-            renderHistory();
+            await renderHistory();
         });
 
-        function renderHistory() {
+        async function renderHistory() {
             const flow = window.CoretexFinanceFlow;
             const table = document.getElementById('history-table');
-            const history = flow.getSubmissionHistory(context.branch.id);
+            const history = await flow.fetchSubmissionHistory();
 
             if (!history.length) {
                 table.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-slate-400 text-sm italic">No submissions found.</td></tr>';
@@ -119,33 +119,26 @@
                         <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${flow.formatCurrency(item.netProfit)}</td>
                         <td class="px-6 py-4"><span class="px-3 py-1 text-[10px] font-black uppercase rounded-full ${statusClass}">${item.status || 'Submitted'}</span></td>
                         <td class="px-6 py-4 text-center">
-                            <button onclick="openDetailsModal('${item.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors">View Details</button>
+                            <button onclick="openDetailsModal('${item.id}', '${item.month}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors">View Details</button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function openDetailsModal(id) {
+        async function openDetailsModal(id, month) {
             const flow = window.CoretexFinanceFlow;
-            const details = flow.getSubmissionDetailsById(id);
-            if (!details) return;
+            const snapshot = await flow.fetchSnapshot(month);
+            if (!snapshot) return;
 
-            document.getElementById('modal-month').textContent = details.monthLabel;
-            document.getElementById('detail-transactions').textContent = String(details.snapshot.totalTransactions || 0);
-            document.getElementById('detail-top-product').textContent = details.snapshot.topProduct || '-';
-            document.getElementById('detail-revenue').textContent = flow.formatCurrency(details.submission.totalSales || 0);
-            document.getElementById('detail-expenses').textContent = flow.formatCurrency(details.submission.totalExpenses || 0);
-            document.getElementById('detail-profit').textContent = flow.formatCurrency(details.submission.netProfit || 0);
-            document.getElementById('detail-status').textContent = details.submission.status || 'Submitted';
-            document.getElementById('detail-submitted-at').textContent = `Submitted on ${flow.formatDateTime(details.submission.submittedAt)}`;
-
-            if (details.submission.editReason) {
-                document.getElementById('detail-edit-reason-wrap').classList.remove('hidden');
-                document.getElementById('detail-edit-reason').textContent = details.submission.editReason;
-            } else {
-                document.getElementById('detail-edit-reason-wrap').classList.add('hidden');
-            }
+            document.getElementById('modal-month').textContent = flow.formatMonthLabel(month);
+            document.getElementById('detail-transactions').textContent = String(snapshot.totalTransactions || 0);
+            document.getElementById('detail-top-product').textContent = snapshot.topProduct || '-';
+            document.getElementById('detail-revenue').textContent = flow.formatCurrency(snapshot.totalRevenue || 0);
+            document.getElementById('detail-expenses').textContent = flow.formatCurrency(snapshot.expenses.total || 0);
+            document.getElementById('detail-profit').textContent = flow.formatCurrency(snapshot.netProfit || 0);
+            document.getElementById('detail-status').textContent = snapshot.submissionStatus || 'Submitted';
+            document.getElementById('detail-submitted-at').textContent = snapshot.submissionDate ? `Submitted on ${flow.formatDateTime(snapshot.submissionDate)}` : '';
 
             const modal = document.getElementById('details-modal');
             modal.classList.remove('hidden');

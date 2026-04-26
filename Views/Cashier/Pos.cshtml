@@ -311,46 +311,47 @@
             updateLineTotal();
         }
 
-        function renderTodaySummary() {
-            const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
+        async function renderTodaySummary() {
             const todayKey = toDateKey(new Date());
+            
+            try {
+                const response = await fetch(`/Cashier/GetDailySummary?date=${todayKey}`);
+                if (!response.ok) throw new Error('Failed to fetch summary');
+                const data = await response.json();
 
-            const today = all.filter(t =>
-                t.branchId === (currentBranch.id || 'branch_default')
-                && t.cashierId === (currentCashier.id || 'cashier_demo')
-                && toDateKey(new Date(t.timestamp)) === todayKey
-            );
+                const total = data.totalSales;
+                const count = data.totalTransactions;
+                const average = count > 0 ? total / count : 0;
 
-            const total = today.reduce((sum, t) => sum + (Number(t.lineTotal) || 0), 0);
-            const count = today.length;
-            const average = count > 0 ? total / count : 0;
+                document.getElementById('summary-total').textContent = formatCurrency(total);
+                document.getElementById('summary-count').textContent = count.toString();
+                document.getElementById('summary-average').textContent = formatCurrency(average);
 
-            document.getElementById('summary-total').textContent = formatCurrency(total);
-            document.getElementById('summary-count').textContent = count.toString();
-            document.getElementById('summary-average').textContent = formatCurrency(average);
+                const list = document.getElementById('today-list');
+                if (count === 0) {
+                    list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No transactions yet today.</p>';
+                    return;
+                }
 
-            const list = document.getElementById('today-list');
-            if (count === 0) {
-                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No transactions yet today.</p>';
-                return;
-            }
+                list.innerHTML = data.transactions.slice(0, 12).map(t => {
+                    const time = new Date(t.timestamp).toLocaleTimeString('en-PH', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
 
-            list.innerHTML = today.slice(0, 12).map(t => {
-                const time = new Date(t.timestamp).toLocaleTimeString('en-PH', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                return `
-                    <div class="p-3 bg-slate-50 rounded-lg flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(t.productName)}</p>
-                            <p class="text-[11px] text-slate-500">${t.quantity} x ${formatCurrency(t.unitPrice)} | ${time}</p>
+                    return `
+                        <div class="p-3 bg-slate-50 rounded-lg flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(t.productName)}</p>
+                                <p class="text-[11px] text-slate-500">${t.quantity} x ${formatCurrency(t.unitPrice)} | ${time}</p>
+                            </div>
+                            <p class="text-xs font-black text-slate-900 whitespace-nowrap">${formatCurrency(t.lineTotal)}</p>
                         </div>
-                        <p class="text-xs font-black text-slate-900 whitespace-nowrap">${formatCurrency(t.lineTotal)}</p>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Summary Load Error:', error);
+            }
         }
 
         function toDateKey(date) {

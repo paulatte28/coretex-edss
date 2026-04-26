@@ -48,6 +48,19 @@
     ];
 
     const charts = {};
+    let cachedSeries = [];
+
+    async function initialize() {
+        try {
+            const response = await fetch('/Ceo/GetAnalyticsSeries');
+            if (!response.ok) throw new Error('Analytics fetch failed');
+            cachedSeries = await response.json();
+            return true;
+        } catch (error) {
+            console.error('CEO Analytics Init Error:', error);
+            return false;
+        }
+    }
 
     function readArray(key) {
         try {
@@ -251,6 +264,20 @@
     }
 
     function getMonthSeries() {
+        if (cachedSeries && cachedSeries.length > 0) {
+            return cachedSeries.map(item => ({
+                monthKey: item.monthKey,
+                month: item.month,
+                revenue: toNumber(item.revenue),
+                expenses: toNumber(item.expenses),
+                netProfit: toNumber(item.netProfit),
+                cogs: toNumber(item.cogs || 0),
+                rent: toNumber(item.rent || 0),
+                salaries: toNumber(item.salaries || 0),
+                utilities: toNumber(item.utilities || 0)
+            }));
+        }
+
         const consolidated = new Map();
 
         getMonthBranchEntries().forEach(item => {
@@ -649,14 +676,6 @@
         }
     }
 
-    function readReports() {
-        return readArray(KEYS.reports).sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
-    }
-
-    function writeReports(reports) {
-        writeArray(KEYS.reports, reports.slice(0, 200));
-    }
-
     function defaultReportPeriodLabel(periodType, monthValue, startDate, endDate) {
         if (periodType === 'month' && monthValue) {
             const date = new Date(`${monthValue}-01`);
@@ -668,25 +687,6 @@
         }
 
         return 'Custom Period';
-    }
-
-    function generateReportRecord(payload) {
-        const id = `report_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-        const generatedOn = new Date().toISOString();
-        const periodLabel = defaultReportPeriodLabel(payload.periodType, payload.monthValue, payload.startDate, payload.endDate);
-
-        return {
-            id,
-            title: 'Executive Summary',
-            periodLabel,
-            generatedOn,
-            periodType: payload.periodType,
-            monthValue: payload.monthValue,
-            startDate: payload.startDate,
-            endDate: payload.endDate,
-            sections: payload.sections,
-            format: 'PDF'
-        };
     }
 
     function createReportPdfContent(report) {
@@ -704,71 +704,66 @@
             '',
             `Included Sections: ${(report.sections || []).join(', ') || 'None'}`,
             '',
-            'This report was generated from frontend simulation mode.'
+            'This report was generated from real SQL data.'
         ];
 
         return lines;
     }
 
-    function downloadReport(reportId) {
-        const reports = readReports();
-        const report = reports.find(item => item.id === reportId);
-        if (!report) return false;
-
-        const lines = createReportPdfContent(report);
-
-        if (window.jspdf && window.jspdf.jsPDF) {
-            const doc = new window.jspdf.jsPDF();
-            doc.setFontSize(14);
-            doc.text(lines, 14, 16);
-            doc.save(`coretex-executive-${report.periodLabel.replace(/\s+/g, '-').toLowerCase()}.pdf`);
-            return true;
+    async function readReports() {
+        try {
+            const response = await fetch('/Ceo/GetReports');
+            if (!response.ok) throw new Error('Reports fetch failed');
+            return await response.json();
+        } catch (error) {
+            console.error('Reports Load Error:', error);
+            return [];
         }
-
-        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `coretex-executive-${report.periodLabel.replace(/\s+/g, '-').toLowerCase()}.txt`;
-        link.click();
-        URL.revokeObjectURL(url);
-
-        return true;
     }
 
-    function emailReport(reportId) {
-        const reports = readReports();
-        const report = reports.find(item => item.id === reportId);
-        if (!report) return false;
-
-        const activities = readArray(KEYS.activities);
-        activities.unshift({
-            id: `activity_${Date.now()}`,
-            action: 'Executive Report Emailed',
-            description: `SendGrid simulation: ${report.title} (${report.periodLabel}) emailed to CEO recipients.`,
-            type: 'report',
-            user: 'System Scheduler',
-            timestamp: new Date().toISOString()
-        });
-        writeArray(KEYS.activities, activities.slice(0, 1000));
-
-        return true;
+    function writeReports(_reports) {
+        // No longer using localStorage for reports
     }
 
-    function deleteReport(reportId) {
-        const reports = readReports().filter(item => item.id !== reportId);
-        writeReports(reports);
+    async function saveGeneratedReport(payload) {
+        const kpi = getKpiSnapshot();
+        const html = createReportPdfContent({ 
+            title: 'Executive Summary', 
+            periodLabel: defaultReportPeriodLabel(payload.periodType, payload.monthValue, payload.startDate, payload.endDate),
+            generatedOn: new Date().toISOString()
+        }).join('<br>');
+
+        const report = {
+            title: 'Executive Summary',
+            periodLabel: defaultReportPeriodLabel(payload.periodType, payload.monthValue, payload.startDate, payload.endDate),
+            reportHtml: html,
+            summaryData: JSON.stringify(kpi)
+        };
+
+        try {
+            const response = await fetch('/Ceo/SaveReport', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(report)
+            });
+            if (!response.ok) throw new Error('Failed to save report');
+            return await response.json();
+        } catch (error) {
+            console.error('Report Save Error:', error);
+            throw error;
+        }
     }
 
-    function saveGeneratedReport(payload) {
-        const reports = readReports();
-        const record = generateReportRecord(payload);
-        reports.unshift(record);
-        writeReports(reports);
-        return record;
+    async function deleteReport(reportId) {
+        try {
+            await fetch(`/Ceo/DeleteReport?id=${reportId}`, { method: 'DELETE' });
+        } catch (error) {
+            console.error('Report Delete Error:', error);
+        }
     }
 
     window.CoretexCeo = {
+        initialize,
         money,
         pct,
         getKpiSnapshot,

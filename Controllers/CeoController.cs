@@ -169,5 +169,104 @@ namespace coretex_finalproj.Controllers
         {
             return RedirectToAction("BranchSubmissions", "Admin");
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAnalyticsSeries()
+        {
+            // Fetch all confirmed submissions first (Confirmed by FO)
+            var submissions = await _context.BranchSubmissions
+                .Include(s => s.Branch)
+                .OrderBy(s => s.SubmissionYear)
+                .ThenBy(s => s.SubmissionMonth)
+                .ToListAsync();
+
+            var series = submissions.GroupBy(s => new { s.SubmissionYear, s.SubmissionMonth })
+                .Select(g => new
+                {
+                    monthKey = $"{g.Key.SubmissionYear}-{g.Key.SubmissionMonth:D2}",
+                    month = new DateTime(g.Key.SubmissionYear, g.Key.SubmissionMonth, 1).ToString("MMM yyyy"),
+                    revenue = g.Sum(x => x.SalesRevenue),
+                    expenses = g.Sum(x => x.Expenses),
+                    netProfit = g.Sum(x => x.SalesRevenue - x.Expenses)
+                })
+                .ToList();
+
+            // If no submissions yet, try to pull raw data from Sales/Expenses tables for current and past month
+            if (series.Count == 0)
+            {
+                var now = DateTime.Now;
+                for (int i = 5; i >= 0; i--)
+                {
+                    var d = now.AddMonths(-i);
+                    var start = new DateTime(d.Year, d.Month, 1);
+                    var end = start.AddMonths(1);
+
+                    var rev = await _context.Sales.Where(s => s.Date >= start && s.Date < end && !s.IsArchived).SumAsync(s => s.Amount);
+                    var exp = await _context.Expenses.Where(e => e.Date >= start && e.Date < end && !e.IsArchived).SumAsync(e => e.Amount);
+
+                    series.Add(new {
+                        monthKey = $"{d.Year}-{d.Month:D2}",
+                        month = d.ToString("MMM yyyy"),
+                        revenue = rev,
+                        expenses = exp,
+                        netProfit = rev - exp
+                    });
+                }
+            }
+
+            return Json(series);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetBranchPerformance()
+        {
+            var performance = await _analyticsService.GetBranchPerformanceAsync();
+            return Json(performance);
+        }
+        [HttpPost]
+        public async Task<IActionResult> SaveReport([FromBody] GeneratedReport report)
+        {
+            if (report == null) return BadRequest();
+
+            var userName = User.Identity?.Name;
+            var user = await _userManager.FindByNameAsync(userName);
+            
+            report.GeneratedById = user?.Id;
+            report.GeneratedAt = DateTime.Now;
+
+            _context.GeneratedReports.Add(report);
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("REPORT_GENERATE", $"CEO generated a new executive summary: {report.Title}");
+
+            return Json(new { success = true, id = report.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetReports()
+        {
+            var reports = await _context.GeneratedReports
+                .Include(r => r.Branch)
+                .OrderByDescending(r => r.GeneratedAt)
+                .Select(r => new {
+                    id = r.Id,
+                    title = r.Title,
+                    periodLabel = r.PeriodLabel,
+                    generatedOn = r.GeneratedAt,
+                    branchName = r.Branch != null ? r.Branch.Name : "All Branches"
+                })
+                .ToListAsync();
+
+            return Json(reports);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteReport(int id)
+        {
+            var report = await _context.GeneratedReports.FindAsync(id);
+            if (report == null) return NotFound();
+
+            _context.GeneratedReports.Remove(report);
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
     }
 }

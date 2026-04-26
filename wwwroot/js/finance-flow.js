@@ -224,6 +224,37 @@
         return breakdown;
     }
 
+    async function fetchSnapshot(monthKey) {
+        const [year, month] = monthKey.split('-').map(Number);
+        try {
+            const response = await fetch(`/Finance/GetFinanceSnapshot?year=${year}&month=${month}`);
+            if (!response.ok) throw new Error('Failed to fetch finance snapshot');
+            const data = await response.json();
+            return {
+                monthKey,
+                sales: {
+                    totalRevenue: data.totalRevenue,
+                    totalTransactions: data.totalTransactions,
+                    topProduct: data.topProduct,
+                    topProductQty: data.topProductQty
+                },
+                expenses: data.expenseBreakdown,
+                totalTransactions: data.totalTransactions,
+                totalRevenue: data.totalRevenue,
+                topProduct: data.topProduct,
+                topProductQty: data.topProductQty,
+                netProfit: data.netProfit,
+                submissionStatus: data.submissionStatus,
+                isLocked: data.isLocked,
+                submissionDate: data.submissionDate,
+                dataSources: ['SQL Database', 'Exchange API']
+            };
+        } catch (error) {
+            console.error('Snapshot Fetch Error:', error);
+            return getSnapshot(monthKey); // Fallback to local
+        }
+    }
+
     function getSnapshot(monthKey, branchId) {
         const sales = getSalesSummary(monthKey, branchId);
         const expenses = getExpenseBreakdown(monthKey, branchId);
@@ -776,6 +807,17 @@
         };
     }
 
+    async function fetchSubmissionHistory() {
+        try {
+            const response = await fetch('/Finance/GetSubmissionHistory');
+            if (!response.ok) throw new Error('Failed to fetch history');
+            return await response.json();
+        } catch (error) {
+            console.error('History Fetch Error:', error);
+            return [];
+        }
+    }
+
     function getSubmissionHistory(branchId) {
         return readArray(STORAGE_KEYS.submissions)
             .filter(item => !branchId || item.branchId === branchId)
@@ -821,20 +863,19 @@
         }
     }
 
-    function getDashboardData(monthKey) {
+    async function getDashboardData(monthKey) {
         const context = getContext();
-        const snapshot = getSnapshot(monthKey, context.branch.id);
-        const submission = getSubmission(monthKey, context.branch.id);
-
-        let submissionStatus = 'Not Submitted';
-        if (submission) {
-            submissionStatus = `Submitted on ${formatDateTime(submission.submittedAt)}`;
+        const snapshot = await fetchSnapshot(monthKey);
+        
+        let submissionStatus = snapshot.submissionStatus || 'Not Submitted';
+        if (snapshot.submissionDate) {
+            submissionStatus = `Submitted on ${formatDateTime(snapshot.submissionDate)}`;
         }
 
         return {
             context,
             snapshot,
-            submission,
+            submission: snapshot.isLocked ? { status: snapshot.submissionStatus, submittedAt: snapshot.submissionDate } : null,
             submissionStatus
         };
     }
@@ -850,12 +891,14 @@
         getCurrentMonthKey,
         getContext,
         getDashboardData,
+        fetchSnapshot,
         getSnapshot,
         getSalesSummary,
         getAllExpenseRecords,
         getExpenseRecord,
         getExpenseBreakdown,
         getSubmission,
+        fetchSubmissionHistory,
         getSubmissionHistory,
         getSubmissionDetailsById,
         isMonthLocked,

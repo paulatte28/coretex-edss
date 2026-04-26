@@ -118,10 +118,10 @@
 @section Scripts {
     <script src="~/js/finance-flow.js" asp-append-version="true"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const flow = window.CoretexFinanceFlow;
             const monthKey = flow.getCurrentMonthKey();
-            const dashboard = flow.getDashboardData(monthKey);
+            const dashboard = await flow.getDashboardData(monthKey);
 
             document.getElementById('fo-name').textContent = `Finance Officer: ${dashboard.context.financeOfficer.name}`;
             document.getElementById('branch-name').textContent = `Branch: ${dashboard.context.branch.name}`;
