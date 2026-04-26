@@ -11,12 +11,14 @@ namespace coretex_finalproj.Controllers
         private readonly Data.ApplicationDbContext _context;
         private readonly Services.AnalyticsService _analytics;
         private readonly Services.NewsService _news;
+        private readonly Services.TrendService _trends;
 
-        public CeoController(Data.ApplicationDbContext context, Services.AnalyticsService analytics, Services.NewsService news)
+        public CeoController(Data.ApplicationDbContext context, Services.AnalyticsService analytics, Services.NewsService news, Services.TrendService trends)
         {
             _context = context;
             _analytics = analytics;
             _news = news;
+            _trends = trends;
         }
 
         public IActionResult Index()
@@ -50,6 +52,14 @@ namespace coretex_finalproj.Controllers
             var newsJson = await _news.GetLiveNewsAsync(category);
             if (string.IsNullOrEmpty(newsJson)) return BadRequest();
             return Content(newsJson, "application/json");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMarketTrends(string query)
+        {
+            var trendsJson = await _trends.GetMarketTrendsAsync(query);
+            if (string.IsNullOrEmpty(trendsJson)) return BadRequest();
+            return Content(trendsJson, "application/json");
         }
 
         public async Task<IActionResult> KpiProfitMargin()

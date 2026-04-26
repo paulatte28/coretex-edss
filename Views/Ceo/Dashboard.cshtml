@@ -73,6 +73,20 @@
         </div>
     </div>
 
+    <!-- MARKET TRENDS WIDGET -->
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-black text-slate-900">Market Trends (Google Search Interest - PH)</h3>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by SerpApi</span>
+        </div>
+        <div id="trends-container" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="animate-pulse bg-slate-50 h-32 rounded-2xl"></div>
+            <div class="animate-pulse bg-slate-50 h-32 rounded-2xl"></div>
+            <div class="animate-pulse bg-slate-50 h-32 rounded-2xl"></div>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-4 italic">* High interest in a category suggests potential for inventory expansion or targeted promotions.</p>
+    </div>
+
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
             <h3 class="text-base font-black text-slate-900">Revenue vs Expenses</h3>
@@ -239,6 +253,44 @@
             if (alerts.length > 0) {
                 document.getElementById('alerts-list').innerHTML += `<div class="p-3 rounded-xl bg-blue-50 border border-blue-100"><p class="text-xs font-bold text-blue-700">Latest report ready</p><p class="text-xs text-blue-700 mt-1">${alerts[0].title} (${alerts[0].periodLabel})</p></div>`;
             }
+
+            // --- FETCH MARKET TRENDS ---
+            ceo.fetchTrends('Laptops, Smartphones, Smartwatches').then(data => {
+                const container = document.getElementById('trends-container');
+                if (!data || !data.interest_over_time) {
+                    container.innerHTML = `
+                        <div class="col-span-full p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">SerpApi Key Required</p>
+                            <p class="text-[10px] text-slate-400 mt-2">Please configure your API key in appsettings.json to see live market demand trends.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Process the first few items from interest_over_time or overall comparison
+                const interest = data.interest_over_time.timeline_data.slice(-1)[0]; // Latest data point
+                const averages = data.interest_over_time.averages || [];
+                
+                container.innerHTML = averages.map((item, i) => {
+                    const colors = ['text-blue-600 bg-blue-50 border-blue-100', 'text-emerald-600 bg-emerald-50 border-emerald-100', 'text-purple-600 bg-purple-50 border-purple-100'];
+                    const color = colors[i % colors.length];
+                    const trendsUrl = `https://trends.google.com/trends/explore?geo=PH&q=${encodeURIComponent(item.query)}`;
+
+                    return `
+                        <a href="${trendsUrl}" target="_blank" class="p-5 rounded-2xl border transition-all hover:scale-[1.02] hover:shadow-lg active:scale-95 block ${color.split(' ').slice(2).join(' ')} ${color.split(' ').slice(1,2).join(' ')}">
+                            <p class="text-[10px] font-black uppercase tracking-widest opacity-70">${item.query}</p>
+                            <div class="flex items-end gap-2 mt-2">
+                                <p class="text-3xl font-black ${color.split(' ').slice(0,1).join(' ')}">${item.value}</p>
+                                <p class="text-[10px] font-bold mb-1 opacity-70">Search Index</p>
+                            </div>
+                            <div class="w-full bg-black/5 rounded-full h-1.5 mt-3">
+                                <div class="bg-current h-1.5 rounded-full" style="width: ${item.value}%"></div>
+                            </div>
+                            <p class="text-[8px] font-bold mt-3 opacity-40 text-right uppercase tracking-tighter">Click to Explore Details →</p>
+                        </a>
+                    `;
+                }).join('');
+            });
         });
     </script>
 }

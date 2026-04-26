@@ -642,6 +642,17 @@
         }
     }
 
+    async function fetchTrends(query) {
+        try {
+            const response = await fetch(`/Ceo/GetMarketTrends?query=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error('SerpApi request failed.');
+            return await response.json();
+        } catch (_error) {
+            console.error('Trends error:', _error);
+            return null;
+        }
+    }
+
     function readReports() {
         return readArray(KEYS.reports).sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
     }
@@ -778,6 +789,7 @@
         makeChart,
         destroyChart,
         fetchNews,
+        fetchTrends,
         readReports,
         saveGeneratedReport,
         downloadReport,
