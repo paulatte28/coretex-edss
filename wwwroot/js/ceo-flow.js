@@ -496,33 +496,62 @@
         return NEWS_FALLBACK[category] || NEWS_FALLBACK.business;
     }
 
-    function getNotifications() {
-        const alerts = readArray(KEYS.thresholdAlerts).slice(0, 20).map(alert => ({
-            id: alert.id,
-            title: alert.metric,
-            message: alert.message,
-            timestamp: alert.timestamp,
-            route: alert.metric === 'Profit Margin'
-                ? '/ceo/kpi/profit-margin'
-                : alert.metric === 'Expense Ratio'
-                    ? '/ceo/kpi/expense-ratio'
-                    : '/ceo/kpi/risk-score'
-        }));
-
-        const activities = readArray(KEYS.activities)
-            .filter(item => String(item.action || '').toLowerCase().includes('threshold alert'))
-            .slice(0, 10)
-            .map(item => ({
+    async function fetchNotifications() {
+        try {
+            const response = await fetch('/Ceo/GetNotifications');
+            if (!response.ok) throw new Error('Notification fetch failed');
+            const data = await response.json();
+            return data.map(item => ({
                 id: item.id,
-                title: item.action,
-                message: item.description,
-                timestamp: item.timestamp,
-                route: '/ceo/kpi/risk-score'
+                title: item.title,
+                message: item.message,
+                timestamp: item.createdAt,
+                route: item.actionUrl || '/ceo/dashboard',
+                isRead: item.isRead
             }));
+        } catch (_error) {
+            console.error('Error fetching notifications:', _error);
+            return [];
+        }
+    }
 
-        return [...alerts, ...activities]
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-            .slice(0, 20);
+    async function mountNotifications(buttonId, badgeId, dropdownId) {
+        const button = document.getElementById(buttonId);
+        const badge = document.getElementById(badgeId);
+        const dropdown = document.getElementById(dropdownId);
+
+        if (!button || !badge || !dropdown) return;
+
+        const notifications = await fetchNotifications();
+        badge.textContent = String(notifications.filter(n => !n.isRead).length);
+        badge.classList.toggle('hidden', notifications.filter(n => !n.isRead).length === 0);
+
+        dropdown.innerHTML = notifications.length === 0
+            ? '<p class="text-xs text-slate-400 italic">No alerts right now.</p>'
+            : notifications.map(item => `
+                <a href="${item.route}" onclick="window.CoretexCeo.markAsRead('${item.id}')" class="block p-3 rounded-lg hover:bg-slate-50 transition-colors border ${item.isRead ? 'border-slate-100' : 'border-indigo-100 bg-indigo-50/30'} mb-2">
+                    <p class="text-xs font-black text-slate-900">${escapeHtml(item.title || 'Alert')}</p>
+                    <p class="text-xs text-slate-600 mt-1">${escapeHtml(item.message || '')}</p>
+                    <p class="text-[10px] text-slate-400 mt-1">${timeAgo(item.timestamp)}</p>
+                </a>
+            `).join('');
+
+        button.addEventListener('click', function () {
+            dropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function (event) {
+            const clickInside = button.contains(event.target) || dropdown.contains(event.target);
+            if (!clickInside) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
+
+    async function markAsRead(id) {
+        try {
+            await fetch(`/Ceo/MarkNotificationAsRead?id=${id}`, { method: 'POST' });
+        } catch (_e) {}
     }
 
     function renderNav(activeKey, targetId) {
@@ -549,39 +578,6 @@
         if (mins < 60) return `${mins}m ago`;
         if (hours < 24) return `${hours}h ago`;
         return `${days}d ago`;
-    }
-
-    function mountNotifications(buttonId, badgeId, dropdownId) {
-        const button = document.getElementById(buttonId);
-        const badge = document.getElementById(badgeId);
-        const dropdown = document.getElementById(dropdownId);
-
-        if (!button || !badge || !dropdown) return;
-
-        const notifications = getNotifications();
-        badge.textContent = String(notifications.length);
-        badge.classList.toggle('hidden', notifications.length === 0);
-
-        dropdown.innerHTML = notifications.length === 0
-            ? '<p class="text-xs text-slate-400 italic">No alerts right now.</p>'
-            : notifications.map(item => `
-                <a href="${item.route}" class="block p-3 rounded-lg hover:bg-slate-50 transition-colors border border-slate-100 mb-2">
-                    <p class="text-xs font-black text-slate-900">${escapeHtml(item.title || 'Alert')}</p>
-                    <p class="text-xs text-slate-600 mt-1">${escapeHtml(item.message || '')}</p>
-                    <p class="text-[10px] text-slate-400 mt-1">${timeAgo(item.timestamp)}</p>
-                </a>
-            `).join('');
-
-        button.addEventListener('click', function () {
-            dropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', function (event) {
-            const clickInside = button.contains(event.target) || dropdown.contains(event.target);
-            if (!clickInside) {
-                dropdown.classList.add('hidden');
-            }
-        });
     }
 
     function chartCtx(id) {
@@ -786,6 +782,8 @@
         getMonthSeries,
         renderNav,
         mountNotifications,
+        markAsRead,
+        fetchNotifications,
         makeChart,
         destroyChart,
         fetchNews,

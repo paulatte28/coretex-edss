@@ -11,16 +11,31 @@ namespace coretex_finalproj.Services
         private readonly IConfiguration _config;
         private readonly ILogger<NotificationService> _logger;
         private readonly AuditLoggingService _auditLog;
+        private readonly Data.ApplicationDbContext _context;
 
-        public NotificationService(IConfiguration config, ILogger<NotificationService> logger, AuditLoggingService auditLog)
+        public NotificationService(IConfiguration config, ILogger<NotificationService> logger, AuditLoggingService auditLog, Data.ApplicationDbContext context)
         {
             _config = config;
             _logger = logger;
             _auditLog = auditLog;
+            _context = context;
         }
 
-        public async Task<bool> SendExecutiveAlertEmailAsync(string toEmail, string alertTitle, string detail)
+        public async Task<bool> SendExecutiveAlertEmailAsync(string toEmail, string alertTitle, string detail, string severity = "red", Guid? branchId = null)
         {
+            // Persist to Database
+            var notification = new Models.SystemNotification
+            {
+                Title = alertTitle,
+                Message = detail,
+                Type = "KPI_BREACH",
+                Severity = severity,
+                BranchId = branchId,
+                ActionUrl = severity == "red" ? "/ceo/kpi/risk-score" : "/ceo/kpi/profit-margin"
+            };
+            _context.SystemNotifications.Add(notification);
+            await _context.SaveChangesAsync();
+
             var apiKey = _config["SendGrid:ApiKey"];
             var fromEmail = _config["SendGrid:FromEmail"] ?? "alerts@coretex.com";
 

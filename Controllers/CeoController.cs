@@ -62,6 +62,28 @@ namespace coretex_finalproj.Controllers
             return Content(trendsJson, "application/json");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var notifications = await _context.SystemNotifications
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(20)
+                .ToListAsync();
+            return Json(notifications);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkNotificationAsRead(Guid id)
+        {
+            var notif = await _context.SystemNotifications.FindAsync(id);
+            if (notif != null)
+            {
+                notif.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+            return Json(new { success = true });
+        }
+
         public async Task<IActionResult> KpiProfitMargin()
         {
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
@@ -128,7 +150,8 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> AnalyticsPredictive()
         {
-            ViewBag.Forecast = await _analytics.GetSalesForecastAsync(null);
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.ForecastAmount = await _analytics.GetSalesForecastAsync(null);
             return View();
         }
 

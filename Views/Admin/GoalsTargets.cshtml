@@ -231,8 +231,8 @@
 
 @section Scripts {
     <script>
-        let goals = JSON.parse(localStorage.getItem('coretex_goals') || '[]');
-        let branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+        let goals = [];
+        const branches = @Html.Raw(Json.Serialize(ViewBag.Branches));
 
         const metricLabels = {
             'revenue': 'Total Revenue',
@@ -253,16 +253,28 @@
         };
 
         const periodLabels = {
-            'monthly': 'Monthly',
-            'quarterly': 'Quarterly',
-            'yearly': 'Yearly'
+            'Monthly': 'Monthly',
+            'Quarterly': 'Quarterly',
+            'Yearly': 'Yearly'
         };
+
+        async function fetchGoals() {
+            try {
+                const response = await fetch('/Admin/GetGoalTargets');
+                if (response.ok) {
+                    goals = await response.json();
+                    renderGoals();
+                }
+            } catch (error) {
+                console.error('Error fetching goals:', error);
+            }
+        }
 
         function updateStats() {
             document.getElementById('total-goals').textContent = goals.length;
-            document.getElementById('company-goals').textContent = goals.filter(g => g.scope === 'company').length;
-            document.getElementById('branch-goals').textContent = goals.filter(g => g.scope === 'branch').length;
-            document.getElementById('active-goals').textContent = goals.filter(g => g.status === 'active').length;
+            document.getElementById('company-goals').textContent = goals.filter(g => g.branchId === '00000000-0000-0000-0000-000000000000' || !g.branchId).length;
+            document.getElementById('branch-goals').textContent = goals.filter(g => g.branchId && g.branchId !== '00000000-0000-0000-0000-000000000000').length;
+            document.getElementById('active-goals').textContent = goals.filter(g => g.isActive).length;
         }
 
         function toggleBranchSelect() {
@@ -283,11 +295,13 @@
 
         function populateBranches() {
             const select = document.getElementById('goal-branch');
+            const currentVal = select.value;
             select.innerHTML = '<option value="">Select Branch</option>';
             
-            branches.filter(b => b.status === 'active').forEach(branch => {
+            branches.forEach(branch => {
                 select.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
             });
+            if (currentVal) select.value = currentVal;
         }
 
         function renderGoals() {
@@ -297,8 +311,9 @@
             const scopeFilter = document.getElementById('filter-scope').value;
 
             let filteredGoals = goals.filter(g => {
-                const matchesPeriod = !periodFilter || g.period === periodFilter;
-                const matchesScope = !scopeFilter || g.scope === scopeFilter;
+                const matchesPeriod = !periodFilter || g.periodType.toLowerCase() === periodFilter.toLowerCase();
+                const isCompany = !g.branchId || g.branchId === '00000000-0000-0000-0000-000000000000';
+                const matchesScope = !scopeFilter || (scopeFilter === 'company' ? isCompany : !isCompany);
                 return matchesPeriod && matchesScope;
             });
 
@@ -312,16 +327,15 @@
 
             emptyState.classList.add('hidden');
             container.innerHTML = filteredGoals.map(goal => {
-                const branch = goal.branchId ? branches.find(b => b.id === goal.branchId) : null;
-                const unit = metricUnits[goal.metric] || '';
+                const branch = branches.find(b => b.id === goal.branchId);
+                const unit = metricUnits[goal.metricName.toLowerCase()] || '';
                 const targetDisplay = unit === '₱' 
-                    ? `₱${Number(goal.target).toLocaleString()}`
+                    ? `₱${Number(goal.targetValue).toLocaleString()}`
                     : unit === '%' 
-                        ? `${goal.target}%`
-                        : goal.target;
+                        ? `${goal.targetValue}%`
+                        : goal.targetValue;
 
-                // Calculate days remaining
-                const endDate = new Date(goal.endDate);
+                const endDate = new Date(goal.effectiveTo || goal.effectiveFrom);
                 const today = new Date();
                 const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
                 const isExpired = daysRemaining < 0;
@@ -330,26 +344,26 @@
                     <div class="p-6 hover:bg-slate-50 transition-colors">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 ${goal.scope === 'company' ? 'bg-indigo-100' : 'bg-blue-100'} rounded-xl flex items-center justify-center">
-                                    <svg class="w-6 h-6 ${goal.scope === 'company' ? 'text-indigo-600' : 'text-blue-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <div class="w-12 h-12 ${!branch ? 'bg-indigo-100' : 'bg-blue-100'} rounded-xl flex items-center justify-center">
+                                    <svg class="w-6 h-6 ${!branch ? 'text-indigo-600' : 'text-blue-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <div>
                                     <div class="flex items-center space-x-2">
-                                        <h4 class="font-bold text-slate-900">${goal.name}</h4>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${goal.status === 'active' ? 'bg-emerald-100 text-emerald-700' : goal.status === 'completed' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-500'}">${goal.status}</span>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-slate-100 text-slate-600">${periodLabels[goal.period]}</span>
+                                        <h4 class="font-bold text-slate-900 capitalize">${goal.metricName.replace('_', ' ')}</h4>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${goal.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${goal.isActive ? 'active' : 'inactive'}</span>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-slate-100 text-slate-600">${goal.periodType}</span>
                                     </div>
                                     <div class="flex items-center space-x-3 mt-1">
                                         <span class="text-sm text-slate-600">
-                                            <span class="font-bold">${metricLabels[goal.metric]}:</span> 
+                                            <span class="font-bold">Target:</span> 
                                             <span class="text-purple-600 font-bold">${targetDisplay}</span>
                                         </span>
                                         ${branch ? `<span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">${branch.name}</span>` : '<span class="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">All Branches</span>'}
                                     </div>
                                     <div class="flex items-center space-x-3 mt-2 text-xs text-slate-400">
-                                        <span>${new Date(goal.startDate).toLocaleDateString()} - ${new Date(goal.endDate).toLocaleDateString()}</span>
-                                        ${!isExpired && goal.status === 'active' ? `<span class="text-amber-600 font-bold">${daysRemaining} days remaining</span>` : ''}
-                                        ${isExpired && goal.status === 'active' ? `<span class="text-red-600 font-bold">Expired</span>` : ''}
+                                        <span>${new Date(goal.effectiveFrom).toLocaleDateString()} - ${goal.effectiveTo ? new Date(goal.effectiveTo).toLocaleDateString() : 'N/A'}</span>
+                                        ${!isExpired && goal.isActive ? `<span class="text-amber-600 font-bold">${daysRemaining} days remaining</span>` : ''}
+                                        ${isExpired && goal.isActive ? `<span class="text-red-600 font-bold">Expired</span>` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -376,7 +390,6 @@
             document.getElementById('goal-id').value = '';
             document.getElementById('branch-select-container').classList.add('hidden');
 
-            // Set default dates
             const today = new Date();
             const nextMonth = new Date(today);
             nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -388,17 +401,16 @@
                 if (goal) {
                     title.textContent = 'Edit Goal';
                     document.getElementById('goal-id').value = goal.id;
-                    document.getElementById('goal-name').value = goal.name;
-                    document.getElementById('goal-metric').value = goal.metric;
-                    document.getElementById('goal-target').value = goal.target;
-                    document.getElementById('goal-period').value = goal.period;
-                    document.getElementById('goal-start').value = goal.startDate;
-                    document.getElementById('goal-end').value = goal.endDate;
-                    document.getElementById('goal-scope').value = goal.scope;
-                    document.getElementById('goal-description').value = goal.description || '';
-                    document.getElementById('goal-status').value = goal.status;
+                    document.getElementById('goal-name').value = goal.metricName;
+                    document.getElementById('goal-metric').value = goal.metricName.toLowerCase();
+                    document.getElementById('goal-target').value = goal.targetValue;
+                    document.getElementById('goal-period').value = goal.periodType;
+                    document.getElementById('goal-start').value = goal.effectiveFrom.split('T')[0];
+                    document.getElementById('goal-end').value = goal.effectiveTo ? goal.effectiveTo.split('T')[0] : '';
+                    document.getElementById('goal-scope').value = (goal.branchId && goal.branchId !== '00000000-0000-0000-0000-000000000000') ? 'branch' : 'company';
+                    document.getElementById('goal-status').value = goal.isActive ? 'active' : 'inactive';
                     
-                    if (goal.scope === 'branch') {
+                    if (document.getElementById('goal-scope').value === 'branch') {
                         document.getElementById('branch-select-container').classList.remove('hidden');
                         populateBranches();
                         document.getElementById('goal-branch').value = goal.branchId;
@@ -428,73 +440,57 @@
             document.getElementById('delete-modal').classList.add('hidden');
         }
 
-        function confirmDelete() {
+        async function confirmDelete() {
             const id = document.getElementById('delete-goal-id').value;
-            const goal = goals.find(g => g.id === id);
-            goals = goals.filter(g => g.id !== id);
-            localStorage.setItem('coretex_goals', JSON.stringify(goals));
-            closeDeleteModal();
-            renderGoals();
-            logActivity('Goal Deleted', `Removed goal: ${goal?.name}`, 'goal');
+            try {
+                const response = await fetch(`/Admin/DeleteGoalTarget?id=${id}`, { method: 'POST' });
+                if (response.ok) {
+                    closeDeleteModal();
+                    fetchGoals();
+                }
+            } catch (error) {
+                console.error('Error deleting goal:', error);
+            }
         }
 
-        function logActivity(action, description, type) {
-            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            activities.unshift({
-                id: Date.now(),
-                action,
-                description,
-                type,
-                timestamp: new Date().toISOString(),
-                user: 'System Administrator'
-            });
-            activities = activities.slice(0, 100);
-            localStorage.setItem('coretex_activities', JSON.stringify(activities));
-        }
-
-        document.getElementById('goal-form').addEventListener('submit', function(e) {
+        document.getElementById('goal-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const id = document.getElementById('goal-id').value;
             const scope = document.getElementById('goal-scope').value;
             
-            // Validate branch for branch-specific goal
             if (scope === 'branch' && !document.getElementById('goal-branch').value) {
                 alert('Please select a branch for this goal.');
                 return;
             }
 
             const goalData = {
-                id: id || 'goal_' + Date.now(),
-                name: document.getElementById('goal-name').value,
-                metric: document.getElementById('goal-metric').value,
-                target: parseFloat(document.getElementById('goal-target').value),
-                period: document.getElementById('goal-period').value,
-                startDate: document.getElementById('goal-start').value,
-                endDate: document.getElementById('goal-end').value,
-                scope: scope,
-                branchId: scope === 'branch' ? document.getElementById('goal-branch').value : null,
-                description: document.getElementById('goal-description').value,
-                status: document.getElementById('goal-status').value,
-                createdAt: id ? goals.find(g => g.id === id)?.createdAt : new Date().toISOString(),
-                updatedAt: new Date().toISOString()
+                id: id || '00000000-0000-0000-0000-000000000000',
+                metricName: document.getElementById('goal-metric').value,
+                targetValue: parseFloat(document.getElementById('goal-target').value),
+                periodType: document.getElementById('goal-period').value,
+                effectiveFrom: document.getElementById('goal-start').value,
+                effectiveTo: document.getElementById('goal-end').value || null,
+                branchId: scope === 'branch' ? document.getElementById('goal-branch').value : '00000000-0000-0000-0000-000000000000',
+                isActive: document.getElementById('goal-status').value === 'active'
             };
 
-            if (id) {
-                const index = goals.findIndex(g => g.id === id);
-                goals[index] = goalData;
-                logActivity('Goal Updated', `Updated goal: ${goalData.name}`, 'goal');
-            } else {
-                goals.push(goalData);
-                logActivity('Goal Created', `Added goal: ${goalData.name}`, 'goal');
-            }
+            try {
+                const response = await fetch('/Admin/SaveGoalTarget', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(goalData)
+                });
 
-            localStorage.setItem('coretex_goals', JSON.stringify(goals));
-            closeGoalModal();
-            renderGoals();
+                if (response.ok) {
+                    closeGoalModal();
+                    fetchGoals();
+                }
+            } catch (error) {
+                console.error('Error saving goal:', error);
+            }
         });
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', renderGoals);
+        document.addEventListener('DOMContentLoaded', fetchGoals);
     </script>
 }

@@ -44,13 +44,38 @@
             ceo.renderNav('predictive', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const history = ceo.getMonthSeries();
-            const forecast = ceo.getForecastRows();
+            const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData)) || [];
+            const forecastAmount = @ViewBag.ForecastAmount;
+
+            // Prepare history
+            const history = monthlyData.map(x => ({
+                month: x.month,
+                revenue: x.sales
+            }));
+
+            // Prepare simple 3-month projection
+            const forecast = [];
+            if (history.length > 0) {
+                const lastMonth = history[history.length - 1].month;
+                const [year, month] = lastMonth.split('-').map(Number);
+                
+                for(let i = 1; i <= 3; i++) {
+                    const nextDate = new Date(year, month + i - 1, 1);
+                    const label = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}`;
+                    // Decay the forecast slightly per month or keep it steady
+                    const decay = 1 - (i * 0.02);
+                    forecast.push({
+                        month: label,
+                        projectedRevenue: forecastAmount * decay
+                    });
+                }
+            }
+
             const labels = history.map(x => x.month).concat(forecast.map(x => x.month));
             const historical = history.map(x => x.revenue).concat(forecast.map(() => null));
             const projected = history.map(() => null).concat(forecast.map(x => x.projectedRevenue));
-            const upper = history.map(() => null).concat(forecast.map(x => x.projectedRevenue * 1.08));
-            const lower = history.map(() => null).concat(forecast.map(x => x.projectedRevenue * 0.92));
+            const upper = history.map(() => null).concat(forecast.map(x => x.projectedRevenue * 1.10));
+            const lower = history.map(() => null).concat(forecast.map(x => x.projectedRevenue * 0.90));
 
             ceo.makeChart('chart-predictive', {
                 type: 'line',

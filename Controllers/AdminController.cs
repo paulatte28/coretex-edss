@@ -261,7 +261,11 @@ namespace coretex_finalproj.Controllers
             ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             return View(goals);
         }
-        public IActionResult GoalsTargets() => View();
+        public async Task<IActionResult> GoalsTargets()
+        {
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            return View();
+        }
         public async Task<IActionResult> ReportSchedule()
         {
             var summary = new BusinessSummaryViewModel
@@ -350,11 +354,22 @@ namespace coretex_finalproj.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetKpiThresholds(Guid branchId)
+        public async Task<IActionResult> GetGoalTargets(Guid? branchId)
         {
-            var threshold = await _context.KpiThresholds
-                .FirstOrDefaultAsync(t => t.BranchId == branchId && t.IsActive);
-            return Json(threshold);
+            var query = _context.GoalTargets.AsQueryable();
+            if (branchId.HasValue) query = query.Where(g => g.BranchId == branchId.Value);
+            return Json(await query.ToListAsync());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteGoalTarget(Guid id)
+        {
+            var goal = await _context.GoalTargets.FindAsync(id);
+            if (goal == null) return NotFound();
+            _context.GoalTargets.Remove(goal);
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("GOAL_DELETE", $"Deleted strategic goal: {goal.MetricName}");
+            return Json(new { success = true });
         }
     }
 }
