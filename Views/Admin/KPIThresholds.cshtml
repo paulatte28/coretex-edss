@@ -54,9 +54,12 @@
                         <td class="px-8 py-5 text-center">
                             <span class="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-black uppercase rounded-full">In Progress</span>
                         </td>
-                        <td class="px-8 py-5 text-center">
+                        <td class="px-8 py-5 text-center flex items-center justify-center gap-2">
+                            <button onclick="openEditGoalModal('@goal.Id', '@goal.BranchId', '@goal.TargetRevenue', '@goal.Month', '@goal.Year')" class="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all" title="Edit Target">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
                             <form asp-action="DeleteGoal" asp-route-id="@goal.Id" method="post" class="inline">
-                                <button type="submit" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all" onclick="return confirm('Remove this strategic target?')">
+                                <button type="submit" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all" onclick="return confirm('Remove this strategic target?')" title="Delete Target">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                 </button>
                             </form>
@@ -68,15 +71,15 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div id="goal-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+<!-- Create Modal -->
+<div id="goal-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="goal-modal-card">
         <h3 class="text-2xl font-black text-slate-900 mb-6">Set Strategic Target</h3>
         <form asp-action="SetGoal" method="post" class="space-y-4">
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Select Branch</label>
-                <select name="branchId" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
-                    <option value="">All Branches (HQ)</option>
+                <select name="branchId" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
+                    <option value="" disabled selected>-- Select a Branch --</option>
                     @if (ViewBag.Branches is List<Branch> kpiBranches)
                     {
                         foreach (var b in kpiBranches)
@@ -108,9 +111,79 @@
     </div>
 </div>
 
+<!-- Edit Modal -->
+<div id="edit-goal-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="edit-goal-modal-card">
+        <h3 class="text-2xl font-black text-slate-900 mb-6">Edit Strategic Target</h3>
+        <form asp-action="UpdateGoal" method="post" class="space-y-4">
+            <input type="hidden" name="id" id="edit-id" />
+            <div>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Branch</label>
+                <select name="branchId" id="edit-branchId" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
+                    @if (ViewBag.Branches is List<Branch> editBranches)
+                    {
+                        foreach (var b in editBranches)
+                        {
+                            <option value="@b.Id">@b.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Target Monthly Revenue (PHP)</label>
+                <input name="targetRevenue" id="edit-targetRevenue" type="number" step="0.01" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-100 outline-none transition-all" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Month</label>
+                     <input name="month" id="edit-month" type="number" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none" />
+                </div>
+                <div>
+                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Year</label>
+                     <input name="year" id="edit-year" type="number" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none" />
+                </div>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" onclick="closeEditGoalModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
+                <button type="submit" class="flex-1 py-3 bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-100 hover:bg-amber-700 transition-all">Update Target</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        function openSetGoalModal() { document.getElementById('goal-modal').classList.remove('hidden'); }
-        function closeSetGoalModal() { document.getElementById('goal-modal').classList.add('hidden'); }
+        function openSetGoalModal() { 
+            const m = document.getElementById('goal-modal');
+            const c = document.getElementById('goal-modal-card');
+            m.classList.remove('hidden'); 
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+        function closeSetGoalModal() { 
+            const m = document.getElementById('goal-modal');
+            const c = document.getElementById('goal-modal-card');
+            c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
+
+        function openEditGoalModal(id, branchId, revenue, month, year) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-branchId').value = branchId;
+            document.getElementById('edit-targetRevenue').value = revenue;
+            document.getElementById('edit-month').value = month;
+            document.getElementById('edit-year').value = year;
+            
+            const m = document.getElementById('edit-goal-modal');
+            const c = document.getElementById('edit-goal-modal-card');
+            m.classList.remove('hidden');
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+
+        function closeEditGoalModal() {
+            const m = document.getElementById('edit-goal-modal');
+            const c = document.getElementById('edit-goal-modal-card');
+            c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
     </script>
 }

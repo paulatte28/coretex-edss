@@ -49,8 +49,8 @@ namespace coretex_finalproj.Data
 
                 // Seed some initial sales
                 context.Sales.AddRange(
-                    new Sale { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, OrderId = "ORD-001", CustomerName = "Acme Corp", Amount = 1500.00m, Status = "Completed", Date = DateTime.UtcNow.AddDays(-2) },
-                    new Sale { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, OrderId = "ORD-002", CustomerName = "Globex", Amount = 350.50m, Status = "Pending", Date = DateTime.UtcNow.AddDays(-1) }
+                    new Sale { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, OrderId = "ORD-001", CustomerName = "Acme Corp", Amount = 1500.00m, ProductName = "Premium Widget", Quantity = 5, UnitPrice = 300.00m, Status = "Completed", Date = DateTime.UtcNow.AddDays(-2) },
+                    new Sale { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, OrderId = "ORD-002", CustomerName = "Globex", Amount = 350.50m, ProductName = "Basic Component", Quantity = 10, UnitPrice = 35.05m, Status = "Pending", Date = DateTime.UtcNow.AddDays(-1) }
                 );
 
                 // Seed some initial expenses

@@ -15,6 +15,10 @@ namespace coretex_finalproj.Models
         [DataType(DataType.Currency)]
         public decimal Amount { get; set; }
 
+        public string ProductName { get; set; } = "General Sale";
+        public int Quantity { get; set; } = 1;
+        public decimal UnitPrice { get; set; }
+
         public string Status { get; set; } = "Completed";
 
         public DateTime Date { get; set; } = DateTime.UtcNow;

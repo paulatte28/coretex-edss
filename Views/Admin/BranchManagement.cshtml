@@ -59,8 +59,8 @@
 </div>
 
 <!-- Simple Add Modal -->
-<div id="add-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-300">
+<div id="add-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="add-modal-card">
         <h3 class="text-2xl font-black text-slate-900 mb-6">Create Branch</h3>
         <form asp-action="CreateBranch" method="post" class="space-y-4">
             <div>
@@ -85,7 +85,17 @@
 
 @section Scripts {
     <script>
-        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
-        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
+        function openAddModal() { 
+            const m = document.getElementById('add-modal');
+            const c = document.getElementById('add-modal-card');
+            m.classList.remove('hidden'); 
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+        function closeAddModal() { 
+            const m = document.getElementById('add-modal');
+            const c = document.getElementById('add-modal-card');
+            c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
     </script>
 }

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using coretex_finalproj.Models;
+using coretex_finalproj.Services;
 
 namespace coretex_finalproj.Controllers
 {
@@ -9,16 +12,26 @@ namespace coretex_finalproj.Controllers
     public class CeoController : Controller
     {
         private readonly Data.ApplicationDbContext _context;
-        private readonly Services.AnalyticsService _analytics;
-        private readonly Services.NewsService _news;
-        private readonly Services.TrendService _trends;
+        private readonly AnalyticsService _analytics;
+        private readonly NewsService _news;
+        private readonly TrendService _trends;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly AuditLoggingService _auditLog;
 
-        public CeoController(Data.ApplicationDbContext context, Services.AnalyticsService analytics, Services.NewsService news, Services.TrendService trends)
+        public CeoController(
+            Data.ApplicationDbContext context, 
+            AnalyticsService analytics, 
+            NewsService news, 
+            TrendService trends,
+            UserManager<AppUser> userManager,
+            AuditLoggingService auditLog)
         {
             _context = context;
             _analytics = analytics;
             _news = news;
             _trends = trends;
+            _userManager = userManager;
+            _auditLog = auditLog;
         }
 
         public IActionResult Index()
@@ -219,7 +232,7 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBranchPerformance()
         {
-            var performance = await _analyticsService.GetBranchPerformanceAsync();
+            var performance = await _analytics.GetBranchPerformanceAsync();
             return Json(performance);
         }
         [HttpPost]

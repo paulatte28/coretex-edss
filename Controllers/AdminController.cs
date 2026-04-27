@@ -240,10 +240,36 @@ namespace coretex_finalproj.Controllers
         [HttpPost]
         public async Task<IActionResult> SetGoal(Guid branchId, decimal targetRevenue, int month, int year)
         {
+            if (branchId == Guid.Empty)
+            {
+                // Fallback: If no branch is selected, assign to the first active branch
+                var firstBranch = await _context.Branches.FirstOrDefaultAsync(b => !b.IsArchived);
+                if (firstBranch == null) return RedirectToAction(nameof(KPIThresholds));
+                branchId = firstBranch.Id;
+            }
+
             var goal = new BranchGoal { BranchId = branchId, TargetRevenue = targetRevenue, Month = month, Year = year };
             _context.BranchGoals.Add(goal);
             await _context.SaveChangesAsync();
             await _auditLog.LogActivityAsync("GOAL_SET", $"Set strategic revenue goal for branch: {targetRevenue:C0}");
+            return RedirectToAction(nameof(KPIThresholds));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateGoal(Guid id, Guid branchId, decimal targetRevenue, int month, int year)
+        {
+            var goal = await _context.BranchGoals.FindAsync(id);
+            if (goal != null)
+            {
+                goal.BranchId = branchId;
+                goal.TargetRevenue = targetRevenue;
+                goal.Month = month;
+                goal.Year = year;
+                
+                _context.BranchGoals.Update(goal);
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("GOAL_UPDATE", $"Updated strategic revenue goal for branch to: {targetRevenue:C0}");
+            }
             return RedirectToAction(nameof(KPIThresholds));
         }
 

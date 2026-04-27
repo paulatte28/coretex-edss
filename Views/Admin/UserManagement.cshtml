@@ -127,8 +127,8 @@
 </div>
 
 <!-- Password Reset Modal -->
-<div id="password-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+<div id="password-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="password-modal-card">
         <h3 class="text-2xl font-black text-slate-900 mb-2">Reset Password</h3>
         <p id="pass-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
         <form asp-action="ResetUserPassword" method="post" class="space-y-4" onsubmit="return validatePassword()">
@@ -152,8 +152,8 @@
 </div>
 
 <!-- Add User Modal -->
-<div id="add-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+<div id="add-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="add-modal-card">
         <h3 class="text-2xl font-black text-slate-900 mb-6">Provision New User</h3>
         <form asp-action="CreateUser" method="post" class="space-y-4">
             <div>
@@ -212,8 +212,8 @@
 </div>
 
 <!-- Role Update Modal -->
-<div id="role-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+<div id="role-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="role-modal-card">
         <h3 class="text-2xl font-black text-slate-900 mb-2">Change Account Rights</h3>
         <p id="role-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
         <form asp-action="UpdateUserRole" method="post" class="space-y-4"
@@ -243,14 +243,34 @@
 
 @section Scripts {
     <script>
-        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
-        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
+        function openAddModal() { 
+            const m = document.getElementById('add-modal');
+            const c = document.getElementById('add-modal-card');
+            m.classList.remove('hidden'); 
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+        function closeAddModal() { 
+            const m = document.getElementById('add-modal');
+            const c = document.getElementById('add-modal-card');
+            c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
+
         function openPasswordModal(id, email) {
             document.getElementById('pass-target-id').value = id;
             document.getElementById('pass-email').textContent = email;
-            document.getElementById('password-modal').classList.remove('hidden');
+            
+            const m = document.getElementById('password-modal');
+            const c = document.getElementById('password-modal-card');
+            m.classList.remove('hidden'); 
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
         }
-        function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
+        function closePasswordModal() { 
+            const m = document.getElementById('password-modal');
+            const c = document.getElementById('password-modal-card');
+            c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
 
         function validatePassword() {
             const pass = document.getElementById('new-password-input').value;
@@ -266,8 +286,17 @@
         function openRoleModal(id, email) {
             document.getElementById('role-target-id').value = id;
             document.getElementById('role-email').textContent = email;
-            document.getElementById('role-modal').classList.remove('hidden');
+            
+            const m = document.getElementById('role-modal');
+            const c = document.getElementById('role-modal-card');
+            m.classList.remove('hidden'); 
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
         }
-        function closeRoleModal() { document.getElementById('role-modal').classList.add('hidden'); }
+        function closeRoleModal() { 
+            const m = document.getElementById('role-modal');
+            const c = document.getElementById('role-modal-card');
+            c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
     </script>
 }
