@@ -16,7 +16,7 @@ namespace coretex_finalproj.Services
             _apiKey = configuration["NewsApi:ApiKey"] ?? string.Empty;
         }
 
-        public async Task<string> GetLiveNewsAsync(string category)
+        public async Task<string?> GetLiveNewsAsync(string category)
         {
             if (string.IsNullOrEmpty(_apiKey)) return null;
 

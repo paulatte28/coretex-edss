@@ -241,6 +241,8 @@ namespace coretex_finalproj.Controllers
             if (report == null) return BadRequest();
 
             var userName = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userName)) return Unauthorized();
+
             var user = await _userManager.FindByNameAsync(userName);
             
             report.GeneratedById = user?.Id;

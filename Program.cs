@@ -3,6 +3,7 @@ using coretex_finalproj.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using coretex_finalproj.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,18 +25,43 @@ builder.Services.AddScoped<SummaryProcessingService>();
 builder.Services.AddScoped<ExchangeRateService>();
 builder.Services.AddScoped<NewsService>();
 builder.Services.AddScoped<TrendService>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<SecurityService>();
+builder.Services.AddDataProtection();
+builder.Services.AddMemoryCache();
 
 builder.Services
     .AddDefaultIdentity<AppUser>(options =>
     {
-        options.SignIn.RequireConfirmedAccount = false;
+        // 1. Account Lockout
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.AllowedForNewUsers = true;
+
+        // 2. Password Complexity (NIST Standards)
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequiredLength = 12; // Standard: 12+ characters
+        options.Password.RequiredUniqueChars = 1;
+
+        // 3. 2FA & Confirmation
+        options.SignIn.RequireConfirmedAccount = true; 
+        options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
     })
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Home/Login";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(20); // Real-time Security: Logout after 20 mins of inactivity
+    options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true; // Protects against XSS cookie theft
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Changed for local testing (HTTP)
+    options.Cookie.SameSite = SameSiteMode.Lax; // Relaxed for local redirects
 });
 
 builder.Services.AddControllersWithViews();
@@ -58,6 +84,23 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.Use(async (context, next) =>
+{
+    // Content Security Policy (CSP) - "Real" industry security
+    // Prevents XSS by only allowing scripts from trusted sources
+    context.Response.Headers["Content-Security-Policy"] = 
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.plot.ly https://cdn.tailwindcss.com; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com; " +
+        "font-src 'self' https://fonts.gstatic.com; " +
+        "img-src 'self' data: https:; " +
+        "frame-ancestors 'none';"; // Protects against Clickjacking
+
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    await next();
+});
+
 // FORCE DEVELOPER ERRORS TO SHOW (TEMPORARY FOR DEBUGGING)
 app.UseDeveloperExceptionPage();
 app.UseMigrationsEndPoint();

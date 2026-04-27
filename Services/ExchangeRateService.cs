@@ -49,7 +49,7 @@ namespace coretex_finalproj.Services
 
         private class ExchangeRateResponse
         {
-            public string result { get; set; }
+            public string result { get; set; } = string.Empty;
             public double conversion_result { get; set; }
         }
     }

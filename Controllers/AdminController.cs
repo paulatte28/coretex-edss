@@ -164,7 +164,8 @@ namespace coretex_finalproj.Controllers
                     Email = email,
                     FullName = fullName,
                     BranchId = branchId,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    TwoFactorEnabled = true
                 };
 
                 var result = await _userManager.CreateAsync(user, password);

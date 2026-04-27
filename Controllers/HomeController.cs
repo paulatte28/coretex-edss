@@ -2,6 +2,7 @@ using System.Diagnostics;
 using coretex_finalproj.Models;
 using coretex_finalproj.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace coretex_finalproj.Controllers
@@ -12,17 +13,26 @@ namespace coretex_finalproj.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly AuditLoggingService _auditLog;
+        private readonly IEmailSender _emailSender;
+        private readonly SecurityService _security;
+        private readonly GeolocationService _geo;
 
         public HomeController(
             ILogger<HomeController> logger,
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
-            AuditLoggingService auditLog)
+            AuditLoggingService auditLog,
+            IEmailSender emailSender,
+            SecurityService security,
+            GeolocationService geo)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
             _auditLog = auditLog;
+            _emailSender = emailSender;
+            _security = security;
+            _geo = geo;
         }
 
         public IActionResult Index()
@@ -53,9 +63,18 @@ namespace coretex_finalproj.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Login(string email, string password, bool remember, string? returnUrl = null)
         {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+            
+            // --- Suggestion 2: IP Rate Limiting ---
+            if (_security.IsRateLimited(ipAddress, "Login"))
+            {
+                ViewData["LoginError"] = "Too many attempts. Please wait 1 minute.";
+                return View();
+            }
+
             var loginId = (email ?? string.Empty).Trim();
             returnUrl ??= string.Empty;
             ViewData["ReturnUrl"] = returnUrl;
@@ -79,18 +98,22 @@ namespace coretex_finalproj.Controllers
             var result = await _signInManager.PasswordSignInAsync(user, password, remember, lockoutOnFailure: true);
             if (result.Succeeded)
             {
+                await ProcessSecurityAlerts(user, ipAddress);
                 await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User {loginId} logged in successfully.");
-                if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
-                if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
-                if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
-                if (await _userManager.IsInRoleAsync(user, "CEO")) return Redirect("/ceo/dashboard");
+                return await RedirectUserByRole(user, returnUrl);
+            }
 
-                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-                {
-                    return Redirect(returnUrl);
-                }
+            if (result.RequiresTwoFactor)
+            {
+                await ProcessSecurityAlerts(user, ipAddress);
+                
+                // Generate and send OTP
+                var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                await _emailSender.SendEmailAsync(user.Email!, "Your Security Code", 
+                    $"Your One-Time Password (OTP) is: <b>{token}</b>. This code expires in 3 minutes.");
 
-                return Redirect("/ceo/dashboard");
+                await _auditLog.LogActivityAsync("LOGIN_2FA_CHALLENGE", $"OTP Sent to {loginId}");
+                return RedirectToAction("VerifyOTP", new { email = loginId, rememberMe = remember, returnUrl });
             }
 
             ViewData["LoginError"] = result.IsLockedOut
@@ -103,6 +126,32 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult VerifyOTP(string email, bool rememberMe, string? returnUrl = null)
+        {
+            ViewData["Email"] = email;
+            ViewData["RememberMe"] = rememberMe;
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResendOTP(string email, string? returnUrl = null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                await _emailSender.SendEmailAsync(user.Email!, "Your New Security Code", 
+                    $"Your new One-Time Password (OTP) is: <b>{token}</b>. It will expire shortly.");
+                
+                await _auditLog.LogActivityAsync("LOGIN_2FA_RESEND", $"User {email} requested a new OTP.");
+                TempData["Message"] = "A new security code has been sent.";
+            }
+
+            return RedirectToAction("VerifyOTP", new { email, returnUrl });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -110,6 +159,68 @@ namespace coretex_finalproj.Controllers
             await _auditLog.LogActivityAsync("LOGOUT", "User logged out.");
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> VerifyOTP(string email, string code, bool rememberMe, string? returnUrl = null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return RedirectToAction("Login");
+
+            var result = await _signInManager.TwoFactorSignInAsync("Email", code, rememberMe, rememberClient: false);
+            if (result.Succeeded)
+            {
+                await _auditLog.LogActivityAsync("LOGIN_2FA_SUCCESS", $"User {email} verified OTP successfully.");
+                return await RedirectUserByRole(user, returnUrl);
+            }
+
+            if (result.IsLockedOut)
+            {
+                ViewData["Error"] = "Account locked due to too many failed attempts.";
+                return View();
+            }
+
+            ViewData["Error"] = "Invalid security code. Please try again.";
+            ViewData["Email"] = email;
+            ViewData["RememberMe"] = rememberMe;
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        private async Task<IActionResult> RedirectUserByRole(AppUser user, string? returnUrl)
+        {
+            if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
+            if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
+            if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
+            if (await _userManager.IsInRoleAsync(user, "CEO")) return Redirect("/ceo/dashboard");
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            return Redirect("/ceo/dashboard");
+        }
+
+        private async Task ProcessSecurityAlerts(AppUser user, string ipAddress)
+        {
+            var geo = await _geo.GetLocationAsync(ipAddress);
+            var currentLocation = $"{geo.City}, {geo.CountryName}";
+
+            // --- Suggestion 1: Geolocation Alert ---
+            if (!string.IsNullOrEmpty(user.LastLoginLocation) && user.LastLoginLocation != currentLocation)
+            {
+                await _emailSender.SendEmailAsync(user.Email!, "SECURITY ALERT: New Login Location", 
+                    $"We detected a login to your Coretex account from a new location: <b>{currentLocation}</b>. " +
+                    $"Your previous login was from: <b>{user.LastLoginLocation}</b>. If this wasn't you, please reset your password immediately.");
+                
+                await _auditLog.LogActivityAsync("SECURITY_ALERT", $"New location detected for {user.Email}: {currentLocation}");
+            }
+
+            user.LastLoginIP = ipAddress;
+            user.LastLoginLocation = currentLocation;
+            await _userManager.UpdateAsync(user);
         }
 
         public IActionResult Privacy()

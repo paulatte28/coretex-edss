@@ -18,7 +18,7 @@ namespace coretex_finalproj.Services
             _baseUrl = configuration["SerpApi:BaseUrl"] ?? "https://serpapi.com/search.json";
         }
 
-        public async Task<string> GetMarketTrendsAsync(string query = "Laptops, Smartphones, Tablets")
+        public async Task<string?> GetMarketTrendsAsync(string query = "Laptops, Smartphones, Tablets")
         {
             if (string.IsNullOrEmpty(_apiKey) || _apiKey.Contains("YOUR_")) return null;
 

@@ -166,6 +166,7 @@ namespace coretex_finalproj.Data
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
+                    TwoFactorEnabled = true,
                     FullName = fullName,
                     BranchId = branchId
                 };
@@ -195,6 +196,18 @@ namespace coretex_finalproj.Data
                 if (branchId.HasValue && user.BranchId != branchId)
                 {
                     user.BranchId = branchId;
+                    requiresUpdate = true;
+                }
+
+                if (!user.TwoFactorEnabled)
+                {
+                    user.TwoFactorEnabled = true;
+                    requiresUpdate = true;
+                }
+
+                if (!user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
                     requiresUpdate = true;
                 }
 

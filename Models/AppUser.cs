@@ -11,5 +11,9 @@ namespace coretex_finalproj.Models
 
         public Branch? Branch { get; set; }
         public string? ProfilePicturePath { get; set; }
+        
+        // Security Tracking
+        public string? LastLoginLocation { get; set; }
+        public string? LastLoginIP { get; set; }
     }
 }
