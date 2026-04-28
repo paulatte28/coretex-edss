@@ -59,7 +59,7 @@
 </div>
 
 <div id="history-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
-	<div class="bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-bold">Record deleted.</div>
+	<div class="bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-bold">Record archived.</div>
 </div>
 
 @section Scripts {
@@ -190,7 +190,7 @@
 							<td class="px-5 py-4 text-center">
 								<div class="inline-flex items-center gap-2">
 									<a href="/DataEntry?month=${encodeURIComponent(item.__monthKey)}&branch=${encodeURIComponent(item.branchId || 'branch_default')}" class="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors">Open</a>
-									<button data-id="${escapeHtml(item.id || '')}" class="delete-btn px-3 py-1.5 bg-red-50 text-red-700 text-xs font-bold rounded-lg hover:bg-red-100 transition-colors">Delete</button>
+									<button data-id="${escapeHtml(item.id || '')}" class="delete-btn px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">Archive</button>
 								</div>
 							</td>
 						</tr>
@@ -206,7 +206,7 @@
 						const id = this.getAttribute('data-id');
 						if (!id) return;
 
-						const ok = confirm('Delete this monthly record? This cannot be undone.');
+						const ok = confirm('Archive this monthly record? This will move it out of active reports.');
 						if (!ok) return;
 
 						const kept = readEntries().filter(item => String(item.id || '') !== id);

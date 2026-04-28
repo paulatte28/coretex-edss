@@ -67,7 +67,7 @@ namespace coretex_finalproj.Services
                 var secureSocketOptions = smtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
 
                 await client.ConnectAsync(smtpHost, smtpPort, secureSocketOptions);
-                await client.AuthenticateAsync(smtpUser, smtpPass);
+                await client.AuthenticateAsync(smtpUser ?? "", smtpPass ?? "");
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
 

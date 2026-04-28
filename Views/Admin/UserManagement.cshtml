@@ -131,21 +131,31 @@
     <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-[0_32px_80px_-15px_rgba(0,0,0,0.2)] transform transition-all duration-500 scale-95 opacity-0" id="password-modal-card">
         <h3 class="text-2xl font-black text-slate-900 mb-2">Reset Password</h3>
         <p id="pass-email" class="text-sm text-slate-500 mb-6 font-bold"></p>
-        <form asp-action="ResetUserPassword" method="post" class="space-y-4" onsubmit="return validatePassword()">
+        <form asp-action="ResetUserPassword" method="post" class="space-y-4" onsubmit="return validatePasswordSubmit()">
             <input type="hidden" name="userId" id="pass-target-id" />
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">New Security
-                    Password</label>
-                <input type="password" name="newPassword" id="new-password-input"
-                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-bold"
-                    placeholder="••••••••" required />
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">New Security Password</label>
+                <div class="relative">
+                    <input type="password" name="newPassword" id="new-password-input"
+                        class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-bold"
+                        placeholder="••••••••" required oninput="checkNistStrength(this.value)" />
+                    <button type="button" onclick="togglePassVisibility('new-password-input', this)" class="absolute right-4 top-3.5 text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
+                </div>
+                <!-- NIST Strength Meter -->
+                <div class="mt-4 space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">NIST Security Rules</p>
+                    <div id="rule-length" class="flex items-center gap-2 text-xs font-bold text-slate-400"><div class="w-1.5 h-1.5 rounded-full bg-current"></div> Min 12 Characters</div>
+                    <div id="rule-upper" class="flex items-center gap-2 text-xs font-bold text-slate-400"><div class="w-1.5 h-1.5 rounded-full bg-current"></div> Uppercase & Lowercase</div>
+                    <div id="rule-number" class="flex items-center gap-2 text-xs font-bold text-slate-400"><div class="w-1.5 h-1.5 rounded-full bg-current"></div> Numbers & Symbols</div>
+                </div>
             </div>
             <div class="flex gap-3 pt-4">
                 <button type="button" onclick="closePasswordModal()"
                     class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
-                <button type="submit"
-                    class="flex-1 py-3 bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-100 hover:bg-amber-600 transition-all">Reset
-                    Password</button>
+                <button type="submit" id="reset-submit-btn" disabled
+                    class="flex-1 py-3 bg-slate-200 text-slate-400 font-bold rounded-xl cursor-not-allowed transition-all">Apply Change</button>
             </div>
         </form>
     </div>
@@ -158,54 +168,54 @@
         <form asp-action="CreateUser" method="post" class="space-y-4">
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Full Name</label>
-                <input name="fullName" required
-                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
+                <input name="fullName" required placeholder="Ex: John Doe"
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all font-bold" />
             </div>
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Email
-                    Address</label>
-                <input name="email" type="email" required
-                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Email Address</label>
+                <input name="email" type="email" required placeholder="user@coretex.com"
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all font-bold" />
             </div>
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Role</label>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">System Role</label>
                 <select name="role" required
-                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
-                    <option value="CEO">CEO</option>
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
+                    <option value="CEO">CEO / Executive</option>
                     <option value="FINANCE">Finance Officer</option>
                     <option value="CASHIER">Branch Cashier</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign
-                    Branch</label>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign Branch</label>
                 <select name="branchId"
-                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none">
-                    <option value="">All Branches (HQ)</option>
+                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
+                    <option value="">HQ / Global Access</option>
                     @if (ViewBag.Branches is List<Branch> userBranches)
-
                     {
-
                         foreach (var b in userBranches)
-
                         {
                             <option value="@b.Id">@b.Name</option>
                         }
-
                     }
                 </select>
             </div>
-            <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Initial
-                    Password</label>
-                <input name="password" type="password" required
-                    class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition-all" />
+            
+            <!-- REALISTIC SECURITY NOTICE -->
+            <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 mt-4">
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5">
+                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <p class="text-[11px] text-indigo-700 leading-relaxed font-medium">
+                        <b>SECURITY AUTOMATION:</b> A unique NIST-compliant temporary password will be generated and emailed to the user upon provisioning.
+                    </p>
+                </div>
             </div>
-            <div class="flex gap-3 pt-4">
+
+            <div class="flex gap-3 pt-6">
                 <button type="button" onclick="closeAddModal()"
                     class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancel</button>
-                <button type="submit" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl">Create
-                    Account</button>
+                <button type="submit" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl shadow-lg shadow-purple-100">Provision User</button>
             </div>
         </form>
     </div>
@@ -259,6 +269,8 @@
         function openPasswordModal(id, email) {
             document.getElementById('pass-target-id').value = id;
             document.getElementById('pass-email').textContent = email;
+            document.getElementById('new-password-input').value = '';
+            checkNistStrength(''); // Reset meter
             
             const m = document.getElementById('password-modal');
             const c = document.getElementById('password-modal-card');
@@ -272,15 +284,53 @@
             setTimeout(() => { m.classList.add('hidden'); }, 500);
         }
 
-        function validatePassword() {
-            const pass = document.getElementById('new-password-input').value;
-            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{6,}$/;
-
-            if (!regex.test(pass)) {
-                alert('SECURITY VIOLATION: Password must be at least 6 characters and include Uppercase, Lowercase, Number, and Special Character (@@$!%*?&).');
-                return false;
+        function togglePassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
             }
-            return confirm('Are you sure you want to change this user\'s static credentials?');
+        }
+
+        function checkNistStrength(val) {
+            const rules = {
+                length: val.length >= 12,
+                upper: /[A-Z]/.test(val) && /[a-z]/.test(val),
+                number: /[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)
+            };
+
+            const updateRule = (id, met) => {
+                const el = document.getElementById(id);
+                if (met) {
+                    el.classList.remove('text-slate-400');
+                    el.classList.add('text-emerald-500');
+                } else {
+                    el.classList.add('text-slate-400');
+                    el.classList.remove('text-emerald-500');
+                }
+            };
+
+            updateRule('rule-length', rules.length);
+            updateRule('rule-upper', rules.upper);
+            updateRule('rule-number', rules.number);
+
+            const btn = document.getElementById('reset-submit-btn');
+            if (rules.length && rules.upper && rules.number) {
+                btn.disabled = false;
+                btn.classList.remove('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+                btn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'shadow-lg', 'shadow-indigo-100');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+                btn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'shadow-lg', 'shadow-indigo-100');
+            }
+        }
+
+        function validatePasswordSubmit() {
+            return confirm('CRITICAL SECURITY OVERRIDE: You are about to change this user\'s authentication credentials. Proceed?');
         }
 
         function openRoleModal(id, email) {

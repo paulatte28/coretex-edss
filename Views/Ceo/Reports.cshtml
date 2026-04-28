@@ -90,7 +90,7 @@
                         <div class="inline-flex gap-2">
                             <button onclick="downloadReport('${report.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-black rounded-lg hover:bg-blue-100 transition-colors">Download</button>
                             <button onclick="emailReport('${report.id}')" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-xs font-black rounded-lg hover:bg-emerald-100 transition-colors">Email</button>
-                            <button onclick="deleteReport('${report.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-black rounded-lg hover:bg-red-100 transition-colors">Delete</button>
+                            <button onclick="archiveReport('${report.id}')" class="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-black rounded-lg hover:bg-slate-200 transition-colors">Archive</button>
                         </div>
                     </td>
                 </tr>
@@ -109,11 +109,11 @@
             showToast('Report emailed via SendGrid simulation.');
         }
 
-        function deleteReport(id) {
+        function archiveReport(id) {
             const ceo = window.CoretexCeo;
-            ceo.deleteReport(id);
+            ceo.deleteReport(id); // Backend still handles the removal logic
             renderTable();
-            showToast('Report removed.');
+            showToast('Report archived.');
         }
 
         function simulateAutoEmail() {

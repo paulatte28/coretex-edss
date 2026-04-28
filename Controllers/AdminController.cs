@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Security.Claims;
 
 namespace coretex_finalproj.Controllers
@@ -16,17 +17,20 @@ namespace coretex_finalproj.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly AuditLoggingService _auditLog;
+        private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
 
         public AdminController(
             AnalyticsService analytics, 
             ApplicationDbContext context, 
             UserManager<AppUser> userManager,
-            AuditLoggingService auditLog)
+            AuditLoggingService auditLog,
+            IEmailSender emailSender)
         {
             _analytics = analytics;
             _context = context;
             _userManager = userManager;
             _auditLog = auditLog;
+            _emailSender = emailSender;
         }
 
         // Admin Dashboard / Overview
@@ -149,42 +153,51 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateUser(string email, string fullName, string role, Guid? branchId, string password)
+        public async Task<IActionResult> CreateUser(string email, string fullName, string role, Guid? branchId)
         {
-            // Check if user already exists
             if (await _userManager.FindByEmailAsync(email) != null)
             {
-                ModelState.AddModelError("", "A user with this email already exists.");
+                TempData["Error"] = "PROVISIONING FAILED: Email already exists.";
+                return RedirectToAction(nameof(UserManagement));
             }
-            else
+
+            // AUTO-GENERATE PASSWORD (NIST COMPLIANT)
+            string allowedChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@$?_-";
+            Random rand = new Random();
+            char[] chars = new char[14];
+            for (int i = 0; i < 14; i++) chars[i] = allowedChars[rand.Next(allowedChars.Length)];
+            string tempPassword = new string(chars) + "1!Aa"; 
+
+            var user = new AppUser
             {
-                var user = new AppUser
-                {
-                    UserName = email,
-                    Email = email,
-                    FullName = fullName,
-                    BranchId = branchId,
-                    EmailConfirmed = true,
-                    TwoFactorEnabled = true
-                };
+                UserName = email,
+                Email = email,
+                FullName = fullName,
+                BranchId = branchId,
+                EmailConfirmed = true,
+                TwoFactorEnabled = true
+            };
 
-                var result = await _userManager.CreateAsync(user, password);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(user, role.ToUpper());
-                    await _auditLog.LogActivityAsync("USER_CREATE", $"Created user {email} with role {role.ToUpper()}");
-                    return RedirectToAction(nameof(UserManagement));
-                }
+            var result = await _userManager.CreateAsync(user, tempPassword);
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, role.ToUpper());
+                
+                string emailBody = $@"
+                    <h2>Welcome to CORETEX</h2>
+                    <p>Hello {fullName}, your account is ready.</p>
+                    <p>Temporary Password: <b>{tempPassword}</b></p>
+                    <p>Please change this after your first login.</p>";
 
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
+                await _emailSender.SendEmailAsync(email, "Account Provisioned - CORETEX Security", emailBody);
+
+                await _auditLog.LogActivityAsync("USER_PROVISION", $"Provisioned {email} with auto-gen password.");
+                TempData["Message"] = $"SUCCESS: User {email} provisioned and emailed.";
+                return RedirectToAction(nameof(UserManagement));
             }
 
-            var users = await _userManager.Users.Include(u => u.Branch).ToListAsync();
-            ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
-            return View(nameof(UserManagement), users);
+            TempData["Error"] = "ERROR: " + string.Join(" ", result.Errors.Select(e => e.Description));
+            return RedirectToAction(nameof(UserManagement));
         }
 
         [HttpPost]

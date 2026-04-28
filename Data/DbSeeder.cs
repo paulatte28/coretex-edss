@@ -115,7 +115,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "admin@coretex.com",
                 fullName: "System Administrator",
-                password: "Admin123!",
+                password: "Password12345!",
                 role: "ADMIN",
                 branchId: null,
                 logger: logger);
@@ -124,7 +124,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "ceo@coretex.com",
                 fullName: "Chief Executive Officer",
-                password: "Ceo12345!",
+                password: "Password12345!",
                 role: "CEO",
                 branchId: null,
                 logger: logger);
@@ -133,7 +133,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "finance@coretex.com",
                 fullName: "Finance Officer",
-                password: "Finance123!",
+                password: "Password12345!",
                 role: "FINANCE",
                 branchId: defaultBranchId,
                 logger: logger);
@@ -142,7 +142,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "cashier@coretex.com",
                 fullName: "Branch Cashier",
-                password: "Cashier123!",
+                password: "Password12345!",
                 role: "CASHIER",
                 branchId: defaultBranchId,
                 logger: logger);
@@ -222,6 +222,10 @@ namespace coretex_finalproj.Data
                             string.Join(", ", updateUserResult.Errors.Select(e => e.Description)));
                     }
                 }
+
+                // --- NIST Compliance: Force Update Password for Default Accounts ---
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                await userManager.ResetPasswordAsync(user, resetToken, password);
             }
 
             if (!await userManager.IsInRoleAsync(user, role))
