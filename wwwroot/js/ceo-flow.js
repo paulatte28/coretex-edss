@@ -643,9 +643,11 @@
             const articles = Array.isArray(data.articles)
                 ? data.articles.map(item => ({
                     title: item.title,
+                    description: item.description,
                     source: item.source ? item.source.name : 'Unknown Source',
                     publishedAt: item.publishedAt,
-                    url: item.url
+                    url: item.url,
+                    image: item.urlToImage
                 }))
                 : [];
 
@@ -785,8 +787,6 @@
         fetchTrends,
         readReports,
         saveGeneratedReport,
-        downloadReport,
-        emailReport,
         deleteReport,
         createReportPdfContent
     };

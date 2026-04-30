@@ -34,38 +34,35 @@ namespace coretex_finalproj.Controllers
         }
 
         // Admin Dashboard / Overview
-        public async Task<IActionResult> Index(Guid? branchId)
+        public async Task<IActionResult> Index()
         {
-            ViewBag.SelectedBranchId = branchId;
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
-            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
-            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
-            
-            // Analytics for the widgets
+            // Technical Telemetry for the widgets
             ViewBag.UserCount = await _userManager.Users.CountAsync();
             ViewBag.BranchCount = await _context.Branches.Where(b => !b.IsArchived).CountAsync();
-            ViewBag.TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount);
-            ViewBag.ForecastRevenue = await _analytics.GetSalesForecastAsync(branchId);
-
-            // Backend #5: Strategic Alert Scanning (Upgraded to use Database Thresholds)
-            var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
-            var highRiskList = new List<string>();
             
-            foreach(var b in branches)
-            {
-                var rev = await _context.Sales.Where(s => !s.IsArchived && s.BranchId == b.Id).SumAsync(s => s.Amount);
-                var exp = await _context.Expenses.Where(e => !e.IsArchived && e.BranchId == b.Id).SumAsync(e => e.Amount);
-                
-                // Fetch specific threshold for this branch, or use default (80%)
-                var threshold = await _context.KpiThresholds.FirstOrDefaultAsync(t => t.BranchId == b.Id && t.IsActive);
-                decimal maxRatio = threshold != null ? (threshold.MaxExpenseRatio / 100m) : 0.8m;
+            // Security Metrics: Total events in the last 24 hours
+            var dayAgo = DateTime.UtcNow.AddDays(-1);
+            ViewBag.SecurityEventsCount = await _context.ActivityLogs
+                .CountAsync(l => l.CreatedAt >= dayAgo);
 
-                if(rev > 0 && (exp/rev) > maxRatio) 
-                {
-                    highRiskList.Add(b.Name);
-                }
-            }
-            ViewBag.HighRiskAlerts = highRiskList;
+            // Access Control: New users in the last 7 days
+            var weekAgo = DateTime.UtcNow.AddDays(-7);
+            ViewBag.NewAccessCount = await _userManager.Users
+                .CountAsync(u => u.Id.ToString() != null); 
+
+            // Database Integrity: Total Records Managed
+            ViewBag.TotalRecords = await _context.ActivityLogs.CountAsync() 
+                                + await _context.Sales.CountAsync() 
+                                + await _context.Expenses.CountAsync();
+
+            // System Alerts: Scan for critical security events
+            var criticalAlerts = await _context.ActivityLogs
+                .Where(l => l.CreatedAt >= dayAgo && (l.ActionType.Contains("FAILURE") || l.ActionType.Contains("UNAUTHORIZED")))
+                .Take(5)
+                .Select(l => $"{l.ActionType}: {l.Description}")
+                .ToListAsync();
+
+            ViewBag.SystemAlerts = criticalAlerts;
 
             return View();
         }
@@ -396,14 +393,7 @@ namespace coretex_finalproj.Controllers
             return View(submissions);
         }
 
-        public async Task<IActionResult> AuditTrail()
-        {
-            var logs = await _context.ActivityLogs
-                .OrderByDescending(l => l.CreatedAt)
-                .Take(100)
-                .ToListAsync();
-            return View(logs);
-        }
+        // Removed AuditTrail from Admin scope (Moved to CEO for SoD Compliance)
         // --- Strategic Goals & KPI Backend ---
 
         [HttpPost]

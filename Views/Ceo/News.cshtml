@@ -45,21 +45,50 @@
         async function renderNews() {
             const ceo = window.CoretexCeo;
             const category = document.getElementById('news-category').value;
+            
+            // Show loading state
+            const grid = document.getElementById('news-grid');
+            grid.innerHTML = Array(6).fill(0).map(() => `
+                <div class="animate-pulse bg-white rounded-[2rem] h-80 border border-slate-100"></div>
+            `).join('');
+
             const result = await ceo.fetchNews(category);
 
-            document.getElementById('news-source').textContent = result.source === 'newsapi'
-                ? 'Source: NewsAPI'
-                : 'Source: Demo fallback feed (set coretex_news_api_key in localStorage to use NewsAPI)';
+            document.getElementById('news-source').innerHTML = result.source === 'newsapi'
+                ? '<span class="flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Live Intelligence Feed</span>'
+                : '<span class="flex items-center gap-2"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> Simulator Mode (Check API Key)</span>';
 
-            const grid = document.getElementById('news-grid');
-            grid.innerHTML = result.articles.map(article => `
-                <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">${article.source || 'Unknown Source'}</p>
-                    <h3 class="text-base font-black text-slate-900 mt-2 leading-tight">${article.title || 'Untitled headline'}</h3>
-                    <p class="text-xs text-slate-500 mt-2">${new Date(article.publishedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                    <a href="${article.url || '#'}" target="_blank" rel="noopener noreferrer" class="mt-4 text-xs font-black text-blue-600 hover:underline">Read more</a>
-                </article>
-            `).join('');
+            grid.innerHTML = result.articles.map(article => {
+                const imageUrl = article.image || 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1000&auto=format&fit=crop';
+                return `
+                    <article class="group bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col overflow-hidden h-full">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1000&auto=format&fit=crop'" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <span class="px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-[9px] font-black text-white uppercase tracking-widest rounded-lg">
+                                    ${article.source || 'Intelligence'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <div class="flex items-center justify-between mb-3">
+                                <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">${new Date(article.publishedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                                <span class="w-1.5 h-1.5 bg-slate-200 rounded-full"></span>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${category}</p>
+                            </div>
+                            <h3 class="text-lg font-black text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">${article.title || 'Untitled headline'}</h3>
+                            <p class="text-xs text-slate-500 mt-3 line-clamp-3 font-medium leading-relaxed">${article.description || 'Access full intelligence report for market impact analysis.'}</p>
+                            <div class="mt-auto pt-6 flex items-center justify-between">
+                                <a href="${article.url || '#'}" target="_blank" class="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 group/link">
+                                    Analyze Report 
+                                    <svg class="w-3 h-3 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
         }
 
         document.addEventListener('DOMContentLoaded', function () {

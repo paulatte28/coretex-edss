@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using coretex_finalproj.Models;
 using coretex_finalproj.Services;
+using coretex_finalproj.Data;
 
 namespace coretex_finalproj.Controllers
 {
@@ -173,14 +174,28 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
-        public IActionResult ReportsGenerate()
+        [Authorize(Roles = "CEO")]
+        public async Task<IActionResult> Reports()
         {
-            return RedirectToAction("ReportSchedule", "Admin");
+            var submissions = await _context.BranchSubmissions
+                .Include(s => s.Branch)
+                .OrderByDescending(s => s.SubmittedAt)
+                .Take(50)
+                .ToListAsync();
+            return View(submissions);
         }
 
-        public IActionResult Reports()
+        [Authorize(Roles = "CEO")]
+        public async Task<IActionResult> ReportsGenerate()
         {
-            return RedirectToAction("BranchSubmissions", "Admin");
+            var summary = new BusinessSummaryViewModel
+            {
+                TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount),
+                TotalExpenses = await _context.Expenses.Where(e => !e.IsArchived).SumAsync(e => e.Amount),
+                ActiveBranches = await _context.Branches.Where(b => !b.IsArchived).CountAsync()
+            };
+            summary.NetProfit = summary.TotalRevenue - summary.TotalExpenses;
+            return View(summary);
         }
         [HttpGet]
         public async Task<IActionResult> GetAnalyticsSeries()
@@ -282,6 +297,15 @@ namespace coretex_finalproj.Controllers
             _context.GeneratedReports.Remove(report);
             await _context.SaveChangesAsync();
             return Json(new { success = true });
+        }
+
+        public async Task<IActionResult> AuditTrail()
+        {
+            var logs = await _context.ActivityLogs
+                .OrderByDescending(l => l.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+            return View(logs);
         }
     }
 }
