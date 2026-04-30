@@ -8,9 +8,11 @@
 		<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 			<div>
 				<h2 class="text-3xl font-black text-slate-900 tracking-tight">Data Entry</h2>
-				<p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Manual monthly input for CEO analytics</p>
+				<p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Manual monthly input for CEO
+					analytics</p>
 			</div>
-			<a href="/DataEntry/History" class="px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-colors">
+			<a href="/DataEntry/History"
+				class="px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-colors">
 				View History
 			</a>
 		</div>
@@ -26,35 +28,59 @@
 			<form id="entry-form" class="p-6 space-y-5">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div>
-						<label for="month-key" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Month</label>
-						<input id="month-key" type="month" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" />
+						<label for="month-key"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Month</label>
+						<input id="month-key" type="month" required
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" />
 					</div>
 					<div>
-						<label for="branch-select" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Branch</label>
-						<select id="branch-select" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"></select>
+						<label for="branch-select"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Branch</label>
+						<select id="branch-select"
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"></select>
 					</div>
 				</div>
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div>
-						<label for="sales" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Sales (PHP)</label>
-						<input id="sales" type="number" min="0" step="0.01" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+						<label for="sales"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total
+							Sales (PHP)</label>
+						<input id="sales" type="number" min="0" step="0.01" required
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+							placeholder="0.00" />
 					</div>
 					<div>
-						<label for="cogs" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">COGS (PHP)</label>
-						<input id="cogs" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+						<label for="cogs"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">COGS
+							(PHP)</label>
+						<input id="cogs" type="number" min="0" step="0.01"
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+							placeholder="0.00" />
 					</div>
 					<div>
-						<label for="rent" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Rent (PHP)</label>
-						<input id="rent" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+						<label for="rent"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Rent
+							(PHP)</label>
+						<input id="rent" type="number" min="0" step="0.01"
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+							placeholder="0.00" />
 					</div>
 					<div>
-						<label for="salaries" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Salaries (PHP)</label>
-						<input id="salaries" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+						<label for="salaries"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Salaries
+							(PHP)</label>
+						<input id="salaries" type="number" min="0" step="0.01"
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+							placeholder="0.00" />
 					</div>
 					<div class="md:col-span-2">
-						<label for="utilities" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Utilities (PHP)</label>
-						<input id="utilities" type="number" min="0" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold" placeholder="0.00" />
+						<label for="utilities"
+							class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Utilities
+							(PHP)</label>
+						<input id="utilities" type="number" min="0" step="0.01"
+							class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+							placeholder="0.00" />
 					</div>
 				</div>
 
@@ -74,10 +100,12 @@
 				</div>
 
 				<div class="flex items-center gap-3">
-					<button type="submit" class="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-colors">
+					<button type="submit"
+						class="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-colors">
 						Save Entry
 					</button>
-					<button type="button" id="reset-btn" class="px-5 py-3 bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-colors">
+					<button type="button" id="reset-btn"
+						class="px-5 py-3 bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-colors">
 						Reset
 					</button>
 				</div>
@@ -87,22 +115,32 @@
 		<div class="xl:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
 			<div class="p-6 border-b border-slate-100 flex items-center justify-between">
 				<h3 class="text-base font-black text-slate-900">Recent Entries</h3>
-				<a href="/DataEntry/History" class="text-xs font-bold text-blue-600 hover:underline">Open Full History</a>
+				<a href="/DataEntry/History" class="text-xs font-bold text-blue-600 hover:underline">Open Full
+					History</a>
 			</div>
 
 			<div class="overflow-x-auto">
 				<table class="w-full">
 					<thead class="bg-slate-50">
 						<tr>
-							<th class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Month</th>
-							<th class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Branch</th>
-							<th class="px-4 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Sales</th>
-							<th class="px-4 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Profit</th>
+							<th
+								class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">
+								Month</th>
+							<th
+								class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">
+								Branch</th>
+							<th
+								class="px-4 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">
+								Sales</th>
+							<th
+								class="px-4 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">
+								Profit</th>
 						</tr>
 					</thead>
 					<tbody id="recent-rows" class="divide-y divide-slate-100">
 						<tr>
-							<td colspan="4" class="px-4 py-8 text-center text-xs text-slate-400 italic">No entries yet.</td>
+							<td colspan="4" class="px-4 py-8 text-center text-xs text-slate-400 italic">No entries yet.
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -199,8 +237,8 @@
 			function fillBranchOptions() {
 				const branches = readBranches();
 				branchSelect.innerHTML = branches.map(branch => `
-					<option value="${escapeHtml(branch.id)}">${escapeHtml(branch.name)}</option>
-				`).join('');
+								<option value="${escapeHtml(branch.id)}">${escapeHtml(branch.name)}</option>
+							`).join('');
 			}
 
 			function readBranches() {
@@ -281,13 +319,13 @@
 					const profit = toNumber(item.profit || (sales - expenses));
 
 					return `
-						<tr class="hover:bg-slate-50 transition-colors">
-							<td class="px-4 py-3 text-sm font-semibold text-slate-900">${monthLabelFromKey(item.__monthKey)}</td>
-							<td class="px-4 py-3 text-sm text-slate-600">${escapeHtml(item.branchName || 'Main Branch')}</td>
-							<td class="px-4 py-3 text-sm text-slate-900 text-right">${formatCurrency(sales)}</td>
-							<td class="px-4 py-3 text-sm font-black text-right ${profit < 0 ? 'text-red-600' : 'text-emerald-700'}">${formatCurrency(profit)}</td>
-						</tr>
-					`;
+									<tr class="hover:bg-slate-50 transition-colors">
+										<td class="px-4 py-3 text-sm font-semibold text-slate-900">${monthLabelFromKey(item.__monthKey)}</td>
+										<td class="px-4 py-3 text-sm text-slate-600">${escapeHtml(item.branchName || 'Main Branch')}</td>
+										<td class="px-4 py-3 text-sm text-slate-900 text-right">${formatCurrency(sales)}</td>
+										<td class="px-4 py-3 text-sm font-black text-right ${profit < 0 ? 'text-red-600' : 'text-emerald-700'}">${formatCurrency(profit)}</td>
+									</tr>
+								`;
 				}).join('');
 			}
 

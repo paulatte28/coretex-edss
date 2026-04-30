@@ -142,12 +142,44 @@ namespace coretex_finalproj.Controllers
             return RedirectToAction(nameof(BranchManagement));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBranch(Branch branch)
+        {
+            var existing = await _context.Branches.FindAsync(branch.Id);
+            if (existing != null)
+            {
+                existing.Name = branch.Name;
+                existing.BranchCode = branch.BranchCode;
+                existing.Address = branch.Address;
+                
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("BRANCH_UPDATE", $"Updated branch details for: {branch.Name}");
+                TempData["Message"] = $"Branch '{branch.Name}' updated successfully.";
+            }
+            return RedirectToAction(nameof(BranchManagement));
+        }
+
         // --- User Management ---
 
         public async Task<IActionResult> UserManagement()
         {
-            var users = await _userManager.Users.Include(u => u.Branch).ToListAsync();
-            ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            IQueryable<AppUser> query = _userManager.Users.Include(u => u.Branch);
+
+            if (currentUser?.BranchId != null)
+            {
+                // Branch Admin view
+                query = query.Where(u => u.BranchId == currentUser.BranchId);
+                ViewBag.Branches = await _context.Branches.Where(b => b.Id == currentUser.BranchId).ToListAsync();
+            }
+            else
+            {
+                // Global Admin view
+                ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
+            }
+
+            var users = await query.ToListAsync();
             return View(users);
         }
 
@@ -224,10 +256,32 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleUserStatus(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                user.IsActive = !user.IsActive;
+                await _userManager.UpdateAsync(user);
+                await _auditLog.LogActivityAsync("USER_STATUS_TOGGLE", $"Admin manually {(user.IsActive ? "Activated" : "Deactivated")} account: {user.Email}");
+                TempData["Message"] = $"User {user.Email} is now {(user.IsActive ? "ACTIVE" : "INACTIVE")}.";
+            }
+            return RedirectToAction(nameof(UserManagement));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUserRole(string userId, string newRole)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return RedirectToAction(nameof(UserManagement));
+
+            // CRITICAL SECURITY: Only a CEO can promote someone to CEO
+            if (newRole.Equals("CEO", StringComparison.OrdinalIgnoreCase) && !User.IsInRole("CEO"))
+            {
+                TempData["Error"] = "AUTHORIZATION DENIED: Promoting to CEO/Executive requires Owner-level credentials. Please contact the Business Owner.";
+                return RedirectToAction(nameof(UserManagement));
+            }
 
             // SECURITY GUARD LOGIC: Check if we are demoting the only CEO
             var currentRoles = await _userManager.GetRolesAsync(user);
@@ -319,8 +373,15 @@ namespace coretex_finalproj.Controllers
         }
         public async Task<IActionResult> ActivityLog()
         {
-            var logs = await _context.ActivityLogs
-                .Include(l => l.Branch)
+            var currentUser = await _userManager.GetUserAsync(User);
+            IQueryable<ActivityLogEntry> query = _context.ActivityLogs.Include(l => l.Branch);
+
+            if (currentUser?.BranchId != null)
+            {
+                query = query.Where(l => l.BranchId == currentUser.BranchId);
+            }
+
+            var logs = await query
                 .OrderByDescending(l => l.CreatedAt)
                 .Take(100)
                 .ToListAsync();
@@ -410,6 +471,64 @@ namespace coretex_finalproj.Controllers
             await _context.SaveChangesAsync();
             await _auditLog.LogActivityAsync("GOAL_DELETE", $"Deleted strategic goal: {goal.MetricName}");
             return Json(new { success = true });
+        }
+
+        // --- Archive Management ---
+
+        public async Task<IActionResult> Archives()
+        {
+            var model = new ArchivesViewModel
+            {
+                ArchivedBranches = await _context.Branches.Where(b => b.IsArchived).ToListAsync(),
+                ArchivedSales = await _context.Sales.Include(s => s.Branch).Where(s => s.IsArchived).ToListAsync(),
+                ArchivedExpenses = await _context.Expenses.Include(e => e.Branch).Where(e => e.IsArchived).ToListAsync()
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnarchiveBranch(Guid id)
+        {
+            var branch = await _context.Branches.FindAsync(id);
+            if (branch != null)
+            {
+                branch.IsArchived = false;
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("BRANCH_RESTORE", $"Restored branch: {branch.Name}");
+                TempData["Message"] = $"Branch '{branch.Name}' has been restored.";
+            }
+            return RedirectToAction(nameof(Archives));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnarchiveSale(Guid id)
+        {
+            var sale = await _context.Sales.FindAsync(id);
+            if (sale != null)
+            {
+                sale.IsArchived = false;
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("SALE_RESTORE", $"Restored transaction: #{sale.OrderId}");
+                TempData["Message"] = $"Transaction #{sale.OrderId} has been restored.";
+            }
+            return RedirectToAction(nameof(Archives));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnarchiveExpense(Guid id)
+        {
+            var expense = await _context.Expenses.FindAsync(id);
+            if (expense != null)
+            {
+                expense.IsArchived = false;
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("EXPENSE_RESTORE", $"Restored expense: {expense.Description}");
+                TempData["Message"] = $"Expense '{expense.Description}' has been restored.";
+            }
+            return RedirectToAction(nameof(Archives));
         }
     }
 }

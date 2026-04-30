@@ -57,74 +57,160 @@
         </button>
     </div>
 
-    <!-- User Table -->
-    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <table class="w-full">
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Full Name</th>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Email Address</th>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Branch Assigned</th>
-                    <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        System Role</th>
-                    <th class="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach (var user in Model)
+    <!-- Corporate Ownership Section (The "Boss" Area) -->
+    @{
+        var ceoUsers = new List<coretex_finalproj.Models.AppUser>();
+        var staffUsers = new List<coretex_finalproj.Models.AppUser>();
+        
+        foreach(var user in Model)
+        {
+            if ((await _userManager.GetRolesAsync(user)).Contains("CEO"))
+                ceoUsers.Add(user);
+            else
+                staffUsers.Add(user);
+        }
+    }
 
+    @if (ceoUsers.Any())
+    {
+        <div class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-1.5 h-6 bg-indigo-500 rounded-full shadow-lg shadow-indigo-200"></div>
+                <h3 class="text-xl font-black text-slate-900 tracking-tight">Corporate Ownership</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @foreach (var ceo in ceoUsers)
                 {
-                    <tr class="hover:bg-slate-50 group transition-colors">
-                        <td class="px-8 py-4">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-sm">
-                                    @(user.FullName?.Length > 0 ? user.FullName.Substring(0, 1).ToUpper() : "U")
+                    <div class="bg-slate-900 rounded-[2.5rem] p-8 border border-slate-800 shadow-2xl relative overflow-hidden group">
+                        <div class="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500/10 rounded-full group-hover:scale-150 transition-transform duration-1000"></div>
+                        
+                        <div class="flex items-center justify-between relative z-10">
+                            <div class="flex items-center gap-5">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-indigo-900/40 group-hover:rotate-6 transition-transform">
+                                    @(ceo.FullName?.Length > 0 ? ceo.FullName.Substring(0, 1).ToUpper() : "C")
                                 </div>
-                                <span class="font-bold text-slate-900">@user.FullName</span>
+                                <div>
+                                    <h4 class="text-xl font-black text-white tracking-tight">@ceo.FullName</h4>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="px-3 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-full">System Owner</span>
+                                        <span class="text-[10px] text-slate-500 font-bold">@ceo.Email</span>
+                                    </div>
+                                </div>
                             </div>
-                        </td>
-                        <td class="px-8 py-4 text-sm text-slate-500 font-medium">@user.Email</td>
-                        <td class="px-8 py-4">
-                            <span
-                                class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-full border border-slate-200">
-                                @(user.Branch?.Name ?? "HQ / GLOBAL")
-                            </span>
-                        </td>
-                        <td class="px-8 py-4">
-                            <span
-                                class="px-3 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase rounded-full">
-                                @((await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "USER")
-                            </span>
-                        </td>
-                        <td class="px-8 py-4 flex items-center justify-center gap-2">
-                            <button onclick="openPasswordModal('@user.Id', '@user.Email')"
-                                class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-                                title="Reset Password">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                </svg>
-                            </button>
-                            <button onclick="openRoleModal('@user.Id', '@user.Email')"
-                                class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                                title="Edit Permissions">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="openPasswordModal('@ceo.Id', '@ceo.Email')" class="w-10 h-10 rounded-xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all" title="Secure Credentials">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
+    }
+
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-1.5 h-6 bg-purple-500 rounded-full"></div>
+        <h3 class="text-xl font-black text-slate-900 tracking-tight">Operational Workforce</h3>
+    </div>
+
+    <!-- High-Density Staff Directory (Collapsible Accordion) -->
+    <div class="space-y-4">
+        @foreach (var branchGroup in staffUsers.GroupBy(u => u.Branch?.Name ?? "Main Branch"))
+        {
+            var groupId = branchGroup.Key.Replace(" ", "-").ToLower();
+            <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                <!-- Branch Header Toggle -->
+                <button onclick="toggleBranch('@groupId')" 
+                        class="w-full flex items-center justify-between p-6 hover:bg-slate-50 transition-colors text-left group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-slate-900 tracking-tight">@branchGroup.Key</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">@branchGroup.Count() Staff Members Assigned</p>
+                        </div>
+                    </div>
+                    <svg id="icon-@groupId" class="w-5 h-5 text-slate-300 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+
+                <!-- Staff List Area (Compact Table) -->
+                <div id="content-@groupId" class="hidden border-t border-slate-50 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50/50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Employee</th>
+                                <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Authorized Role</th>
+                                <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Security Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            @foreach (var user in branchGroup)
+                            {
+                                var roles = await _userManager.GetRolesAsync(user);
+                                var role = roles.FirstOrDefault() ?? "USER";
+                                var roleColor = role switch {
+                                    "FINANCE" => "text-blue-600 bg-blue-50 border-blue-100",
+                                    "CASHIER" => "text-emerald-600 bg-emerald-50 border-emerald-100",
+                                    "ADMIN" => "text-purple-600 bg-purple-50 border-purple-100",
+                                    _ => "text-slate-500 bg-slate-50 border-slate-100"
+                                };
+
+                                <tr class="hover:bg-slate-50/50 transition-colors group @(user.IsActive ? "" : "opacity-60")">
+                                    <td class="px-8 py-4">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl @(user.IsActive ? "bg-slate-900" : "bg-slate-300") flex items-center justify-center text-white text-xs font-black shadow-sm group-hover:scale-110 transition-transform">
+                                                @(user.FullName?.Length > 0 ? user.FullName.Substring(0, 1).ToUpper() : "U")
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-black text-slate-900">@user.FullName</p>
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">@user.Email</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <span class="px-2.5 py-1 @roleColor border text-[9px] font-black uppercase tracking-widest rounded-md">
+                                            @role
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="w-1.5 h-1.5 rounded-full @(user.IsActive ? "bg-emerald-400 animate-pulse" : "bg-slate-300")"></div>
+                                            <span class="text-[10px] font-black uppercase tracking-widest @(user.IsActive ? "text-emerald-600" : "text-slate-400")">
+                                                @(user.IsActive ? "Active" : "Disabled")
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <form asp-action="ToggleUserStatus" method="post" class="inline">
+                                                <input type="hidden" name="userId" value="@user.Id" />
+                                                <button type="submit" class="w-9 h-9 rounded-lg @(user.IsActive ? "bg-rose-50 text-rose-400 hover:text-rose-600 hover:bg-rose-100" : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100") flex items-center justify-center transition-all" title="@(user.IsActive ? "Deactivate" : "Activate")">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                                </button>
+                                            </form>
+                                            <button onclick="openPasswordModal('@user.Id', '@user.Email')" class="w-9 h-9 rounded-lg bg-slate-50 text-slate-400 hover:text-amber-600 hover:bg-amber-100 flex items-center justify-center transition-all" title="Reset Credentials">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                            </button>
+                                            <button onclick="openRoleModal('@user.Id', '@user.Email')" class="w-9 h-9 rounded-lg bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-all" title="Manage Permissions">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
 
 <!-- Password Reset Modal -->
 <div id="password-modal" class="fixed inset-0 bg-white/60 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
@@ -180,7 +266,7 @@
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">System Role</label>
                 <select name="role" required
                     class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
-                    <option value="CEO">CEO / Executive</option>
+                    <option value="ADMIN">Branch Administrator</option>
                     <option value="FINANCE">Finance Officer</option>
                     <option value="CASHIER">Branch Cashier</option>
                 </select>
@@ -189,7 +275,7 @@
                 <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Assign Branch</label>
                 <select name="branchId"
                     class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
-                    <option value="">HQ / Global Access</option>
+                    <option value="">Main Branch</option>
                     @if (ViewBag.Branches is List<Branch> userBranches)
                     {
                         foreach (var b in userBranches)
@@ -234,7 +320,7 @@
                     Role</label>
                 <select name="newRole"
                     class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-bold">
-                    <option value="CEO">CEO / EXECUTIVE</option>
+                    <option value="ADMIN">BRANCH ADMINISTRATOR</option>
                     <option value="FINANCE">FINANCE OFFICER</option>
                     <option value="CASHIER">BRANCH CASHIER</option>
                     <option value="USER">BASIC STAFF</option>
@@ -347,6 +433,18 @@
             const c = document.getElementById('role-modal-card');
             c.classList.remove('scale-100', 'opacity-100'); c.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { m.classList.add('hidden'); }, 500);
+        }
+        function toggleBranch(id) {
+            const content = document.getElementById('content-' + id);
+            const icon = document.getElementById('icon-' + id);
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
         }
     </script>
 }

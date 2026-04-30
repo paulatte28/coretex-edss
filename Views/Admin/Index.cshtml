@@ -141,6 +141,106 @@
             </a>
         </div>
     </div>
+    <!-- System Infrastructure Health -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+        <div class="lg:col-span-2 bg-white rounded-[3rem] p-10 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-xl font-black text-slate-900">Infrastructure Health</h3>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Real-time Monitoring</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Database -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-emerald-50/30 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Core Database</p>
+                            <h4 class="font-black text-slate-900">PostgreSQL Cluster</h4>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase rounded-lg">Operational</span>
+                </div>
+
+                <!-- API -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-blue-50/30 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">External APIs</p>
+                            <h4 class="font-black text-slate-900">Exchange & SMS</h4>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 text-[9px] font-black uppercase rounded-lg">Connected</span>
+                </div>
+
+                <!-- Storage -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-purple-50/30 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Storage Cluster</p>
+                            <h4 class="font-black text-slate-900">AWS S3 / Local</h4>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-700 text-[9px] font-black uppercase rounded-lg">14% Used</span>
+                </div>
+
+                <!-- Workers -->
+                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-amber-50/30 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-amber-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Task Runner</p>
+                            <h4 class="font-black text-slate-900">Report Automation</h4>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-amber-100 text-amber-700 text-[9px] font-black uppercase rounded-lg">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Security Log Snapshot -->
+        <div class="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-200">
+            <h3 class="text-xl font-black mb-6">Security Sentinel</h3>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Latest Security Event</p>
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
+                </div>
+                <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <p class="text-xs font-bold text-slate-300">New Admin Provisioned</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Global HQ • Just now</p>
+                </div>
+                <div class="pt-4 space-y-4">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-400">Brute Force Filter</span>
+                        <span class="text-emerald-400 font-bold">Enabled</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-400">2FA Enforcement</span>
+                        <span class="text-emerald-400 font-bold">Active</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-400">Encryption Level</span>
+                        <span class="text-white font-bold">AES-256</span>
+                    </div>
+                </div>
+                <a href="/Admin/ActivityLog" class="block w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-center text-xs font-black uppercase tracking-widest transition-all mt-6">View Full Audit</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
