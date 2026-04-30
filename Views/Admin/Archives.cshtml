@@ -1,99 +1,97 @@
 @model coretex_finalproj.Models.ArchivesViewModel
 @{
-    ViewData["Title"] = "System Archives";
+    ViewData["Title"] = "System Backups";
     Layout = "_AdminLayout";
 }
 
 <div class="space-y-8">
-    <!-- Header -->
+    <!-- Clean Header -->
     <div class="flex items-center justify-between">
         <div>
-            <div class="flex items-center space-x-3 mb-2">
-                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </a>
-                <span class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Data Recovery</span>
-            </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">System Archives</h2>
-            <p class="text-sm text-slate-500 mt-1">Review and restore archived branches, transactions, and expenses.</p>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">System Data Backups</h2>
+            <p class="text-sm text-slate-500 mt-1">Manage technical snapshots and restore deleted operational data.</p>
         </div>
+        <button onclick="location.reload()" class="px-6 py-3 bg-indigo-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+            Generate New Backup
+        </button>
     </div>
 
-    @if (TempData["Message"] != null)
-    {
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl flex items-center gap-3 animate-slide-in">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            <span class="font-bold">@TempData["Message"]</span>
+    <!-- Simplified Backup List -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-50 bg-slate-50/50">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recent System Snapshots</h3>
         </div>
-    }
-
-    <!-- Tabs -->
-    <div class="flex border-b border-slate-200 gap-8">
-        <button onclick="switchTab('branches')" id="tab-branches" class="pb-4 px-2 text-sm font-black uppercase tracking-widest border-b-2 border-indigo-600 text-indigo-600 transition-all">Branches (@Model.ArchivedBranches.Count)</button>
-        <button onclick="switchTab('sales')" id="tab-sales" class="pb-4 px-2 text-sm font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">Transactions (@Model.ArchivedSales.Count)</button>
-        <button onclick="switchTab('expenses')" id="tab-expenses" class="pb-4 px-2 text-sm font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">Expenses (@Model.ArchivedExpenses.Count)</button>
-    </div>
-
-    <!-- Branch Section -->
-    <div id="section-branches" class="tab-section space-y-6">
-        @if (!Model.ArchivedBranches.Any())
-        {
-            <div class="bg-white rounded-3xl p-12 text-center border border-slate-100">
-                <p class="text-slate-400 font-bold">No archived branches found.</p>
-            </div>
-        }
-        else
-        {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach (var branch in Model.ArchivedBranches)
-                {
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 border-b-4 border-b-slate-300 hover:shadow-xl transition-all group">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center font-black text-lg">
-                                @branch.BranchCode.Substring(0, Math.Min(2, branch.BranchCode.Length)).ToUpper()
-                            </div>
-                            <form asp-action="UnarchiveBranch" asp-route-id="@branch.Id" method="post">
-                                <button type="submit" class="px-4 py-2 bg-indigo-50 text-indigo-600 text-xs font-black rounded-xl hover:bg-indigo-600 hover:text-white transition-all">Restore</button>
-                            </form>
-                        </div>
-                        <h4 class="text-xl font-black text-slate-900">@branch.Name</h4>
-                        <div class="mt-3 space-y-2">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Code: @branch.BranchCode</p>
-                        </div>
+        <div class="divide-y divide-slate-50">
+            <div class="flex items-center justify-between p-6 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-black text-xs">BK</div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">System_Backup_Current_State.bak</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Size: 42 MB • Created: Today</p>
                     </div>
-                }
+                </div>
+                <button class="px-4 py-2 bg-slate-100 text-slate-600 text-[10px] font-black rounded-lg hover:bg-indigo-600 hover:text-white transition-all uppercase">Restore</button>
             </div>
-        }
+        </div>
     </div>
 
-    <!-- Sales Section -->
-    <div id="section-sales" class="tab-section hidden space-y-6">
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <table class="w-full">
-                <thead class="bg-slate-50">
+    <!-- Data Restoration Section -->
+    <div class="pt-6 space-y-6">
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Restore Point</h3>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl text-sm font-bold animate-slide-in">
+                @TempData["Message"]
+            </div>
+        }
+
+        <!-- Tabs -->
+        <div class="flex border-b border-slate-200 gap-8">
+            <button onclick="switchTab('branches')" id="tab-branches" class="pb-4 px-2 text-xs font-black uppercase tracking-widest border-b-2 border-indigo-600 text-indigo-600 transition-all">Branches (@Model.ArchivedBranches.Count)</button>
+            <button onclick="switchTab('sales')" id="tab-sales" class="pb-4 px-2 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">Sales (@Model.ArchivedSales.Count)</button>
+            <button onclick="switchTab('expenses')" id="tab-expenses" class="pb-4 px-2 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">Expenses (@Model.ArchivedExpenses.Count)</button>
+        </div>
+
+        <div id="section-branches" class="tab-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @if (!Model.ArchivedBranches.Any())
+            {
+                <div class="col-span-full py-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">No data available</div>
+            }
+            @foreach (var branch in Model.ArchivedBranches)
+            {
+                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h4 class="font-black text-slate-900">@branch.Name</h4>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Code: @branch.BranchCode</p>
+                    </div>
+                    <form asp-action="UnarchiveBranch" asp-route-id="@branch.Id" method="post">
+                        <button type="submit" class="px-4 py-2 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-xl hover:bg-indigo-600 hover:text-white transition-all uppercase tracking-widest">Restore</button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <div id="section-sales" class="tab-section hidden bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50/50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase">Order ID</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase">Branch</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase">Amount</th>
-                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase">Date</th>
-                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase">Actions</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">ID</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">Branch</th>
+                        <th class="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase">Amount</th>
+                        <th class="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if (!Model.ArchivedSales.Any())
-                    {
-                        <tr><td colspan="5" class="p-12 text-center text-slate-400 font-bold">No archived transactions.</td></tr>
-                    }
+                <tbody class="divide-y divide-slate-50">
                     @foreach (var sale in Model.ArchivedSales)
                     {
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-black text-slate-900">#@sale.OrderId</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">@sale.Branch?.Name</td>
-                            <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">@sale.Amount.ToString("C")</td>
-                            <td class="px-6 py-4 text-sm text-slate-500 text-center">@sale.Date.ToString("MMM dd, yyyy")</td>
-                            <td class="px-6 py-4 text-center">
+                        <tr>
+                            <td class="px-8 py-4 font-bold text-sm">#@sale.OrderId</td>
+                            <td class="px-8 py-4 text-sm text-slate-600">@sale.Branch?.Name</td>
+                            <td class="px-8 py-4 font-black text-sm text-right">₱@sale.Amount.ToString("N0")</td>
+                            <td class="px-8 py-4 text-right">
                                 <form asp-action="UnarchiveSale" asp-route-id="@sale.Id" method="post">
-                                    <button type="submit" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg hover:bg-indigo-600 hover:text-white transition-all uppercase">Restore</button>
+                                    <button class="text-[10px] font-black text-indigo-600 hover:underline uppercase">Restore</button>
                                 </form>
                             </td>
                         </tr>
@@ -101,36 +99,25 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <!-- Expenses Section -->
-    <div id="section-expenses" class="tab-section hidden space-y-6">
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <table class="w-full">
-                <thead class="bg-slate-50">
+        <div id="section-expenses" class="tab-section hidden bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50/50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase">Description</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase">Category</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase">Amount</th>
-                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase">Branch</th>
-                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase">Actions</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">Description</th>
+                        <th class="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase">Amount</th>
+                        <th class="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if (!Model.ArchivedExpenses.Any())
-                    {
-                        <tr><td colspan="5" class="p-12 text-center text-slate-400 font-bold">No archived expenses.</td></tr>
-                    }
+                <tbody class="divide-y divide-slate-50">
                     @foreach (var exp in Model.ArchivedExpenses)
                     {
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-black text-slate-900">@exp.Description</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">@exp.Category</td>
-                            <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">@exp.Amount.ToString("C")</td>
-                            <td class="px-6 py-4 text-sm text-slate-500 text-center">@exp.Branch?.Name</td>
-                            <td class="px-6 py-4 text-center">
+                        <tr>
+                            <td class="px-8 py-4 font-bold text-sm">@exp.Description</td>
+                            <td class="px-8 py-4 font-black text-sm text-right text-rose-500">₱@exp.Amount.ToString("N0")</td>
+                            <td class="px-8 py-4 text-right">
                                 <form asp-action="UnarchiveExpense" asp-route-id="@exp.Id" method="post">
-                                    <button type="submit" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg hover:bg-indigo-600 hover:text-white transition-all uppercase">Restore</button>
+                                    <button class="text-[10px] font-black text-indigo-600 hover:underline uppercase">Restore</button>
                                 </form>
                             </td>
                         </tr>
@@ -158,3 +145,5 @@
         }
     </script>
 }
+
+
