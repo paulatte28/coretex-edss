@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace coretex_finalproj.Controllers
 {
@@ -12,17 +13,26 @@ namespace coretex_finalproj.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly coretex_finalproj.Data.ApplicationDbContext _context;
 
-        public ProfileController(UserManager<AppUser> userManager, IWebHostEnvironment environment)
+        public ProfileController(UserManager<AppUser> userManager, IWebHostEnvironment environment, coretex_finalproj.Data.ApplicationDbContext context)
         {
             _userManager = userManager;
             _environment = environment;
+            _context = context;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Home");
+
+            ViewBag.RecentActivity = _context.ActivityLogs
+                .Where(a => a.UserId == user.Id)
+                .OrderByDescending(a => a.CreatedAt)
+                .Take(5)
+                .ToList();
             return View(user);
         }
 

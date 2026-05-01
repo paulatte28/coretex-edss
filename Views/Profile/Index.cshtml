@@ -18,8 +18,8 @@
                     }
                     else
                     {
-                        <div class="w-full h-full rounded-[2.2rem] bg-slate-800 flex items-center justify-center text-3xl">
-                            Admin
+                        <div class="w-full h-full rounded-[2.2rem] bg-gradient-to-br from-indigo-600 to-slate-800 flex items-center justify-center text-4xl font-black text-white shadow-inner">
+                            @(Model.FullName?.Substring(0, 1) ?? "U")
                         </div>
                     }
                 </div>
@@ -130,26 +130,30 @@
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Recent Administrative Footprint</h3>
                 </div>
                 <div class="space-y-6">
-                    <div class="flex items-center justify-between group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center font-bold text-[10px]">HST</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-900">Modified Strategic KPI Targets</p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mt-0.5">Sandawa Branch • 12 mins ago</p>
+                    @if (ViewBag.RecentActivity != null && ((IEnumerable<coretex_finalproj.Models.ActivityLogEntry>)ViewBag.RecentActivity).Any())
+                    {
+                        foreach (var log in (IEnumerable<coretex_finalproj.Models.ActivityLogEntry>)ViewBag.RecentActivity)
+                        {
+                            <div class="flex items-center justify-between group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center font-bold text-[9px] uppercase">
+                                        @(log.ActionType.Length > 3 ? log.ActionType.Substring(0, 3) : log.ActionType)
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900">@log.Description</p>
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase mt-0.5">@log.CreatedAt.ToString("MMM dd • hh:mm tt")</p>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-slate-200 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="py-10 text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No recent administrative activity</p>
                         </div>
-                        <svg class="w-4 h-4 text-slate-200 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </div>
-                    <div class="flex items-center justify-between group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center font-bold text-[10px]">BKU</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-900">Generated System Snapshot</p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mt-0.5">Automated Daily Log • 2 hours ago</p>
-                            </div>
-                        </div>
-                        <svg class="w-4 h-4 text-slate-200 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
