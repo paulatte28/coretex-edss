@@ -28,11 +28,19 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> TriggerAlertEmail(string emailAddress, string alertType = "THRESHOLD_BREACH")
         {
             var message = alertType == "THRESHOLD_BREACH"
-                ? "Sales Revenue has fallen below the targets for the Central Branch. Immediate review required."
-                : "A new Executive Report has been generated for your review.";
+                ? "Sales Revenue has fallen below targets. Immediate review required."
+                : "Manual system connectivity test successful.";
 
-            bool success = await _notificationService.SendExecutiveAlertEmailAsync(emailAddress, "System Performance Alert", message);
-            return success ? Ok() : BadRequest();
+            try 
+            {
+                bool success = await _notificationService.SendExecutiveAlertEmailAsync(emailAddress, "System Performance Alert", message);
+                if (success) return Json(new { success = true, message = "Alert Dispatched Successfully. Check your inbox (and Spam folder)." });
+                return Json(new { success = false, message = "Server accepted request but dispatch failed. Verify your SendGrid Sender Identity." });
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { success = false, message = $"Infrastructure Error: {ex.Message}" });
+            }
         }
 
         [HttpPost]

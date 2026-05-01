@@ -42,6 +42,9 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> Dashboard(Guid? branchId)
         {
+            var user = await _userManager.GetUserAsync(User);
+            ViewBag.UserEmail = user?.Email ?? "";
+            
             ViewBag.SelectedBranchId = branchId;
             ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
@@ -264,6 +267,17 @@ namespace coretex_finalproj.Controllers
             report.GeneratedAt = DateTime.Now;
 
             _context.GeneratedReports.Add(report);
+            
+            // Trigger a Global System Notification
+            var notification = new SystemNotification
+            {
+                Title = "Strategic Directive Applied",
+                Message = $"CEO has officially activated the '{report.Title}' strategy.",
+                Type = "STRATEGY_ACTIVE",
+                Severity = "indigo"
+            };
+            _context.SystemNotifications.Add(notification);
+            
             await _context.SaveChangesAsync();
             await _auditLog.LogActivityAsync("REPORT_GENERATE", $"CEO generated a new executive summary: {report.Title}");
 

@@ -4,50 +4,40 @@
 }
 
 <div class="space-y-8">
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Business Health Summary</h2>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Executive narrative, key metrics, and recommendations</p>
-            </div>
-            <div class="relative">
-                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
-                    Alerts
-                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
-                </button>
-                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
-            </div>
-        </div>
-        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+    <!-- SIMPLE HEADER -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Business Health Summary</h1>
+        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">Executive narrative and key performance indicators</p>
+        <div id="ceo-nav" class="mt-8 flex flex-wrap gap-2"></div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
-        <h3 class="text-base font-black text-slate-900">Summary</h3>
-        <p id="summary-text" class="text-sm text-slate-700 mt-3 leading-relaxed">
-            Your business is performing well this month. Overall profit increased by 18% compared to last month. Branch 1 is the top performer. Branch 2 needs attention - sales dropped 8%.
-        </p>
-    </div>
-
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100">
-            <h3 class="text-base font-black text-slate-900">Key Metrics</h3>
+    <!-- CLEAN METRICS TABLE -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-slate-100 bg-slate-50/50">
+            <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Key Performance Indicators</h3>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Metric</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Value</th>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-slate-100">
+                        <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Metric</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Value</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Status</th>
                     </tr>
                 </thead>
-                <tbody id="metrics-table" class="divide-y divide-slate-100"></tbody>
+                <tbody id="metrics-table" class="divide-y divide-slate-50">
+                    <!-- Data injected here -->
+                </tbody>
             </table>
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-        <h3 class="text-base font-black text-slate-900">Recommendations</h3>
-        <div id="recommendations" class="mt-4 space-y-2"></div>
+    <!-- SIMPLE RECOMMENDATIONS -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
+        <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-6">Strategic Recommendations</h3>
+        <div id="recommendations" class="space-y-3">
+            <!-- Recommendations injected here -->
+        </div>
     </div>
 </div>
 
@@ -56,38 +46,44 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ceo = window.CoretexCeo;
-            ceo.renderNav('health-summary', 'ceo-nav');
-            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+            ceo.initialize().then(() => {
+                ceo.renderNav('health-summary', 'ceo-nav');
 
-            const kpi = ceo.getKpiSnapshot();
-            const text = `Your business is performing well this month. Overall profit increased by ${kpi.profitChange.replace('+', '')} compared to last month. Branch 1 is the top performer. Branch 2 needs attention - sales dropped 8%.`;
-            document.getElementById('summary-text').textContent = text;
+                const kpi = ceo.getKpiSnapshot();
+                const margin = parseFloat(kpi.profitMargin || 0);
 
-            const metrics = [
-                ['Total Revenue', ceo.money(kpi.totalRevenue)],
-                ['Total Expenses', ceo.money(kpi.totalExpenses)],
-                ['Net Profit', ceo.money(kpi.netProfit)],
-                ['Profit Margin', ceo.pct(kpi.profitMargin)],
-                ['Business Health', kpi.risk.code]
-            ];
+                const metrics = [
+                    { name: 'Total Revenue', value: ceo.money(kpi.totalRevenue), status: 'Healthy' },
+                    { name: 'Total Expenses', value: ceo.money(kpi.totalExpenses), status: 'Healthy' },
+                    { name: 'Profit Margin', value: ceo.pct(kpi.profitMargin), status: margin < 15 ? 'Critical' : 'Healthy' },
+                    { name: 'Risk Assessment', value: kpi.risk.label, status: kpi.risk.code === 'RED' ? 'Warning' : 'Healthy' }
+                ];
 
-            document.getElementById('metrics-table').innerHTML = metrics.map(([name, value]) => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${name}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${value}</td>
-                </tr>
-            `).join('');
+                document.getElementById('metrics-table').innerHTML = metrics.map(m => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-8 py-6 text-sm font-bold text-slate-700">${m.name}</td>
+                        <td class="px-8 py-6 text-sm font-black text-slate-900">${m.value}</td>
+                        <td class="px-8 py-6 text-right">
+                            <span class="px-3 py-1 ${m.status === 'Healthy' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} text-[10px] font-black rounded-full uppercase tracking-widest">
+                                ${m.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
 
-            const recommendations = [
-                'Focus corrective sales action on Branch 2 for next 2 weeks.',
-                'Maintain expense ratio below admin threshold through COGS controls.',
-                'Increase upsell strategy in top-performing branches to sustain margin growth.',
-                'Review weekly KPI alerts immediately when notification bell count increases.'
-            ];
+                const recs = [
+                    'Perform financial audit on Branch 2 to identify expense leaks.',
+                    'Maintain current revenue growth by scaling digital sales channels.',
+                    'Optimize COGS by reviewing supplier contracts in Q3.'
+                ];
 
-            document.getElementById('recommendations').innerHTML = recommendations.map(item =>
-                `<p class="text-sm text-slate-700">• ${item}</p>`
-            ).join('');
+                document.getElementById('recommendations').innerHTML = recs.map(r => `
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                        <p class="text-sm text-slate-600 font-medium">${r}</p>
+                    </div>
+                `).join('');
+            });
         });
     </script>
 }

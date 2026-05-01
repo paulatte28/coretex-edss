@@ -89,6 +89,68 @@
                 <p class="text-xs text-slate-500 mt-1">Branch managers have not submitted any data for review yet.</p>
             </div>
         }
+    <!-- STRATEGIC DIRECTIVE HISTORY -->
+    <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-[0.3em] text-indigo-400">Strategic Directive History</h3>
+                <p class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-widest">Active & Past Executive Decisions</p>
+            </div>
+            <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-white/5">
+                        <th class="px-4 py-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">Decision Date</th>
+                        <th class="px-4 py-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">Strategy applied</th>
+                        <th class="px-4 py-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">Status</th>
+                        <th class="px-4 py-4 text-[9px] font-black text-slate-500 uppercase tracking-widest text-right">Audit</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @{
+                        var genReports = ViewBag.GeneratedReports as IEnumerable<coretex_finalproj.Models.GeneratedReport>;
+                    }
+                    @if (genReports != null && genReports.Any())
+                    {
+                        foreach (var report in genReports.OrderByDescending(r => r.GeneratedAt))
+                        {
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-4 py-6">
+                                    <p class="text-xs font-bold text-white">@report.GeneratedAt.ToString("MMM dd, yyyy")</p>
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase">@report.GeneratedAt.ToString("HH:mm") Server Time</p>
+                                </td>
+                                <td class="px-4 py-6">
+                                    <p class="text-xs font-black text-indigo-300 uppercase tracking-tight">@report.Title</p>
+                                    <p class="text-[9px] text-slate-500 font-medium">@report.SummaryData</p>
+                                </td>
+                                <td class="px-4 py-6">
+                                    <div class="inline-flex items-center gap-2 px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-md border border-emerald-500/20">
+                                        <div class="w-1 h-1 bg-emerald-400 rounded-full"></div>
+                                        <span class="text-[9px] font-black uppercase">Active</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-6 text-right">
+                                    <button class="text-[9px] font-black text-slate-400 hover:text-white uppercase tracking-widest transition-colors">View Memo</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="px-4 py-20 text-center">
+                                <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">No Strategic Decisions Logged</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -97,8 +159,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ceo = window.CoretexCeo;
-            ceo.renderNav('reports', 'ceo-nav');
-            ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
+            ceo.initialize().then(() => {
+                ceo.renderNav('reports', 'ceo-nav');
+            });
         });
     </script>
 }

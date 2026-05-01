@@ -1,344 +1,287 @@
-@model dynamic
 @{
     ViewData["Title"] = "Admin Dashboard";
     Layout = "_AdminLayout";
 }
 
-<style>
-    .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-    .dark-glass-card {
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .glow-indigo { box-shadow: 0 0 30px rgba(79, 70, 229, 0.15); }
-    .glow-emerald { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
-    .stat-hover:hover { transform: translateY(-4px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-</style>
-
-<div class="space-y-8 pb-12">
-    <!-- Header & Quick Actions -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
         <div>
-            <div class="flex items-center space-x-3 mb-3">
-                <span class="px-4 py-1.5 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-[0.15em] rounded-xl shadow-lg shadow-indigo-100">HQ Control Panel</span>
-                <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System v1.2 Stable</span>
+            <div class="flex items-center space-x-3 mb-2">
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full">System Admin</span>
             </div>
-            <h2 class="text-4xl font-black text-slate-900 tracking-tight">System Overview</h2>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Dashboard Overview</h2>
+            <p class="text-sm text-slate-500 mt-1">Welcome back! Manage your CORETEX EDSS system.</p>
         </div>
-        
-        <div id="health-indicator" class="px-5 py-3 bg-white border border-slate-100 rounded-2xl flex items-center space-x-4 shadow-sm transition-all duration-500">
-            <div class="relative">
-                <span id="health-ping" class="w-3 h-3 bg-slate-300 rounded-full block"></span>
-                <span id="health-ping-pulse" class="absolute inset-0 w-3 h-3 bg-slate-300 rounded-full animate-ping opacity-75 hidden"></span>
-            </div>
-            <div class="flex flex-col">
-                <span id="health-text" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status: Checking...</span>
-                <span id="health-latency" class="text-[9px] font-bold text-slate-300">-- ms latency</span>
+        <div class="flex space-x-3">
+            <div class="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center space-x-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">System Active</span>
             </div>
         </div>
     </div>
 
-    <!-- Backend #5: Security Threat Radar (Technical Oversight) -->
-    @if (ViewBag.SystemAlerts != null && ((List<string>)ViewBag.SystemAlerts).Any())
-    {
-        <a href="/Admin/ActivityLog" class="block bg-rose-600 rounded-3xl p-6 text-white shadow-xl shadow-rose-100 hover:scale-[1.01] transition-all group">
-            <div class="flex items-center gap-6">
-                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 group-hover:rotate-6 transition-transform">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                </div>
-                <div>
-                    <h4 class="text-xl font-black tracking-tight">Security Threat Detected</h4>
-                    <p class="text-rose-100 text-xs font-medium opacity-90 max-w-2xl">
-                        Anomalies found: <span class="bg-white/20 px-2 py-0.5 rounded font-black ml-1">@string.Join(" | ", ViewBag.SystemAlerts)</span>
-                    </p>
-                </div>
-                <div class="ml-auto">
-                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:translate-x-2 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                    </div>
-                </div>
-            </div>
-        </a>
-    }
-
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Database Card -->
-        <a href="/Admin/ActivityLog" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:border-indigo-300 transition-all group h-40">
-            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-            </div>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Database Records</p>
-            <h3 class="text-2xl font-black text-slate-900 mt-1">@ViewBag.TotalRecords</h3>
-        </a>
-
-        <!-- Nodes Card -->
-        <a href="/Admin/BranchManagement" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:border-emerald-300 transition-all group h-40">
-            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-            </div>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Infrastructure Nodes</p>
-            <h3 class="text-2xl font-black text-slate-900 mt-1">@ViewBag.BranchCount Units</h3>
-        </a>
-
-        <!-- Users Card -->
-        <a href="/Admin/UserManagement" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:border-purple-300 transition-all group h-40">
-            <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            </div>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">User Directory</p>
-            <h3 class="text-2xl font-black text-slate-900 mt-1">@ViewBag.UserCount Personnel</h3>
-        </a>
-
-        <!-- Health Card -->
-        <a href="/Admin/KPIThresholds" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:border-rose-300 transition-all group h-40">
-            <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">System Availability</p>
-            <h3 class="text-2xl font-black text-slate-900 mt-1">99.98%</h3>
-        </a>
-    </div>
-
-    <!-- System Hub -->
-    <div class="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-2xl shadow-slate-200/20">
-        <div class="flex items-center justify-between mb-10">
+    <!-- Login Location Card (IPGeolocation simulation) -->
+    <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 text-white">
+        <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight">System Management Hub</h3>
-                <p class="text-slate-400 text-sm font-medium mt-1">Core administrative controllers and configuration</p>
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-2">Current Session</p>
+                <h3 class="text-2xl font-black">System Administrator</h3>
+                <p class="text-slate-400 text-sm mt-1">Logged in as <span class="text-white font-bold">admin@coretex.com</span></p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-2">Login Location (IPGeolocation API)</p>
+                <div id="login-location" class="flex items-center justify-end space-x-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span class="font-bold text-lg" id="location-text">Loading...</span>
+                </div>
+                <p class="text-slate-500 text-xs mt-1" id="ip-address">IP: Detecting...</p>
             </div>
         </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            <a href="/Admin/UserManagement" class="flex flex-col items-center p-8 bg-slate-50 rounded-[2rem] hover:bg-purple-600 transition-all duration-500 group border border-transparent hover:shadow-2xl hover:shadow-purple-100">
-                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600 mb-4 group-hover:scale-110 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    </div>
+
+    <!-- Quick Stats - Updated to match spec -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Total Users -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 </div>
-                <span class="font-black text-slate-900 group-hover:text-white transition-colors">Users</span>
-            </a>
-            
-            <a href="/Admin/BranchManagement" class="flex flex-col items-center p-8 bg-slate-50 rounded-[2rem] hover:bg-indigo-600 transition-all duration-500 group border border-transparent hover:shadow-2xl hover:shadow-indigo-100">
-                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <a href="/Admin/UserManagement" class="text-purple-600 hover:text-purple-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <p class="text-3xl font-black text-slate-900" id="user-count">0</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Users</p>
+            <p class="text-[10px] text-slate-400 mt-2" id="user-breakdown">CEO, Finance Officers, Cashiers</p>
+        </div>
+
+        <!-- Branches -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
-                <span class="font-black text-slate-900 group-hover:text-white transition-colors">Branches</span>
+                <a href="/Admin/BranchManagement" class="text-blue-600 hover:text-blue-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <p class="text-3xl font-black text-slate-900" id="branch-count">0</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Branches</p>
+        </div>
+
+        <!-- Pending Submissions -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <a href="/Admin/BranchSubmissions" class="text-amber-600 hover:text-amber-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <p class="text-3xl font-black text-amber-600" id="pending-count">0</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Pending Submissions</p>
+            <p class="text-[10px] text-slate-400 mt-2">Branches not submitted this month</p>
+        </div>
+
+        <!-- KPI Thresholds -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <a href="/Admin/KPIThresholds" class="text-emerald-600 hover:text-emerald-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <p class="text-3xl font-black text-slate-900" id="threshold-count">0</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">KPI Thresholds</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div>
+        <h3 class="text-lg font-black text-slate-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <a href="/Admin/UserManagement" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-purple-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500 transition-colors">
+                    <svg class="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Users</p>
             </a>
 
-            <a href="/Admin/ActivityLog" class="flex flex-col items-center p-8 bg-slate-50 rounded-[2rem] hover:bg-amber-500 transition-all duration-500 group border border-transparent hover:shadow-2xl hover:shadow-amber-100">
-                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-amber-600 mb-4 group-hover:scale-110 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <a href="/Admin/BranchManagement" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-500 transition-colors">
+                    <svg class="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
-                <span class="font-black text-slate-900 group-hover:text-white transition-colors">Audit Logs</span>
+                <p class="font-bold text-sm text-slate-900">Branches</p>
             </a>
 
-            <a href="/Admin/KPIThresholds" class="flex flex-col items-center p-8 bg-slate-50 rounded-[2rem] hover:bg-emerald-600 transition-all duration-500 group border border-transparent hover:shadow-2xl hover:shadow-emerald-100">
-                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <a href="/Admin/KPIThresholds" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-emerald-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-emerald-500 transition-colors">
+                    <svg class="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
-                <span class="font-black text-slate-900 group-hover:text-white transition-colors">KPI Config</span>
+                <p class="font-bold text-sm text-slate-900">KPI Thresholds</p>
             </a>
 
-            <a href="/Admin/ReportSchedule" class="flex flex-col items-center p-8 bg-slate-50 rounded-[2rem] hover:bg-rose-600 transition-all duration-500 group border border-transparent hover:shadow-2xl hover:shadow-rose-100">
-                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-600 mb-4 group-hover:scale-110 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <a href="/Admin/ReportSchedule" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-rose-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-rose-500 transition-colors">
+                    <svg class="w-6 h-6 text-rose-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
-                <span class="font-black text-slate-900 group-hover:text-white transition-colors">Automation</span>
+                <p class="font-bold text-sm text-slate-900">Schedules</p>
+            </a>
+
+            <a href="/Admin/BranchSubmissions" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-amber-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-amber-500 transition-colors">
+                    <svg class="w-6 h-6 text-amber-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Submissions</p>
+            </a>
+
+            <a href="/Admin/ActivityLog" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition-all group text-center">
+                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-slate-700 transition-colors">
+                    <svg class="w-6 h-6 text-slate-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Activity Log</p>
+            </a>
+
+            <a href="/Admin/AuditTrail" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-200 transition-all group text-center">
+                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-500 transition-colors">
+                    <svg class="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                </div>
+                <p class="font-bold text-sm text-slate-900">Audit Trail</p>
             </a>
         </div>
     </div>
 
-    <!-- Infrastructure & Security Section -->
-    <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Infrastructure Stack -->
-        <div class="flex-1 bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 tracking-tight">Infrastructure Stack</h3>
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Real-time node telemetry and cluster health</p>
-                </div>
-                <div class="px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Active Scan
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Database Item -->
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-white hover:border-indigo-200 transition-all group h-28">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Database</p>
-                            <h4 class="font-black text-slate-900">PostgreSQL 15</h4>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 bg-white text-emerald-600 text-[9px] font-black uppercase rounded-lg border border-emerald-100 shadow-sm">Operational</span>
-                </div>
-
-                <!-- APIs Item -->
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-white hover:border-blue-200 transition-all group h-28">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">APIs</p>
-                            <h4 class="font-black text-slate-900">Cloud Services</h4>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 bg-white text-blue-600 text-[9px] font-black uppercase rounded-lg border border-blue-100 shadow-sm">Connected</span>
-                </div>
-
-                <!-- Storage Item -->
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-white hover:border-purple-200 transition-all group h-28">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-purple-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Storage</p>
-                            <h4 class="font-black text-slate-900">AWS S3 Instance</h4>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 bg-white text-purple-600 text-[9px] font-black uppercase rounded-lg border border-purple-100 shadow-sm">14.2% Full</span>
-                </div>
-
-                <!-- Automation Item -->
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-white hover:border-amber-200 transition-all group h-28">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-amber-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Automation</p>
-                            <h4 class="font-black text-slate-900">Quartz Engine</h4>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 bg-white text-amber-600 text-[9px] font-black uppercase rounded-lg border border-amber-100 shadow-sm">Active</span>
-                </div>
-            </div>
+    <!-- Recent Activity (Last 5 login events) -->
+    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-black text-slate-900">Recent Activity</h3>
+            <a href="/Admin/ActivityLog" class="text-blue-600 text-sm font-bold hover:underline">View All →</a>
         </div>
-
-        <!-- Security Sentinel -->
-        <div class="w-full lg:w-[28rem] bg-slate-900 rounded-[2rem] p-10 text-white shadow-2xl shadow-slate-400/20 flex flex-col relative overflow-hidden group">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
-            
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center justify-between mb-10">
-                    <h3 class="text-2xl font-black tracking-tight">Security Sentinel</h3>
-                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.6)]"></div>
-                </div>
-                
-                <div class="space-y-6 flex-1">
-                    <div class="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Critical Alerts</p>
-                        @if (ViewBag.SystemAlerts != null && ((List<string>)ViewBag.SystemAlerts).Any())
-                        {
-                            <div class="space-y-4">
-                                @foreach (var alert in (List<string>)ViewBag.SystemAlerts)
-                                {
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
-                                        <p class="text-[11px] font-bold text-slate-200 leading-tight">@alert</p>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-black text-slate-200">No Threats Detected</p>
-                                    <p class="text-[10px] text-slate-500 font-bold">System Integrity: 100%</p>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:bg-white/10 transition-colors">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">WAF Filtering</span>
-                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-black rounded-lg border border-emerald-500/20 uppercase">Active</span>
-                        </div>
-                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:bg-white/10 transition-colors">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">2FA Enforcement</span>
-                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-black rounded-lg border border-emerald-500/20 uppercase">Enabled</span>
-                        </div>
-                    </div>
-
-                    <a href="/Admin/ActivityLog" class="block w-full py-5 bg-white text-slate-900 hover:bg-slate-100 rounded-3xl text-center text-xs font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-900/40 mt-auto">Activity Logs Hub</a>
-                </div>
-            </div>
+        <div id="recent-activity" class="space-y-4">
+            <p class="text-slate-400 text-sm italic">No recent activity yet.</p>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        async function checkSystemHealth() {
-            const indicator = document.getElementById('health-indicator');
-            const ping = document.getElementById('health-ping');
-            const pingPulse = document.getElementById('health-ping-pulse');
-            const text = document.getElementById('health-text');
-            const latencyText = document.getElementById('health-latency');
-            
-            const dbLabel = document.getElementById('health-db');
-            const apiLabel = document.getElementById('health-api');
-
-            const startTime = performance.now();
-
+        // Simulate IPGeolocation API
+        async function getLoginLocation() {
             try {
-                const response = await fetch('/api/health');
-                const data = await response.json();
-                const endTime = performance.now();
-                const latency = Math.round(endTime - startTime);
-
-                latencyText.textContent = `${latency} ms latency`;
-
-                if (data.status === "OPERATIONAL") {
-                    indicator.className = "px-5 py-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center space-x-4 shadow-sm transition-all duration-500";
-                    ping.className = "w-3 h-3 bg-emerald-500 rounded-full block";
-                    pingPulse.className = "absolute inset-0 w-3 h-3 bg-emerald-500 rounded-full animate-ping opacity-75 block";
-                    text.textContent = "Status: Healthy";
-                    text.className = "text-[10px] font-black text-emerald-600 uppercase tracking-[0.1em]";
-                    latencyText.className = "text-[9px] font-bold text-emerald-400";
-
-                    dbLabel.textContent = "Operational";
-                    dbLabel.className = "px-4 py-1.5 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-xl tracking-widest";
-                    
-                    apiLabel.textContent = "Connected";
-                    apiLabel.className = "px-4 py-1.5 bg-blue-100 text-blue-700 text-[10px] font-black uppercase rounded-xl tracking-widest";
-                } else {
-                    throw new Error("Degraded");
-                }
+                const mockLocations = [
+                    { city: 'Davao City', region: 'Davao del Sur', country: 'Philippines', ip: '180.190.xxx.xxx' },
+                    { city: 'Tagum City', region: 'Davao del Norte', country: 'Philippines', ip: '112.198.xxx.xxx' },
+                    { city: 'Digos City', region: 'Davao del Sur', country: 'Philippines', ip: '49.145.xxx.xxx' }
+                ];
+                const location = mockLocations[Math.floor(Math.random() * mockLocations.length)];
+                
+                document.getElementById('location-text').textContent = `${location.city}, ${location.country}`;
+                document.getElementById('ip-address').textContent = `IP: ${location.ip}`;
+                
+                logActivity('Login', `Admin logged in from ${location.city}, ${location.region}`, 'login');
             } catch (error) {
-                indicator.className = "px-5 py-3 bg-rose-50 border border-rose-100 rounded-2xl flex items-center space-x-4 shadow-sm transition-all duration-500";
-                ping.className = "w-3 h-3 bg-rose-500 rounded-full block";
-                pingPulse.className = "absolute inset-0 w-3 h-3 bg-rose-500 rounded-full animate-ping opacity-75 block";
-                text.textContent = "Status: Degraded";
-                text.className = "text-[10px] font-black text-rose-600 uppercase tracking-[0.1em]";
-                latencyText.textContent = "Network error";
-                latencyText.className = "text-[9px] font-bold text-rose-400";
-
-                dbLabel.textContent = "Unreachable";
-                dbLabel.className = "px-4 py-1.5 bg-rose-100 text-rose-700 text-[10px] font-black uppercase rounded-xl tracking-widest";
+                document.getElementById('location-text').textContent = 'Location unavailable';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            checkSystemHealth();
-            setInterval(checkSystemHealth, 30000); // Check every 30 seconds
+        function logActivity(action, description, type = 'general') {
+            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
+            activities.unshift({
+                id: Date.now(),
+                action,
+                description,
+                type,
+                timestamp: new Date().toISOString(),
+                user: 'System Administrator'
+            });
+            activities = activities.slice(0, 100);
+            localStorage.setItem('coretex_activities', JSON.stringify(activities));
+            renderRecentActivity();
+        }
+
+        function getActivityIcon(type) {
+            const icons = {
+                'login': '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>',
+                'branch': '<svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>',
+                'user': '<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>',
+                'threshold': '<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
+                'general': '<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+            };
+            return icons[type] || icons['general'];
+        }
+
+        function renderRecentActivity() {
+            const container = document.getElementById('recent-activity');
+            const activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]').slice(0, 5);
+            
+            if (activities.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-sm italic">No recent activity yet.</p>';
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => `
+                <div class="flex items-center space-x-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        ${getActivityIcon(activity.type)}
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-sm text-slate-900">${activity.action}</p>
+                        <p class="text-xs text-slate-500">${activity.description}</p>
+                    </div>
+                    <p class="text-xs text-slate-400">${formatTimeAgo(activity.timestamp)}</p>
+                </div>
+            `).join('');
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const then = new Date(timestamp);
+            const diffMs = now - then;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        }
+
+        function updateStats() {
+            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
+            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
+            const thresholds = JSON.parse(localStorage.getItem('coretex_thresholds') || '[]');
+            const submissions = JSON.parse(localStorage.getItem('coretex_submissions') || '[]');
+            const currentMonth = new Date().toISOString().slice(0, 7);
+
+            // Count users by role
+            const ceoCount = users.filter(u => u.role === 'CEO').length;
+            const foCount = users.filter(u => u.role === 'Finance Officer').length;
+            const cashierCount = users.filter(u => u.role === 'Branch Cashier').length;
+
+            document.getElementById('user-count').textContent = users.length;
+            document.getElementById('user-breakdown').textContent = `${ceoCount} CEO, ${foCount} Finance, ${cashierCount} Cashiers`;
+            document.getElementById('branch-count').textContent = branches.length;
+            document.getElementById('threshold-count').textContent = thresholds.length;
+
+            // Calculate pending submissions
+            const submittedBranches = new Set(submissions.filter(s => s.month === currentMonth).map(s => s.branchId));
+            const pendingCount = branches.length - submittedBranches.size;
+            document.getElementById('pending-count').textContent = pendingCount;
+        }
+
+        // Make logActivity available globally
+        window.logActivity = logActivity;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            getLoginLocation();
+            updateStats();
+            renderRecentActivity();
         });
     </script>
 }

@@ -255,8 +255,13 @@
                             <span id="notif-dot" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                         </button>
                         <!-- Notif Dropdown -->
-                        <div id="notif-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-white border border-slate-100 shadow-2xl rounded-[2rem] p-6 text-left animate-in fade-in slide-in-from-top-2">
-                            <h4 class="font-black text-slate-800 text-sm mb-4">Command Center Alerts</h4>
+                        <div id="notif-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-white border border-slate-100 shadow-2xl rounded-[2rem] p-6 text-left animate-in fade-in slide-in-from-top-2 z-50">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-black text-slate-800 text-sm uppercase tracking-widest">Command Center Alerts</h4>
+                                <button onclick="toggleNotifications()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
                             <div class="space-y-4" id="notif-list">
                                 <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-2xl border border-red-100">
                                     <div class="w-2 h-2 bg-red-500 rounded-full mt-1.5 animate-pulse"></div>
