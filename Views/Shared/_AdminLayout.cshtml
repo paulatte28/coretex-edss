@@ -306,10 +306,48 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function toggleNotifications() {
+        async function toggleNotifications() {
             const dropdown = document.getElementById('notif-dropdown');
+            const list = document.getElementById('notif-list');
+            const dot = document.getElementById('notif-dot');
+            
+            if (dropdown.classList.contains('hidden')) {
+                // Fetch live notifications
+                try {
+                    const response = await fetch('/Admin/GetNotifications');
+                    const notifications = await response.json();
+                    
+                    if (notifications.length > 0) {
+                        list.innerHTML = notifications.map(n => `
+                            <div class="flex items-start space-x-3 p-3 ${n.isRead ? 'bg-slate-50 opacity-60' : 'bg-indigo-50 border border-indigo-100'} rounded-2xl transition-all hover:bg-white">
+                                <div class="w-2 h-2 ${n.severity === 'red' ? 'bg-red-500' : 'bg-indigo-500'} rounded-full mt-1.5 animate-pulse"></div>
+                                <div class="flex-1">
+                                    <p class="text-[11px] font-bold text-slate-900 leading-tight">${n.title}</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">${n.message}</p>
+                                    <p class="text-[9px] text-slate-400 font-black uppercase mt-1">${formatTime(n.createdAt)}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                        dot.classList.add('hidden');
+                    } else {
+                        list.innerHTML = '<div class="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-widest">No active alerts</div>';
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch notifications', err);
+                }
+            }
+            
             dropdown.classList.toggle('hidden');
-            document.getElementById('notif-dot').classList.add('hidden');
+        }
+
+        function formatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMins = Math.floor((now - date) / 60000);
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffMins < 1440) return `${Math.floor(diffMins/60)}h ago`;
+            return date.toLocaleDateString();
         }
     </script>
     <script src="~/js/site.js" asp-append-version="true"></script>

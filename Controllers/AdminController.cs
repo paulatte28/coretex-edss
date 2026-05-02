@@ -644,6 +644,27 @@ namespace coretex_finalproj.Controllers
             }
             return RedirectToAction(nameof(Archives));
         }
+        [HttpGet]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var notifications = await _context.SystemNotifications
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+            return Json(notifications);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkNotificationAsRead(Guid id)
+        {
+            var notif = await _context.SystemNotifications.FindAsync(id);
+            if (notif != null)
+            {
+                notif.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+            return Json(new { success = true });
+        }
     }
 }
 
