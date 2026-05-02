@@ -51,7 +51,7 @@ namespace coretex_finalproj.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                if (User.IsInRole("ADMIN")) return Redirect("/Admin");
+                if (User.IsInRole("ADMIN") || User.IsInRole("BRANCH_ADMIN")) return Redirect("/Admin");
                 if (User.IsInRole("FINANCE")) return Redirect("/finance/dashboard");
                 if (User.IsInRole("CASHIER")) return Redirect("/cashier/pos");
                 if (User.IsInRole("CEO")) return Redirect("/ceo/dashboard");
@@ -191,6 +191,7 @@ namespace coretex_finalproj.Controllers
         private async Task<IActionResult> RedirectUserByRole(AppUser user, string? returnUrl)
         {
             if (await _userManager.IsInRoleAsync(user, "ADMIN")) return Redirect("/Admin");
+            if (await _userManager.IsInRoleAsync(user, "BRANCH_ADMIN")) return Redirect("/Admin");
             if (await _userManager.IsInRoleAsync(user, "FINANCE")) return Redirect("/finance/dashboard");
             if (await _userManager.IsInRoleAsync(user, "CASHIER")) return Redirect("/cashier/pos");
             if (await _userManager.IsInRoleAsync(user, "CEO")) return Redirect("/ceo/dashboard");

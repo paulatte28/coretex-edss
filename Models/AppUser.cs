@@ -15,6 +15,7 @@ namespace coretex_finalproj.Models
         // Security Tracking
         public string? LastLoginLocation { get; set; }
         public string? LastLoginIP { get; set; }
+        public string Role { get; set; } = "CASHIER";
         public bool IsActive { get; set; } = true;
     }
 }

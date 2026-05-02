@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace coretex_finalproj.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "ADMIN,BRANCH_ADMIN")]
     public class AdminController : Controller
     {
         private readonly AnalyticsService _analytics;
@@ -36,33 +36,93 @@ namespace coretex_finalproj.Controllers
         // Admin Dashboard / Overview
         public async Task<IActionResult> Index()
         {
-            // Technical Telemetry for the widgets
-            ViewBag.UserCount = await _userManager.Users.CountAsync();
-            ViewBag.BranchCount = await _context.Branches.Where(b => !b.IsArchived).CountAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return RedirectToAction("Login", "Home");
+
+            var isManager = await _userManager.IsInRoleAsync(currentUser, "BRANCH_ADMIN");
+            var branchId = currentUser?.BranchId;
+
+            if (isManager && branchId != null)
+            {
+                // --- BRANCH MANAGER VIEW ---
+                var branch = await _context.Branches.FindAsync(branchId);
+                ViewBag.BranchName = branch?.Name ?? "Assigned Branch";
+                
+                ViewBag.UserCount = await _userManager.Users.CountAsync(u => u.BranchId == branchId);
+                ViewBag.BranchCount = 1; // Only their branch
+                
+                var dayAgo = DateTime.UtcNow.AddDays(-1);
+                var today = DateTime.UtcNow.Date;
+                var monthStart = new DateTime(today.Year, today.Month, 1);
+
+                ViewBag.SecurityEventsCount = await _context.ActivityLogs
+                    .CountAsync(l => l.BranchId == branchId && l.CreatedAt >= dayAgo);
+
+                // Sales & Expenses for this branch
+                ViewBag.TodaySales = await _context.Sales
+                    .Where(s => s.BranchId == branchId && !s.IsArchived && s.Date >= today)
+                    .SumAsync(s => s.Amount);
+                
+                ViewBag.MonthSales = await _context.Sales
+                    .Where(s => s.BranchId == branchId && !s.IsArchived && s.Date >= monthStart)
+                    .SumAsync(s => s.Amount);
+
+                ViewBag.TodayExpenses = await _context.Expenses
+                    .Where(e => e.BranchId == branchId && !e.IsArchived && e.Date >= today)
+                    .SumAsync(e => e.Amount);
+
+                ViewBag.MonthExpenses = await _context.Expenses
+                    .Where(e => e.BranchId == branchId && !e.IsArchived && e.Date >= monthStart)
+                    .SumAsync(e => e.Amount);
+                
+                // Pending submissions for THIS branch
+                var currentMonth = DateTime.UtcNow.Month;
+                var currentYear = DateTime.UtcNow.Year;
+                var hasSubmitted = await _context.BranchSubmissions
+                    .AnyAsync(s => s.BranchId == branchId && s.SubmittedAt.Month == currentMonth && s.SubmittedAt.Year == currentYear);
+                
+                ViewBag.PendingSubmissions = hasSubmitted ? 0 : 1;
+                ViewBag.KPIThresholdsCount = await _context.KpiThresholds.CountAsync(t => t.BranchId == branchId);
+            }
+            else
+            {
+                // --- SYSTEM ADMIN VIEW ---
+                var today = DateTime.UtcNow.Date;
+                var monthStart = new DateTime(today.Year, today.Month, 1);
+
+                ViewBag.UserCount = await _userManager.Users.CountAsync();
+                ViewBag.BranchCount = await _context.Branches.Where(b => !b.IsArchived).CountAsync();
+                
+                var dayAgo = DateTime.UtcNow.AddDays(-1);
+                ViewBag.SecurityEventsCount = await _context.ActivityLogs
+                    .CountAsync(l => l.CreatedAt >= dayAgo);
+
+                // Global Stats
+                ViewBag.TodaySales = await _context.Sales
+                    .Where(s => !s.IsArchived && s.Date >= today)
+                    .SumAsync(s => s.Amount);
+                
+                ViewBag.MonthSales = await _context.Sales
+                    .Where(s => !s.IsArchived && s.Date >= monthStart)
+                    .SumAsync(s => s.Amount);
+
+                ViewBag.TodayExpenses = await _context.Expenses
+                    .Where(e => !e.IsArchived && e.Date >= today)
+                    .SumAsync(e => e.Amount);
+
+                ViewBag.MonthExpenses = await _context.Expenses
+                    .Where(e => !e.IsArchived && e.Date >= monthStart)
+                    .SumAsync(e => e.Amount);
+            }
+
+            // Recent Activity (Filtered if Manager)
+            IQueryable<ActivityLogEntry> logQuery = _context.ActivityLogs.Include(l => l.Branch);
+            if (isManager && branchId != null) logQuery = logQuery.Where(l => l.BranchId == branchId);
             
-            // Security Metrics: Total events in the last 24 hours
-            var dayAgo = DateTime.UtcNow.AddDays(-1);
-            ViewBag.SecurityEventsCount = await _context.ActivityLogs
-                .CountAsync(l => l.CreatedAt >= dayAgo);
-
-            // Access Control: New users in the last 7 days
-            var weekAgo = DateTime.UtcNow.AddDays(-7);
-            ViewBag.NewAccessCount = await _userManager.Users
-                .CountAsync(u => u.Id.ToString() != null); 
-
-            // Database Integrity: Total Records Managed
-            ViewBag.TotalRecords = await _context.ActivityLogs.CountAsync() 
-                                + await _context.Sales.CountAsync() 
-                                + await _context.Expenses.CountAsync();
-
-            // System Alerts: Scan for critical security events
-            var criticalAlerts = await _context.ActivityLogs
-                .Where(l => l.CreatedAt >= dayAgo && (l.ActionType.Contains("FAILURE") || l.ActionType.Contains("UNAUTHORIZED")))
+            ViewBag.RecentActivity = await logQuery
+                .OrderByDescending(l => l.CreatedAt)
                 .Take(5)
-                .Select(l => $"{l.ActionType}: {l.Description}")
                 .ToListAsync();
-
-            ViewBag.SystemAlerts = criticalAlerts;
 
             return View();
         }
@@ -84,6 +144,7 @@ namespace coretex_finalproj.Controllers
             return View(sales);
         }
 
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> BranchManagement()
         {
             var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
@@ -92,6 +153,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> CreateBranch(Branch branch)
         {
             // Check for duplicate branch code
@@ -113,6 +175,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ToggleBranchStatus(Guid id)
         {
             var branch = await _context.Branches.FindAsync(id);
@@ -127,6 +190,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ArchiveBranch(Guid id)
         {
             var branch = await _context.Branches.FindAsync(id);
@@ -141,6 +205,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UpdateBranch(Branch branch)
         {
             var existing = await _context.Branches.FindAsync(branch.Id);
@@ -203,6 +268,7 @@ namespace coretex_finalproj.Controllers
                 Email = email,
                 FullName = fullName,
                 BranchId = branchId,
+                Role = role.ToUpper(),
                 EmailConfirmed = true,
                 TwoFactorEnabled = true
             };
@@ -226,6 +292,59 @@ namespace coretex_finalproj.Controllers
             }
 
             TempData["Error"] = "ERROR: " + string.Join(" ", result.Errors.Select(e => e.Description));
+            return RedirectToAction(nameof(UserManagement));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateUser(string userId, string fullName, string role)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var oldName = user.FullName;
+            user.FullName = fullName;
+            user.Role = role.ToUpper();
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                await _auditLog.LogActivityAsync("USER_UPDATE", $"Updated user {user.Email}. Name: {oldName} -> {fullName}, Role: {role}");
+                TempData["Message"] = "Personnel records updated successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "Update failed: " + string.Join(", ", result.Errors.Select(e => e.Description));
+            }
+
+            return RedirectToAction(nameof(UserManagement));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (user.Id == currentUser?.Id)
+            {
+                TempData["Error"] = "SECURITY ALERT: You cannot terminate your own administrative access.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                await _auditLog.LogActivityAsync("USER_TERMINATE", $"Terminated access for {user.Email}.");
+                TempData["Message"] = "Personnel access revoked successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "Termination failed.";
+            }
+
             return RedirectToAction(nameof(UserManagement));
         }
 
@@ -357,6 +476,7 @@ namespace coretex_finalproj.Controllers
             ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             return View();
         }
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ReportSchedule()
         {
             var summary = new BusinessSummaryViewModel
@@ -465,6 +585,7 @@ namespace coretex_finalproj.Controllers
 
         // --- Archive Management ---
 
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Archives()
         {
             var model = new ArchivesViewModel
@@ -478,6 +599,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UnarchiveBranch(Guid id)
         {
             var branch = await _context.Branches.FindAsync(id);
@@ -493,6 +615,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UnarchiveSale(Guid id)
         {
             var sale = await _context.Sales.FindAsync(id);
@@ -508,6 +631,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UnarchiveExpense(Guid id)
         {
             var expense = await _context.Expenses.FindAsync(id);

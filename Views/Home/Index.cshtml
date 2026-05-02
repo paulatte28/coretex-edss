@@ -103,7 +103,7 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     var dashboardUrl = "/ceo/dashboard";
-                    if (User.IsInRole("ADMIN")) dashboardUrl = "/Admin";
+                    if (User.IsInRole("ADMIN") || User.IsInRole("BRANCH_ADMIN")) dashboardUrl = "/Admin";
                     else if (User.IsInRole("FINANCE")) dashboardUrl = "/finance/dashboard";
                     else if (User.IsInRole("CASHIER")) dashboardUrl = "/cashier/pos";
                     else if (User.IsInRole("CEO")) dashboardUrl = "/ceo/dashboard";

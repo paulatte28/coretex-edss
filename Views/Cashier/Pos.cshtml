@@ -1,400 +1,300 @@
-@model IEnumerable<coretex_finalproj.Models.Sale>
 @{
-    ViewData["Title"] = "Cashier POS";
+    ViewData["Title"] = "Executive Retail Terminal";
     Layout = "_AdminLayout";
 }
 
-<div class="space-y-8">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-            <div class="flex flex-wrap items-center gap-2 mb-2">
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="branch-name">Branch: Loading...</span>
-                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full" id="cashier-name">Cashier: Loading...</span>
-                <span class="px-3 py-1 bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-full" id="current-date">Date: --</span>
+<div class="space-y-6 pb-20">
+    <!-- POS HEADER -->
+    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Coretex Retail Node</h2>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Status: <span class="text-emerald-500">Operational</span> | SQL Link: <span class="text-indigo-600">Active</span></p>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Cashier Dashboard / POS Module</h2>
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Record point-of-sale transactions</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="/cashier/daily-summary" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all">
-                View Daily Summary
-            </a>
-            <a href="/cashier/transactions" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">
-                View Transaction History
-            </a>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">System Date</p>
+                    <p id="current-date" class="text-xs font-black text-slate-800">--</p>
+                </div>
+                <div class="h-10 w-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-        <div class="xl:col-span-8">
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-8 border-b border-slate-100">
-                    <h3 class="text-lg font-black text-slate-900">Record POS Transaction</h3>
-                    <p class="text-xs text-slate-500 mt-1">Line total is auto-calculated from quantity and unit price</p>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- COLUMN 1: PRODUCT GALLERY (FROM DB) -->
+        <div class="lg:col-span-4 space-y-4">
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 h-[700px] overflow-hidden flex flex-col">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Inventory Gallery</h3>
+                <div class="grid grid-cols-2 gap-3 overflow-y-auto pr-2 custom-scrollbar">
+                    @if (ViewBag.Products != null)
+                    {
+                        foreach (var p in (IEnumerable<coretex_finalproj.Models.Product>)ViewBag.Products)
+                        {
+                            <button onclick="addToCart('@p.Id', '@p.Name', @p.Price)" class="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all text-left group">
+                                <p class="text-[11px] font-black text-slate-800 group-hover:text-indigo-700 truncate">@p.Name</p>
+                                <p class="text-[10px] text-slate-400 font-bold mt-1">₱@p.Price.ToString("N2")</p>
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-[10px] text-slate-400 italic text-center col-span-2 py-10">No products found in database.</p>
+                    }
                 </div>
-
-                <form id="pos-form" class="p-8 space-y-6" autocomplete="on">
-                    <div class="space-y-2">
-                        <label for="product-name" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Product Name</label>
-                        <input
-                            id="product-name"
-                            type="text"
-                            list="product-suggestions"
-                            maxlength="100"
-                            required
-                            placeholder="Enter product name"
-                            class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all"
-                        />
-                        <datalist id="product-suggestions"></datalist>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label for="quantity" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Quantity</label>
-                            <input
-                                id="quantity"
-                                type="number"
-                                min="1"
-                                step="1"
-                                value="1"
-                                required
-                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all"
-                            />
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="unit-price" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Unit Price (₱)</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">₱</span>
-                                <input
-                                    id="unit-price"
-                                    type="number"
-                                    min="0.01"
-                                    step="0.01"
-                                    required
-                                    placeholder="0.00"
-                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 pl-14 pr-4 text-sm font-bold focus:border-blue-500 outline-none transition-all"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex items-center justify-between">
-                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Line Total</p>
-                        <p id="line-total" class="text-2xl font-black text-slate-900">₱0.00</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <button type="button" id="save-and-clear" class="w-full py-3.5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-all" onclick="saveTransaction('clear')">
-                            Save Transaction
-                        </button>
-                        <button type="button" id="save-and-add" class="w-full py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-all" onclick="saveTransaction('add')">
-                            Save & Add Another
-                        </button>
-                    </div>
-                </form>
+                <div class="mt-4 pt-4 border-t border-slate-50">
+                    <p class="text-[9px] text-slate-400 font-bold italic">Note: These items are pulled directly from your Company SQL Database.</p>
+                </div>
             </div>
         </div>
 
-        <div class="xl:col-span-4 space-y-6">
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-6 border-b border-slate-100">
-                    <h3 class="text-base font-black text-slate-900">Today's Transactions Summary</h3>
-                    <p class="text-xs text-slate-500 mt-1">Current cashier and branch only</p>
+        <!-- COLUMN 2: ACTIVE CART -->
+        <div class="lg:col-span-4 space-y-4">
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 h-[700px] flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Customer Cart</h3>
+                    <button onclick="clearCart()" class="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline">Clear All</button>
                 </div>
-
-                <div class="p-6 space-y-4">
-                    <div class="p-4 bg-emerald-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Total Amount</span>
-                        <span id="summary-total" class="text-sm font-black text-emerald-700">₱0.00</span>
-                    </div>
-                    <div class="p-4 bg-blue-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Transactions</span>
-                        <span id="summary-count" class="text-sm font-black text-blue-700">0</span>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Average Ticket</span>
-                        <span id="summary-average" class="text-sm font-black text-slate-700">₱0.00</span>
+                
+                <div id="cart-items" class="flex-grow overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                    <!-- Dynamic Cart Items -->
+                    <div class="flex flex-col items-center justify-center h-full text-slate-300 opacity-50">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                        <p class="text-xs font-bold uppercase tracking-widest">Cart Empty</p>
                     </div>
                 </div>
 
-                <div class="px-6 pb-6">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Recent Entries</p>
-                    <div id="today-list" class="space-y-2 max-h-64 overflow-y-auto">
-                        <p class="text-xs text-slate-400 text-center py-4">No transactions yet today.</p>
+                <div class="mt-6 space-y-4">
+                    <div class="p-5 bg-slate-900 rounded-2xl text-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Subtotal</p>
+                            <p id="cart-subtotal" class="text-xs font-black">₱0.00</p>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-white/10 mt-2">
+                            <p class="text-xs font-black uppercase text-indigo-400">Total Bill</p>
+                            <p id="cart-total" class="text-2xl font-black tracking-tight text-white">₱0.00</p>
+                        </div>
                     </div>
+                    <button id="checkout-btn" onclick="processCheckout()" disabled class="w-full py-5 bg-indigo-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 hover:scale-[1.02] active:scale-95 transition-all">
+                        Finalize Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMN 3: DAILY PULSE -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-indigo-900 rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-800 rounded-full blur-3xl opacity-50"></div>
+                <h3 class="text-[10px] font-black text-indigo-300 uppercase tracking-[0.3em] mb-6">Daily Operational Pulse</h3>
+                <div class="space-y-1">
+                    <p id="daily-total" class="text-4xl font-black tracking-tighter">₱0.00</p>
+                    <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest">Revenue Today</p>
+                </div>
+                <div class="mt-8 flex items-center justify-between">
+                    <div>
+                        <p id="daily-count" class="text-xl font-black">0</p>
+                        <p class="text-[8px] text-indigo-400 font-black uppercase tracking-widest">Transactions</p>
+                    </div>
+                    <div class="text-right">
+                        <p id="daily-avg" class="text-xl font-black">₱0.00</p>
+                        <p class="text-[8px] text-indigo-400 font-black uppercase tracking-widest">Avg Ticket</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Live Transaction Feed</h3>
+                <div id="history-feed" class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+                    <p class="text-[10px] text-slate-400 italic text-center py-10">Waiting for first transaction...</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
-    <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-        <span id="toast-text" class="font-bold text-sm">Transaction saved!</span>
+<!-- SUCCESS OVERLAY -->
+<div id="success-overlay" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500">
+    <div class="text-center">
+        <div class="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 scale-50 transition-all duration-500" id="success-icon">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+        </div>
+        <h2 class="text-white text-3xl font-black mb-2 uppercase tracking-tight">Order Authenticated</h2>
+        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.3em]">Data Committed to SQL Database</p>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        const POS_STORAGE_KEY = 'coretex_pos_transactions';
+        let cart = [];
+        let dailyTotal = 0;
 
-        let currentCashier = null;
-        let currentBranch = null;
-
-        document.addEventListener('DOMContentLoaded', function () {
-            resolveContext();
+        document.addEventListener('DOMContentLoaded', () => {
             renderDate();
-            bindFormEvents();
-            loadSuggestions();
-            updateLineTotal();
-            renderTodaySummary();
-            document.getElementById('product-name').focus();
+            loadDailySummary();
         });
-
-        function resolveContext() {
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-
-            currentCashier = users.find(u => u.role === 'Branch Cashier' && u.status === 'Active')
-                || users.find(u => u.role === 'Branch Cashier')
-                || { id: 'cashier_demo', name: 'Demo Cashier', branchId: null };
-
-            currentBranch = branches.find(b => b.id === currentCashier.branchId)
-                || branches[0]
-                || { id: 'branch_default', name: 'Davao Main' };
-
-            document.getElementById('cashier-name').textContent = `Cashier: ${currentCashier.name || 'Demo Cashier'}`;
-            document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Davao Main'}`;
-        }
 
         function renderDate() {
             const now = new Date();
-            const formatted = now.toLocaleDateString('en-PH', {
-                weekday: 'long',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            });
-            document.getElementById('current-date').textContent = `Date: ${formatted}`;
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        function bindFormEvents() {
-            document.getElementById('quantity').addEventListener('input', updateLineTotal);
-            document.getElementById('unit-price').addEventListener('input', updateLineTotal);
-            document.getElementById('pos-form').addEventListener('submit', function (event) {
-                event.preventDefault();
-            });
+        function addToCart(id, name, price) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ id, name, price, qty: 1 });
+            }
+            renderCart();
         }
 
-        function loadSuggestions() {
-            const defaults = ['Laptop', 'Mouse', 'Keyboard', 'Monitor', 'Printer', 'Router'];
-            const transactions = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
-            const dynamicNames = transactions.map(t => t.productName).filter(Boolean);
-            const unique = [...new Set([...defaults, ...dynamicNames])].sort((a, b) => a.localeCompare(b));
-
-            const dataList = document.getElementById('product-suggestions');
-            dataList.innerHTML = unique.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
         }
 
-        function updateLineTotal() {
-            const qty = parseInt(document.getElementById('quantity').value, 10) || 0;
-            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
-            const lineTotal = qty * unitPrice;
-            document.getElementById('line-total').textContent = formatCurrency(lineTotal);
+        function updateQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty < 1) cart.splice(index, 1);
+            renderCart();
         }
 
-        function validateForm() {
-            const productName = document.getElementById('product-name').value.trim();
-            const quantity = parseInt(document.getElementById('quantity').value, 10);
-            const unitPrice = parseFloat(document.getElementById('unit-price').value);
+        function clearCart() {
+            cart = [];
+            renderCart();
+        }
 
-            if (!productName) {
-                alert('Product Name is required.');
-                return null;
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const btn = document.getElementById('checkout-btn');
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-slate-300 opacity-50">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                        <p class="text-xs font-bold uppercase tracking-widest">Cart Empty</p>
+                    </div>`;
+                totalEl.textContent = "₱0.00";
+                subtotalEl.textContent = "₱0.00";
+                btn.disabled = true;
+                return;
             }
 
-            if (productName.length > 100) {
-                alert('Product Name must be 100 characters or fewer.');
-                return null;
-            }
-
-            if (!Number.isInteger(quantity) || quantity < 1) {
-                alert('Quantity must be at least 1.');
-                return null;
-            }
-
-            if (Number.isNaN(unitPrice) || unitPrice < 0.01) {
-                alert('Unit Price must be at least 0.01.');
-                return null;
-            }
-
-            return {
-                productName,
-                quantity,
-                unitPrice,
-                lineTotal: quantity * unitPrice
-            };
-        }
-
-        async function saveTransaction(mode) {
-            const parsed = validateForm();
-            if (!parsed) return;
-
-            const saveBtn = document.getElementById(mode === 'clear' ? 'save-and-clear' : 'save-and-add');
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> Saving...';
-
-            try {
-                const response = await fetch('/Cashier/CreateSale', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        productName: parsed.productName,
-                        quantity: parsed.quantity,
-                        unitPrice: parsed.unitPrice,
-                        amount: parsed.lineTotal,
-                        customerName: "Walk-in Customer"
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showToast(`Success! Order ${result.orderId} saved to database.`);
-                    
-                    // We can still keep a local log for immediate UI response if we want, 
-                    // but the source of truth is now SQL.
-                    const transaction = {
-                        transactionId: result.orderId,
-                        productName: parsed.productName,
-                        quantity: parsed.quantity,
-                        unitPrice: parsed.unitPrice,
-                        lineTotal: parsed.lineTotal,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    const all = JSON.parse(localStorage.getItem(POS_STORAGE_KEY) || '[]');
-                    all.unshift(transaction);
-                    localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(all.slice(0, 1000)));
-
-                    renderTodaySummary();
-                    loadSuggestions();
-
-                    if (mode === 'clear') {
-                        clearForm();
-                        document.getElementById('product-name').focus();
-                    } else {
-                        document.getElementById('quantity').value = '1';
-                        updateLineTotal();
-                        document.getElementById('quantity').focus();
-                        document.getElementById('quantity').select();
-                    }
-                } else {
-                    alert('Error: ' + (result.errors ? result.errors.join(', ') : 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('POS Save Error:', error);
-                alert('Could not connect to the server. Transaction not saved.');
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = mode === 'clear' ? 'Save Transaction' : 'Save & Add Another';
-            }
-        }
-
-        function clearForm() {
-            document.getElementById('pos-form').reset();
-            document.getElementById('quantity').value = '1';
-            updateLineTotal();
-        }
-
-        async function renderTodaySummary() {
-            const todayKey = toDateKey(new Date());
-            
-            try {
-                const response = await fetch(`/Cashier/GetDailySummary?date=${todayKey}`);
-                if (!response.ok) throw new Error('Failed to fetch summary');
-                const data = await response.json();
-
-                const total = data.totalSales;
-                const count = data.totalTransactions;
-                const average = count > 0 ? total / count : 0;
-
-                document.getElementById('summary-total').textContent = formatCurrency(total);
-                document.getElementById('summary-count').textContent = count.toString();
-                document.getElementById('summary-average').textContent = formatCurrency(average);
-
-                const list = document.getElementById('today-list');
-                if (count === 0) {
-                    list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No transactions yet today.</p>';
-                    return;
-                }
-
-                list.innerHTML = data.transactions.slice(0, 12).map(t => {
-                    const time = new Date(t.timestamp).toLocaleTimeString('en-PH', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-
-                    return `
-                        <div class="p-3 bg-slate-50 rounded-lg flex items-center justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(t.productName)}</p>
-                                <p class="text-[11px] text-slate-500">${t.quantity} x ${formatCurrency(t.unitPrice)} | ${time}</p>
-                            </div>
-                            <p class="text-xs font-black text-slate-900 whitespace-nowrap">${formatCurrency(t.lineTotal)}</p>
+            let total = 0;
+            container.innerHTML = cart.map((item, index) => {
+                const lineTotal = item.price * item.qty;
+                total += lineTotal;
+                return `
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between group">
+                        <div class="flex-grow">
+                            <p class="text-xs font-black text-slate-800 uppercase tracking-tight">${item.name}</p>
+                            <p class="text-[9px] text-slate-400 font-bold mt-0.5">${formatCurrency(item.price)} per unit</p>
                         </div>
-                    `;
-                }).join('');
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center bg-white rounded-lg border border-slate-200 px-2 py-1 gap-3">
+                                <button onclick="updateQty(${index}, -1)" class="text-slate-400 hover:text-rose-500 font-black">-</button>
+                                <span class="text-xs font-black text-slate-700 min-w-[20px] text-center">${item.qty}</span>
+                                <button onclick="updateQty(${index}, 1)" class="text-slate-400 hover:text-indigo-500 font-black">+</button>
+                            </div>
+                            <div class="text-right min-w-[80px]">
+                                <p class="text-xs font-black text-slate-900">${formatCurrency(lineTotal)}</p>
+                                <button onclick="removeFromCart(${index})" class="text-[8px] font-black text-rose-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">Remove</button>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            totalEl.textContent = formatCurrency(total);
+            subtotalEl.textContent = formatCurrency(total);
+            btn.disabled = false;
+        }
+
+        async function processCheckout() {
+            const btn = document.getElementById('checkout-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> COMMITTING TO SQL...';
+
+            try {
+                // Loop through cart and save each item as a transaction
+                const promises = cart.map(item => fetch('/Cashier/CreateSale', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        productName: item.name, 
+                        quantity: item.qty, 
+                        unitPrice: item.price, 
+                        amount: item.qty * item.price, 
+                        customerName: "Walk-in" 
+                    })
+                }));
+
+                await Promise.all(promises);
+                showSuccess();
+                clearCart();
+                loadDailySummary();
             } catch (error) {
-                console.error('Summary Load Error:', error);
+                alert("SQL Sync Failed. Verify database connection.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Finalize Checkout";
             }
         }
 
-        function toDateKey(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+        async function loadDailySummary() {
+            const response = await fetch(`/Cashier/GetDailySummary?date=${new Date().toISOString().split('T')[0]}`);
+            const data = await response.json();
+            
+            animateValue("daily-total", dailyTotal, data.totalSales, 1000);
+            dailyTotal = data.totalSales;
+            document.getElementById('daily-count').textContent = data.totalTransactions;
+            document.getElementById('daily-avg').textContent = formatCurrency(data.totalTransactions > 0 ? data.totalSales / data.totalTransactions : 0);
+
+            const feed = document.getElementById('history-feed');
+            if (data.transactions.length === 0) {
+                feed.innerHTML = '<p class="text-[10px] text-slate-400 italic text-center py-10">Waiting for first transaction...</p>';
+                return;
+            }
+
+            feed.innerHTML = data.transactions.slice(0, 10).map(t => `
+                <div class="p-3 bg-slate-50 border-l-2 border-indigo-500 rounded-r-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-800 uppercase">${t.productName}</p>
+                        <p class="text-[8px] text-slate-400 font-bold">${t.quantity} Units | ${new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-900">${formatCurrency(t.lineTotal)}</p>
+                </div>
+            `).join('');
         }
 
-        function generateTransactionId() {
-            const now = new Date();
-            const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-            const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
-            return `TXN-${datePart}-${randomPart}`;
-        }
+        function formatCurrency(v) { return "₱" + Number(v).toLocaleString('en-PH', { minimumFractionDigits: 2 }); }
 
-        function formatCurrency(value) {
-            return `₱${Number(value || 0).toLocaleString('en-PH', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })}`;
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-text').textContent = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-
-            setTimeout(function () {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2600);
-        }
-
-        function escapeHtml(value) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = formatCurrency(Math.floor(progress * (end - start) + start));
+                if (progress < 1) { window.requestAnimationFrame(step); }
             };
+            window.requestAnimationFrame(step);
+        }
 
-            return String(value || '').replace(/[&<>"']/g, char => map[char]);
+        function showSuccess() {
+            const overlay = document.getElementById('success-overlay');
+            const icon = document.getElementById('success-icon');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => icon.classList.remove('scale-50'), 10);
+            setTimeout(() => {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                icon.classList.add('scale-50');
+            }, 2500);
         }
     </script>
 }

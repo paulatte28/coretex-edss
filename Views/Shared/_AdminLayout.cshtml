@@ -148,7 +148,7 @@
                     </a>
                 }
 
-                @if (User.IsInRole("ADMIN"))
+                @if (User.IsInRole("ADMIN") || User.IsInRole("BRANCH_ADMIN"))
                 {
                     <div class="pt-8">
                         <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Operational Controls</p>
@@ -183,20 +183,20 @@
                             <span class="font-semibold tracking-tight text-sm">KPI Goals & Targets</span>
                         </a>
 
-                        @if (branch == null) {
+                        @if (User.IsInRole("ADMIN")) {
                             <a href="/Admin/ReportSchedule" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ReportSchedule" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ReportSchedule" ? "scale-[1.02]" : "")">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                 <span class="font-semibold tracking-tight text-sm">Executive Summary Hub</span>
                             </a>
-                        }
 
-                    <a href="/Admin/Archives" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/Archives" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/Archives" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">System Data Backups</span>
-                    </a>
+                            <a href="/Admin/Archives" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/Archives" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/Archives" ? "scale-[1.02]" : "")">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                                <span class="font-semibold tracking-tight text-sm">System Data Backups</span>
+                            </a>
+                        }
+                    </div>
                 </div>
-            </div>
-        }
+            }
 
         <!-- Shared Links -->
                 <div class="pt-4 pb-10 border-t border-white/5">
@@ -213,7 +213,7 @@
                         <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                         <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">System Active</p>
                     </div>
-                    <p class="font-bold text-white mt-1 text-sm">@(User.IsInRole("CEO") ? "CEO Terminal" : User.IsInRole("ADMIN") ? "Admin Terminal" : User.IsInRole("FINANCE") ? "Finance Terminal" : "Cashier Terminal")</p>
+                    <p class="font-bold text-white mt-1 text-sm">@(User.IsInRole("CEO") ? "CEO Terminal" : User.IsInRole("ADMIN") ? "System Admin Terminal" : User.IsInRole("BRANCH_ADMIN") ? "Branch Manager Terminal" : User.IsInRole("FINANCE") ? "Finance Terminal" : "Cashier Terminal")</p>
                 </div>
             </div>
         </aside>
@@ -223,7 +223,7 @@
             <!-- Header -->
             <header class="h-20 glass-header flex items-center justify-between px-10 z-20 sticky top-0 border-b border-slate-200/50">
                 <div class="flex items-center space-x-4">
-                     <span id="role-badge" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-lg">@(User.IsInRole("CEO") ? "CEO Mode" : User.IsInRole("ADMIN") ? "Admin Mode" : User.IsInRole("FINANCE") ? "Finance Mode" : "Staff Mode")</span>
+                     <span id="role-badge" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-lg">@(User.IsInRole("CEO") ? "CEO Mode" : User.IsInRole("ADMIN") ? "System Admin" : User.IsInRole("BRANCH_ADMIN") ? "Branch Manager" : User.IsInRole("FINANCE") ? "Finance Mode" : "Staff Mode")</span>
                      @if (branch != null)
                      {
                          <span class="px-3 py-1 bg-secondary/10 text-secondary text-[9px] font-black uppercase tracking-widest rounded-lg border border-secondary/20 flex items-center gap-1.5">
@@ -231,12 +231,12 @@
                             @branch.Name
                          </span>
                      }
-                     else if (User.IsInRole("ADMIN") || User.IsInRole("CEO"))
+                      else if (User.IsInRole("ADMIN") || User.IsInRole("BRANCH_ADMIN") || User.IsInRole("CEO"))
                      {
-                         <span class="px-3 py-1 bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest rounded-lg border border-slate-200 flex items-center gap-1.5">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V17m-6 5v-1.5A3.333 3.333 0 0014.167 18H15a3 3 0 013 3v1.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Main Branch
-                         </span>
+                          <span class="px-3 py-1 bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest rounded-lg border border-slate-200 flex items-center gap-1.5">
+                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V17m-6 5v-1.5A3.333 3.333 0 0014.167 18H15a3 3 0 013 3v1.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                             @(branch?.Name ?? "Main Office")
+                          </span>
                      }
                      <span class="text-slate-300 text-lg">/</span>
                      <span id="page-crumb" class="font-black text-slate-900 tracking-tight uppercase">Dashboard Overview</span>
@@ -276,7 +276,7 @@
 
                     <div class="flex items-center space-x-6">
                         <div class="text-right">
-                            <p id="user-role-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@(User.IsInRole("CEO") ? "CEO" : User.IsInRole("ADMIN") ? "Admin" : User.IsInRole("FINANCE") ? "Finance" : "Staff")</p>
+                            <p id="user-role-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@(User.IsInRole("CEO") ? "CEO" : User.IsInRole("ADMIN") ? "System Admin" : User.IsInRole("BRANCH_ADMIN") ? "Branch Manager" : User.IsInRole("FINANCE") ? "Finance" : "Staff")</p>
                             <p id="user-name-label" class="text-sm font-black text-slate-800">@(User.Identity?.Name ?? "Guest")</p>
                         </div>
                         

@@ -20,6 +20,17 @@ namespace coretex_finalproj.Data
 
             await EnsureSchemaAsync(context, logger);
 
+            // PROACTIVE PATCH: Rename "Main Branch" to "Claveria HQ" if it exists
+            var existingMainBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Main Branch");
+            if (existingMainBranch != null)
+            {
+                existingMainBranch.Name = "Claveria HQ";
+                existingMainBranch.Address = "Claveria St., Davao City";
+                existingMainBranch.BranchCode = "CHQ-001";
+                await context.SaveChangesAsync();
+                logger?.LogInformation("Migrated 'Main Branch' to 'Claveria HQ'.");
+            }
+
             if (!await TableExistsAsync(context, "Branches"))
             {
                 logger?.LogWarning("Skipping data seed because the Branches table is not present in the target database.");
@@ -33,12 +44,21 @@ namespace coretex_finalproj.Data
                 defaultBranch = new Branch
                 {
                     Id = Guid.NewGuid(),
-                    Name = "Main Branch",
-                    Address = "Head Office",
-                    BranchCode = "MAIN",
+                    Name = "Claveria HQ",
+                    Address = "Claveria St., Davao City",
+                    BranchCode = "CHQ-001",
                     IsActive = true
                 };
                 context.Branches.Add(defaultBranch);
+
+                // Add Other Specific Branches
+                context.Branches.AddRange(
+                    new Branch { Name = "Sandawa Branch", Address = "Sandawa, Matina", BranchCode = "SND-002" },
+                    new Branch { Name = "Toril Branch", Address = "Toril District", BranchCode = "TRL-003" },
+                    new Branch { Name = "Agdao Branch", Address = "Agdao Public Market", BranchCode = "AGD-004" },
+                    new Branch { Name = "Buhangin Branch", Address = "Buhangin Highway", BranchCode = "BHG-005" }
+                );
+
                 await context.SaveChangesAsync();
 
                 // Seed some initial products
@@ -67,32 +87,32 @@ namespace coretex_finalproj.Data
                 .ThenBy(b => b.Name)
                 .FirstAsync();
 
-            await SeedRolesAndUsersAsync(userManager, roleManager, defaultBranch.Id, logger);
+            await SeedRolesAndUsersAsync(context, userManager, roleManager, defaultBranch.Id, logger);
         }
 
         private static async Task EnsureSchemaAsync(ApplicationDbContext context, ILogger? logger)
         {
-            logger?.LogInformation("Applying pending EF Core migrations before seeding.");
+            logger?.LogInformation("Checking database schema...");
             try
             {
-                await context.Database.MigrateAsync();
+                // If there are no local migrations, just ensure the DB is created
+                await context.Database.EnsureCreatedAsync();
+                logger?.LogInformation("Database schema is ready.");
             }
-            catch (InvalidOperationException ex) when (
-                ex.Message.Contains("PendingModelChangesWarning", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                logger?.LogWarning(
-                    ex,
-                    "Skipping automatic migration because model changes are pending without a new migration. Continuing with existing schema for seeding.");
+                logger?.LogWarning("Database check completed with a notice: {Message}. Continuing to seed data anyway.", ex.Message);
             }
         }
 
         private static async Task SeedRolesAndUsersAsync(
+            ApplicationDbContext context,
             UserManager<AppUser> userManager,
             RoleManager<IdentityRole> roleManager,
             Guid defaultBranchId,
             ILogger? logger)
         {
-            var roles = new[] { "ADMIN", "CEO", "FINANCE", "CASHIER", "USER" };
+            var roles = new[] { "ADMIN", "CEO", "FINANCE", "CASHIER", "BRANCH_ADMIN", "USER" };
 
             foreach (var role in roles)
             {
@@ -129,23 +149,48 @@ namespace coretex_finalproj.Data
                 branchId: null,
                 logger: logger);
 
-            await EnsureUserAsync(
-                userManager,
-                email: "finance@coretex.com",
-                fullName: "Finance Officer",
-                password: "Password12345!",
-                role: "FINANCE",
-                branchId: defaultBranchId,
-                logger: logger);
+            // --- Multi-Branch Staffing Loop ---
+            var allBranches = await context.Branches.ToListAsync();
+            foreach (var branch in allBranches)
+            {
+                var branchSlug = branch.Name.ToLower().Replace(" ", "");
+                
+                // 1. Branch Manager
+                await EnsureUserAsync(
+                    userManager,
+                    email: $"{branchSlug}_manager@coretex.com",
+                    fullName: $"{branch.Name} Manager",
+                    password: "Password12345!",
+                    role: "BRANCH_ADMIN",
+                    branchId: branch.Id,
+                    logger: logger);
 
-            await EnsureUserAsync(
-                userManager,
-                email: "cashier@coretex.com",
-                fullName: "Branch Cashier",
-                password: "Password12345!",
-                role: "CASHIER",
-                branchId: defaultBranchId,
-                logger: logger);
+                // 2. Finance Officer
+                await EnsureUserAsync(
+                    userManager,
+                    email: $"{branchSlug}_finance@coretex.com",
+                    fullName: $"{branch.Name} Finance",
+                    password: "Password12345!",
+                    role: "FINANCE",
+                    branchId: branch.Id,
+                    logger: logger);
+
+                // 3. Branch Cashier
+                await EnsureUserAsync(
+                    userManager,
+                    email: $"{branchSlug}_cashier@coretex.com",
+                    fullName: $"{branch.Name} Cashier",
+                    password: "Password12345!",
+                    role: "CASHIER",
+                    branchId: branch.Id,
+                    logger: logger);
+            }
+
+            // Keep original credentials working for backward compatibility
+            var defaultOpsBranchId = allBranches.FirstOrDefault(b => b.Name.Contains("Sandawa"))?.Id ?? defaultBranchId;
+            await EnsureUserAsync(userManager, "manager@coretex.com", "Default Manager", "Password12345!", "BRANCH_ADMIN", defaultOpsBranchId, logger);
+            await EnsureUserAsync(userManager, "finance@coretex.com", "Default Finance", "Password12345!", "FINANCE", defaultOpsBranchId, logger);
+            await EnsureUserAsync(userManager, "cashier@coretex.com", "Default Cashier", "Password12345!", "CASHIER", defaultOpsBranchId, logger);
         }
 
         private static async Task EnsureUserAsync(
@@ -168,7 +213,8 @@ namespace coretex_finalproj.Data
                     EmailConfirmed = true,
                     TwoFactorEnabled = true,
                     FullName = fullName,
-                    BranchId = branchId
+                    BranchId = branchId,
+                    Role = role
                 };
 
                 var createUserResult = await userManager.CreateAsync(user, password);
@@ -202,6 +248,12 @@ namespace coretex_finalproj.Data
                 if (!user.TwoFactorEnabled)
                 {
                     user.TwoFactorEnabled = true;
+                    requiresUpdate = true;
+                }
+
+                if (user.Role != role)
+                {
+                    user.Role = role;
                     requiresUpdate = true;
                 }
 

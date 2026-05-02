@@ -1,143 +1,134 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<AppUser> UserManager
 @{
     ViewData["Title"] = "KPI Thresholds";
     Layout = "_AdminLayout";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isCEO = User.IsInRole("CEO");
+    var isManager = User.IsInRole("BRANCH_ADMIN");
+    var canEdit = isCEO; // Only the CEO has the keys to the business strategy
 }
 
-<div class="space-y-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <div class="flex items-center space-x-3 mb-2">
-                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </a>
-                <span class="px-3 py-1 bg-amber-100 text-amber-700 font-black text-[10px] uppercase tracking-widest rounded-full">Alert Config</span>
-            </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">KPI Threshold Configuration</h2>
-            <p class="text-sm text-slate-500 mt-1">Configure alert thresholds. SMS alerts sent via Twilio when breached.</p>
-        </div>
-    </div>
-
-    <!-- Info Banner -->
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6">
-        <div class="flex items-start space-x-4">
-            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
+<div class="space-y-8 pb-20">
+    <!-- Premium Header -->
+    <div class="relative overflow-hidden bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl">
+        <div class="relative z-10 flex items-center justify-between">
             <div>
-                <h4 class="font-bold text-amber-900">How KPI Alerts Work</h4>
-                <p class="text-sm text-amber-700 mt-1">When any threshold is breached after data submission, <strong>Twilio SMS fires to CEO's phone</strong> and an in-app notification is created immediately.</p>
+                <div class="flex items-center space-x-3 mb-4">
+                    <a href="/Admin" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+                    </a>
+                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-black text-[10px] uppercase tracking-widest rounded-full border border-amber-500/30">Intelligence Guard</span>
+                </div>
+                <h2 class="text-4xl font-black tracking-tight">Performance Thresholds</h2>
+                <p class="text-slate-400 mt-2 text-sm font-medium">
+                    @(isCEO ? "Executive control panel for global operational safety limits." : $"Monitoring thresholds for {currentUser?.Branch?.Name ?? "Davao HQ"}.")
+                </p>
             </div>
+            @if (!canEdit) {
+                <div class="px-6 py-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center space-x-3">
+                    <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Executive Read-Only</span>
+                </div>
+            }
         </div>
+        <!-- Decorative Background Elements -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Threshold Configuration Form -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 bg-slate-50">
-            <h3 class="font-bold text-slate-900">Configure Thresholds</h3>
-            <p class="text-xs text-slate-500 mt-1">Set alert thresholds for key performance indicators</p>
+    <!-- Info Banner (Only for CEO) -->
+    @if (isCEO) {
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-700 rounded-[2rem] p-8 text-white shadow-xl">
+            <div class="flex items-start space-x-6">
+                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm border border-white/20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xl font-black uppercase tracking-tight">Executive Dashboard Control</h4>
+                    <p class="text-indigo-100 mt-1 font-medium">As the **Chief Executive Officer**, your thresholds here define the "Red Zone." If breached, secure SMS alerts will be routed to your device.</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Threshold Configuration Grid -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden @(!canEdit ? "opacity-75" : "")">
+        <div class="p-10 border-b border-slate-50 bg-slate-50/30">
+            <h3 class="text-xl font-black text-slate-900 tracking-tight">Threshold Definition</h3>
+            <p class="text-xs text-slate-400 font-bold uppercase mt-1 tracking-widest">@(!canEdit ? "Executive Safety Targets" : "Configure intelligence triggers")</p>
         </div>
         
-        <form id="threshold-form" class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form id="threshold-form" class="p-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <!-- Minimum Profit Margin -->
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <label class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-slate-700">Minimum Profit Margin</span>
-                        <span class="text-xs text-slate-400">Percentage</span>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Min Profit Margin</span>
+                        <span class="px-2 py-1 bg-slate-100 text-[10px] font-black text-slate-500 rounded-lg">PERCENTAGE</span>
                     </label>
-                    <div class="relative">
-                        <input type="number" id="min-profit-margin" step="0.1" min="0" max="100" placeholder="e.g. 15" 
-                            class="w-full px-4 py-4 pr-12 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-lg font-bold">
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                    <div class="relative group">
+                        <input type="number" id="min-profit-margin" step="0.1" min="0" max="100" placeholder="e.g. 15" @(!canEdit ? "disabled" : "")
+                            class="w-full px-6 py-5 pr-14 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-2xl font-black text-slate-900 @(!canEdit ? "cursor-not-allowed" : "")">
+                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 font-black text-xl">%</span>
                     </div>
-                    <p class="text-xs text-slate-500">Alert when profit margin falls below this value</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Alert CEO if margin falls below this level</p>
                 </div>
 
                 <!-- Maximum Expense Ratio -->
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <label class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-slate-700">Maximum Expense Ratio</span>
-                        <span class="text-xs text-slate-400">Percentage</span>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Max Expense Ratio</span>
+                        <span class="px-2 py-1 bg-slate-100 text-[10px] font-black text-slate-500 rounded-lg">PERCENTAGE</span>
                     </label>
-                    <div class="relative">
-                        <input type="number" id="max-expense-ratio" step="0.1" min="0" max="100" placeholder="e.g. 70" 
-                            class="w-full px-4 py-4 pr-12 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-lg font-bold">
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                    <div class="relative group">
+                        <input type="number" id="max-expense-ratio" step="0.1" min="0" max="100" placeholder="e.g. 70" @(!canEdit ? "disabled" : "")
+                            class="w-full px-6 py-5 pr-14 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-2xl font-black text-slate-900 @(!canEdit ? "cursor-not-allowed" : "")">
+                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 font-black text-xl">%</span>
                     </div>
-                    <p class="text-xs text-slate-500">Alert when expense ratio exceeds this value</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Alert CEO if expenses exceed this ratio</p>
                 </div>
 
                 <!-- Minimum Monthly Profit -->
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <label class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-slate-700">Minimum Monthly Profit</span>
-                        <span class="text-xs text-slate-400">Currency (PHP)</span>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Min Monthly Profit</span>
+                        <span class="px-2 py-1 bg-slate-100 text-[10px] font-black text-slate-500 rounded-lg">PHP CURRENCY</span>
                     </label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₱</span>
-                        <input type="text" id="min-monthly-profit" placeholder="e.g. 50,000" 
-                            class="w-full px-4 py-4 pl-10 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-lg font-bold"
+                    <div class="relative group">
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 font-black text-xl">₱</span>
+                        <input type="text" id="min-monthly-profit" placeholder="e.g. 50,000" @(!canEdit ? "disabled" : "")
+                            class="w-full px-6 py-5 pl-12 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-2xl font-black text-slate-900 @(!canEdit ? "cursor-not-allowed" : "")"
                             oninput="formatCurrency(this)">
                     </div>
-                    <p class="text-xs text-slate-500">Alert when monthly profit drops below this amount</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Critical warning if net profit is below this amount</p>
                 </div>
 
                 <!-- Risk Score Alert Level -->
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <label class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-slate-700">Risk Score Alert Level</span>
-                        <span class="text-xs text-slate-400">Severity</span>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Intelligence Alert Level</span>
+                        <span class="px-2 py-1 bg-slate-100 text-[10px] font-black text-slate-500 rounded-lg">SEVERITY</span>
                     </label>
-                    <select id="risk-alert-level" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-lg font-bold appearance-none cursor-pointer"
-                        style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2394a3b8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em 1.5em;">
-                        <option value="yellow">🟡 Yellow - Warning</option>
-                        <option value="red">🔴 Red - Critical Only</option>
+                    <select id="risk-alert-level" @(!canEdit ? "disabled" : "")
+                        class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-xl font-black text-slate-900 appearance-none @(!canEdit ? "cursor-not-allowed" : "")">
+                        <option value="yellow">🟡 Low Threshold Warning</option>
+                        <option value="red">🔴 High Priority Critical Only</option>
                     </select>
-                    <p class="text-xs text-slate-500">Trigger SMS alerts at this risk level or worse</p>
                 </div>
             </div>
 
-            <!-- Divider -->
-            <div class="border-t border-slate-200 my-8"></div>
-
-            <!-- Current Settings Summary -->
-            <div class="bg-slate-50 rounded-2xl p-6 mb-8">
-                <h4 class="font-bold text-slate-900 mb-4 flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                    <span>Current Threshold Settings</span>
-                </h4>
-                <div id="settings-summary" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-xl p-4 border border-slate-100">
-                        <p class="text-xs text-slate-500 uppercase tracking-widest">Min Profit Margin</p>
-                        <p class="text-xl font-black text-slate-900 mt-1" id="summary-profit-margin">Not set</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-4 border border-slate-100">
-                        <p class="text-xs text-slate-500 uppercase tracking-widest">Max Expense Ratio</p>
-                        <p class="text-xl font-black text-slate-900 mt-1" id="summary-expense-ratio">Not set</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-4 border border-slate-100">
-                        <p class="text-xs text-slate-500 uppercase tracking-widest">Min Monthly Profit</p>
-                        <p class="text-xl font-black text-slate-900 mt-1" id="summary-monthly-profit">Not set</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-4 border border-slate-100">
-                        <p class="text-xs text-slate-500 uppercase tracking-widest">Risk Alert Level</p>
-                        <p class="text-xl font-black mt-1" id="summary-risk-level">Not set</p>
-                    </div>
+            @if (canEdit) {
+                <div class="mt-12 pt-10 border-t border-slate-100 flex items-center justify-between">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Encryption enabled for automated SMS triggers
+                    </p>
+                    <button type="submit" class="px-10 py-5 bg-slate-900 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/20 flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        <span>Commit Thresholds</span>
+                    </button>
                 </div>
-            </div>
-
-            <!-- Save Button -->
-            <div class="flex items-center justify-between">
-                <p class="text-sm text-slate-500">
-                    <svg class="w-4 h-4 inline mr-1 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    Alerts will be sent via SMS (Twilio) when thresholds are breached
-                </p>
-                <button type="submit" class="px-8 py-4 bg-amber-600 text-white font-bold rounded-xl hover:bg-amber-700 transition-colors flex items-center space-x-2 shadow-lg shadow-amber-500/20">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span>Save Thresholds</span>
-                </button>
-            </div>
+            }
         </form>
     </div>
 

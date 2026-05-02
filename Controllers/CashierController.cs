@@ -21,6 +21,7 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> Pos()
         {
+            ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
             var sales = await _context.Sales.Where(s => s.Date >= DateTime.Today).ToListAsync();
             return View(sales);
         }
