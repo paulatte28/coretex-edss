@@ -21,6 +21,31 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> Pos()
         {
+            // EMERGENCY INJECTION: If no products exist, seed them now for the demo
+            if (!await _context.Products.AnyAsync())
+            {
+                var branch = await _context.Branches.FirstOrDefaultAsync() ?? new Branch { Name = "Davao HQ", BranchCode = "DHQ-001" };
+                if (branch.Id == Guid.Empty) {
+                    _context.Branches.Add(branch);
+                    await _context.SaveChangesAsync();
+                }
+
+                _context.Products.AddRange(
+                    new Product { Name = "Coretex ZenBook Pro", Category = "Laptops", Price = 85000.00m, BranchId = branch.Id },
+                    new Product { Name = "X-Series Workstation", Category = "Laptops", Price = 120000.00m, BranchId = branch.Id },
+                    new Product { Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, BranchId = branch.Id },
+                    new Product { Name = "NVIDIA RTX 4090 (Core Edition)", Category = "Components", Price = 110000.00m, BranchId = branch.Id },
+                    new Product { Name = "64GB DDR5 Server RAM", Category = "Components", Price = 18000.00m, BranchId = branch.Id },
+                    new Product { Name = "2TB NVMe Gen5 SSD", Category = "Components", Price = 12500.00m, BranchId = branch.Id },
+                    new Product { Name = "Rack-Mount Storage Node", Category = "Infrastructure", Price = 250000.00m, BranchId = branch.Id },
+                    new Product { Name = "Enterprise Router AX9000", Category = "Infrastructure", Price = 45000.00m, BranchId = branch.Id },
+                    new Product { Name = "Coretex Firewall Hub", Category = "Infrastructure", Price = 32000.00m, BranchId = branch.Id },
+                    new Product { Name = "Coretex Security Suite (1yr)", Category = "Software", Price = 5500.00m, BranchId = branch.Id },
+                    new Product { Name = "Cloud Backup Subscription", Category = "Software", Price = 1200.00m, BranchId = branch.Id }
+                );
+                await _context.SaveChangesAsync();
+            }
+
             ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
             var sales = await _context.Sales.Where(s => s.Date >= DateTime.Today).ToListAsync();
             return View(sales);
