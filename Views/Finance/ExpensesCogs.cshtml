@@ -29,14 +29,14 @@
         <div class="xl:col-span-8">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-8 border-b border-slate-100">
-                    <h3 class="text-lg font-black text-slate-900">COGS Form</h3>
-                    <p class="text-xs text-slate-500 mt-1">On currency or amount change, the exchange rate API is called and conversion is refreshed.</p>
+                    <h3 class="text-xl font-black text-slate-900">Procurement Settlement (COGS)</h3>
+                    <p class="text-xs text-slate-500 mt-1">Record total monthly inventory batch costs</p>
                 </div>
 
                 <form id="cogs-form" class="p-8 space-y-6" autocomplete="off">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-2">
-                            <label for="cogs-amount" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount</label>
+                            <label for="cogs-amount" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Batch Amount</label>
                             <input id="cogs-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all" placeholder="0.00" />
                         </div>
                         <div class="space-y-2">
@@ -56,8 +56,8 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label for="cogs-description" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Description (Optional)</label>
-                        <textarea id="cogs-description" rows="3" maxlength="250" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all resize-none" placeholder="Supplier, product batch, or notes"></textarea>
+                        <label for="cogs-description" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Batch Procurement Details</label>
+                        <textarea id="cogs-description" rows="3" maxlength="250" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-blue-500 outline-none transition-all resize-none" placeholder="e.g. Q3 Main Inventory Inflow - Supplier: Intel Global"></textarea>
                     </div>
 
                     <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 space-y-3">
@@ -98,8 +98,12 @@
                         <span class="text-xs font-bold text-slate-600">Converted (PHP)</span>
                         <span id="saved-converted" class="text-sm font-black text-slate-900">P0.00</span>
                     </div>
+                    <div class="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl">
+                        <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Calculation Logic</p>
+                        <p id="saved-formula" class="text-[10px] font-bold text-slate-600 italic">No formula data</p>
+                    </div>
                     <div class="p-4 bg-slate-50 rounded-xl">
-                        <p class="text-xs font-bold text-slate-600">Description</p>
+                        <p class="text-xs font-bold text-slate-600">Batch Details</p>
                         <p id="saved-description" class="text-xs text-slate-800 mt-1">No description saved.</p>
                     </div>
                 </div>
@@ -164,6 +168,10 @@
             document.getElementById('saved-converted').textContent = flow.formatCurrency(record.amountPHP || 0);
             document.getElementById('saved-description').textContent = record.description || 'No description saved.';
 
+            const rate = Number(record.exchangeRate || 1);
+            const orig = Number(record.originalAmount || 0);
+            document.getElementById('saved-formula').textContent = `${orig.toLocaleString()} ${record.currency} x ${rate.toFixed(4)} = ${flow.formatCurrency(record.amountPHP)}`;
+            
             document.getElementById('conversion-text').textContent = `1 ${record.currency || 'USD'} = ${flow.formatCurrency(record.exchangeRate || 1)}`;
         }
 
@@ -213,6 +221,7 @@
                 document.getElementById('saved-original').textContent = `${saved.record.currency} ${Number(saved.record.originalAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 document.getElementById('saved-converted').textContent = flow.formatCurrency(saved.record.amountPHP);
                 document.getElementById('saved-description').textContent = saved.record.description || 'No description saved.';
+                document.getElementById('saved-formula').textContent = `${amount.toLocaleString()} ${currency} x ${currentRate.toFixed(4)} = ${flow.formatCurrency(amount * currentRate)}`;
 
                 showToast('COGS expense saved successfully.');
             } catch (error) {
