@@ -43,42 +43,44 @@
     </div>
 </div>
 
-<div id="details-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-            <div>
-                <h3 class="text-xl font-black text-slate-900">Submission Details</h3>
-                <p id="modal-month" class="text-xs text-slate-500 mt-1">Month</p>
+@section Modals {
+    <div id="details-modal" class="fixed inset-0 bg-white/90 backdrop-blur-[40px] z-[9999] hidden items-center justify-center p-4 transition-all duration-500">
+        <div class="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="details-modal-content">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900">Submission Details</h3>
+                    <p id="modal-month" class="text-xs text-slate-500 mt-1">Month</p>
+                </div>
+                <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
-            <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-        <div class="p-6 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Transactions</span><span id="detail-transactions" class="text-sm font-black text-slate-900">0</span></div>
-                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Top Product</span><span id="detail-top-product" class="text-sm font-black text-slate-900">-</span></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Revenue</span><span id="detail-revenue" class="text-sm font-black text-slate-900">P0.00</span></div>
-                <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Expenses</span><span id="detail-expenses" class="text-sm font-black text-slate-900">P0.00</span></div>
-            </div>
-            <div class="p-4 bg-slate-900 rounded-xl flex items-center justify-between">
-                <span class="text-xs font-black text-white uppercase tracking-widest">Net Profit</span>
-                <span id="detail-profit" class="text-sm font-black text-white">P0.00</span>
-            </div>
-            <div class="p-4 bg-slate-50 rounded-xl">
-                <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Status</p>
-                <p id="detail-status" class="text-sm font-bold text-slate-900 mt-1">Submitted</p>
-                <p id="detail-submitted-at" class="text-xs text-slate-500 mt-1">Submitted on -</p>
-            </div>
-            <div id="detail-edit-reason-wrap" class="hidden p-4 bg-amber-50 rounded-xl border border-amber-100">
-                <p class="text-xs font-black text-amber-700 uppercase tracking-widest">Edit Reason</p>
-                <p id="detail-edit-reason" class="text-sm text-amber-800 mt-1">-</p>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Transactions</span><span id="detail-transactions" class="text-sm font-black text-slate-900">0</span></div>
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Top Product</span><span id="detail-top-product" class="text-sm font-black text-slate-900">-</span></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Revenue</span><span id="detail-revenue" class="text-sm font-black text-slate-900">P0.00</span></div>
+                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between"><span class="text-xs font-bold text-slate-600">Expenses</span><span id="detail-expenses" class="text-sm font-black text-slate-900">P0.00</span></div>
+                </div>
+                <div class="p-4 bg-slate-900 rounded-xl flex items-center justify-between">
+                    <span class="text-xs font-black text-white uppercase tracking-widest">Net Profit</span>
+                    <span id="detail-profit" class="text-sm font-black text-white">P0.00</span>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Status</p>
+                    <p id="detail-status" class="text-sm font-bold text-slate-900 mt-1">Submitted</p>
+                    <p id="detail-submitted-at" class="text-xs text-slate-500 mt-1">Submitted on -</p>
+                </div>
+                <div id="detail-edit-reason-wrap" class="hidden p-4 bg-amber-50 rounded-xl border border-amber-100">
+                    <p class="text-xs font-black text-amber-700 uppercase tracking-widest">Edit Reason</p>
+                    <p id="detail-edit-reason" class="text-sm text-amber-800 mt-1">-</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 @section Scripts {
     <script src="~/js/finance-flow.js" asp-append-version="true"></script>
@@ -141,14 +143,28 @@
             document.getElementById('detail-submitted-at').textContent = snapshot.submissionDate ? `Submitted on ${flow.formatDateTime(snapshot.submissionDate)}` : '';
 
             const modal = document.getElementById('details-modal');
+            const content = document.getElementById('details-modal-content');
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            });
         }
 
         function closeDetailsModal() {
             const modal = document.getElementById('details-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            const content = document.getElementById('details-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
     </script>
 }

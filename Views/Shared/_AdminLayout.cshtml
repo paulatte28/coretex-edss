@@ -92,6 +92,7 @@
         .custom-scrollbar:hover::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.2);
         }
+
     </style>
 </head>
 <body class="bg-gray-100 text-slate-800">
@@ -352,5 +353,6 @@
     </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    @RenderSection("Modals", required: false)
 </body>
 </html>

@@ -28,39 +28,48 @@
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
         <div class="xl:col-span-8">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-8 border-b border-slate-100">
-                    <h3 class="text-lg font-black text-slate-900">Utilities Form</h3>
-                    <p class="text-xs text-slate-500 mt-1">Save electric, water, internet, and related utility expenses.</p>
+                <div class="p-8 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900">Operational Utility Settlement</h3>
+                        <p class="text-xs text-slate-500 mt-1">Record electric, water, connectivity, and maintenance costs</p>
+                    </div>
+                    <div class="px-3 py-1 bg-cyan-50 text-cyan-600 rounded-full border border-cyan-100">
+                        <span class="text-[9px] font-black uppercase tracking-widest">Variable Overhead</span>
+                    </div>
                 </div>
 
-                <form id="utilities-form" class="p-8 space-y-6" autocomplete="off">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label for="utilities-amount" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount</label>
-                            <input id="utilities-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-cyan-500 outline-none transition-all" placeholder="0.00" />
-                        </div>
-                        <div class="space-y-2">
-                            <label for="utilities-currency" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Currency</label>
-                            <select id="utilities-currency" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-cyan-500 outline-none transition-all">
-                                <option value="PHP">PHP</option>
-                                <option value="USD">USD</option>
-                                <option value="CNY">CNY</option>
-                                <option value="EUR">EUR</option>
-                            </select>
+                <form id="utilities-form" class="p-8 space-y-8" autocomplete="off">
+                    <div class="space-y-3">
+                        <label for="utilities-amount" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Bill Amount (PHP)</label>
+                        <div class="relative">
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">₱</span>
+                            <input id="utilities-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-5 pl-12 pr-6 text-2xl font-black text-slate-900 focus:border-cyan-500 focus:bg-white outline-none transition-all" placeholder="0.00" />
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <label for="utilities-notes" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Notes (Optional)</label>
-                        <textarea id="utilities-notes" rows="3" maxlength="250" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 px-4 text-sm font-bold focus:border-cyan-500 outline-none transition-all resize-none" placeholder="Bill period, provider, or remarks"></textarea>
+                    <div class="space-y-3">
+                        <label for="utilities-notes" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Bill Provider & Period</label>
+                        <textarea id="utilities-notes" rows="3" maxlength="250" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold focus:border-cyan-500 focus:bg-white outline-none transition-all resize-none" placeholder="e.g. Combined Power & Water Bill - Provider: Davao Light / Helpmate"></textarea>
                     </div>
 
-                    <div class="bg-cyan-50 border border-cyan-100 rounded-2xl p-5">
-                        <p id="conversion-text" class="text-sm font-bold text-slate-700">1 PHP = P1.00</p>
-                        <p class="text-xs text-slate-500 mt-1">Converted Amount (PHP): <span id="converted-amount" class="font-black text-slate-900">P0.00</span></p>
+                    <div class="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all"></div>
+                        <div class="relative flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-black text-cyan-400 uppercase tracking-[0.2em] mb-1">Audit Status</p>
+                                <h4 class="text-xs font-bold text-slate-300 italic">"Utilities represent a branch's variable operational footprint"</h4>
+                            </div>
+                            <div class="text-right">
+                                <p id="converted-amount" class="text-4xl font-black tracking-tighter text-cyan-400">₱0.00</p>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Recorded to Operational Ledger</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <button id="save-btn" type="submit" class="w-full py-3.5 bg-cyan-600 text-white font-black rounded-xl hover:bg-cyan-700 transition-all">Save Utilities Expense</button>
+                    <button id="save-btn" type="submit" class="w-full py-5 bg-cyan-600 text-white font-black rounded-2xl hover:bg-cyan-700 shadow-xl shadow-cyan-600/20 transition-all flex items-center justify-center space-x-3 group">
+                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        <span class="uppercase tracking-widest text-xs">Commit Utility Record</span>
+                    </button>
                 </form>
             </div>
         </div>
@@ -71,18 +80,14 @@
                     <h3 class="text-base font-black text-slate-900">Saved Utilities Value</h3>
                     <p class="text-xs text-slate-500 mt-1">Current month value</p>
                 </div>
-                <div class="p-6 space-y-3">
-                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Original</span>
-                        <span id="saved-original" class="text-sm font-black text-slate-900">-</span>
+                <div class="p-6 space-y-4">
+                    <div class="p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Utilities</p>
+                        <p id="saved-converted" class="text-2xl font-black text-slate-900">₱0.00</p>
                     </div>
-                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Converted (PHP)</span>
-                        <span id="saved-converted" class="text-sm font-black text-slate-900">P0.00</span>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-xl">
-                        <p class="text-xs font-bold text-slate-600">Notes</p>
-                        <p id="saved-notes" class="text-xs text-slate-800 mt-1">No notes saved.</p>
+                    <div class="p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bill Details</p>
+                        <p id="saved-notes" class="text-xs font-bold text-slate-600 mt-1 leading-relaxed">No notes saved.</p>
                     </div>
                 </div>
             </div>
@@ -108,19 +113,23 @@
             monthKey = flow.getCurrentMonthKey();
             const context = flow.getContext();
 
-            document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
-            document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
-            document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+            const foNameEl = document.getElementById('fo-name');
+            const branchNameEl = document.getElementById('branch-name');
+            const monthLabelEl = document.getElementById('month-label');
 
-            if (flow.isMonthLocked(monthKey, context.branch.id)) {
+            if (foNameEl) foNameEl.textContent = `Finance Officer: ${context.financeOfficer.name}`;
+            if (branchNameEl) branchNameEl.textContent = `Branch: ${context.branch.name}`;
+            if (monthLabelEl) monthLabelEl.textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+
+            const saveBtn = document.getElementById('save-btn');
+            if (flow.isMonthLocked(monthKey, context.branch.id) && saveBtn) {
                 document.getElementById('locked-banner').classList.remove('hidden');
                 document.getElementById('save-btn').disabled = true;
                 document.getElementById('save-btn').classList.add('opacity-60', 'cursor-not-allowed');
             }
 
-            document.getElementById('utilities-currency').addEventListener('change', refreshConversion);
             document.getElementById('utilities-amount').addEventListener('input', refreshConversion);
-            document.getElementById('utilities-form').addEventListener('submit', saveExpense);
+            document.getElementById('utilities-form').addEventListener('submit', async (e) => await saveExpense(e));
 
             await loadSavedData();
             await refreshConversion();
@@ -132,35 +141,37 @@
             const record = flow.getExpenseRecord(monthKey, 'utilities', context.branch.id);
             if (!record) return;
 
-            document.getElementById('utilities-amount').value = Number(record.originalAmount || 0).toFixed(2);
-            document.getElementById('utilities-currency').value = record.currency || 'PHP';
-            document.getElementById('utilities-notes').value = record.notes || '';
+            const amtEl = document.getElementById('utilities-amount');
+            const notesEl = document.getElementById('utilities-notes');
+            if (amtEl) amtEl.value = Number(record.originalAmount || 0).toFixed(2);
+            if (notesEl) notesEl.value = record.notes || '';
 
-            currentRate = Number(record.exchangeRate || 1);
-            document.getElementById('saved-original').textContent = `${record.currency || 'PHP'} ${Number(record.originalAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('saved-converted').textContent = flow.formatCurrency(record.amountPHP || 0);
-            document.getElementById('saved-notes').textContent = record.notes || 'No notes saved.';
+            currentRate = 1;
+            const savedConvEl = document.getElementById('saved-converted');
+            const savedNotesEl = document.getElementById('saved-notes');
+            if (savedConvEl) savedConvEl.textContent = flow.formatCurrency(record.amountPHP || 0);
+            if (savedNotesEl) savedNotesEl.textContent = record.notes || 'No notes saved.';
         }
 
         async function refreshConversion() {
             const flow = window.CoretexFinanceFlow;
-            const currency = document.getElementById('utilities-currency').value;
-            const amount = Number(document.getElementById('utilities-amount').value || 0);
+            const amtInput = document.getElementById('utilities-amount');
+            const amount = Number(amtInput ? amtInput.value : 0);
 
-            const result = await flow.fetchExchangeRate(currency);
-            currentRate = Number(result.rate || 1);
-
-            document.getElementById('conversion-text').textContent = `1 ${currency} = ${flow.formatCurrency(currentRate)}`;
-            document.getElementById('converted-amount').textContent = flow.formatCurrency(amount * currentRate);
+            currentRate = 1;
+            const convAmtEl = document.getElementById('converted-amount');
+            if (convAmtEl) convAmtEl.textContent = flow.formatCurrency(amount * currentRate);
         }
 
-        function saveExpense(event) {
+        async function saveExpense(event) {
             event.preventDefault();
 
             const flow = window.CoretexFinanceFlow;
-            const amount = Number(document.getElementById('utilities-amount').value || 0);
-            const currency = document.getElementById('utilities-currency').value;
-            const notes = document.getElementById('utilities-notes').value.trim();
+            const amtInput = document.getElementById('utilities-amount');
+            const notesInput = document.getElementById('utilities-notes');
+            const amount = Number(amtInput ? amtInput.value : 0);
+            const currency = 'PHP';
+            const notes = notesInput ? notesInput.value.trim() : '';
 
             if (amount <= 0) {
                 alert('Amount is required and must be greater than 0.');
@@ -180,9 +191,10 @@
                     monthKey
                 });
 
-                document.getElementById('saved-original').textContent = `${saved.record.currency} ${Number(saved.record.originalAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                document.getElementById('saved-converted').textContent = flow.formatCurrency(saved.record.amountPHP);
-                document.getElementById('saved-notes').textContent = saved.record.notes || 'No notes saved.';
+                const savedConvEl = document.getElementById('saved-converted');
+                const savedNotesEl = document.getElementById('saved-notes');
+                if (savedConvEl) savedConvEl.textContent = flow.formatCurrency(saved.record.amountPHP);
+                if (savedNotesEl) savedNotesEl.textContent = saved.record.notes || 'No notes saved.';
 
                 showToast('Utilities expense saved successfully.');
             } catch (error) {

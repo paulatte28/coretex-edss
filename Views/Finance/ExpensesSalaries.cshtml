@@ -40,21 +40,11 @@
                 </div>
 
                 <form id="salaries-form" class="p-8 space-y-8" autocomplete="off">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-3">
-                            <label for="salaries-amount" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Payroll Amount</label>
-                            <div class="relative">
-                                <input id="salaries-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-5 px-6 text-2xl font-black text-slate-900 focus:border-indigo-500 focus:bg-white outline-none transition-all" placeholder="0.00" />
-                            </div>
-                        </div>
-                        <div class="space-y-3">
-                            <label for="salaries-currency" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Settlement Currency</label>
-                            <select id="salaries-currency" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-5 px-6 text-lg font-black text-slate-900 focus:border-indigo-500 focus:bg-white outline-none transition-all appearance-none">
-                                <option value="PHP">🇵🇭 Philippine Peso (PHP)</option>
-                                <option value="USD">🇺🇸 US Dollar (USD)</option>
-                                <option value="CNY">🇨🇳 Chinese Yuan (CNY)</option>
-                                <option value="EUR">🇪🇺 Euro (EUR)</option>
-                            </select>
+                    <div class="space-y-3">
+                        <label for="salaries-amount" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Monthly Payroll Amount (PHP)</label>
+                        <div class="relative">
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">₱</span>
+                            <input id="salaries-amount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-5 pl-12 pr-6 text-2xl font-black text-slate-900 focus:border-indigo-500 focus:bg-white outline-none transition-all" placeholder="0.00" />
                         </div>
                     </div>
 
@@ -65,14 +55,14 @@
 
                     <div class="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all"></div>
-                        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div class="relative flex items-center justify-between">
                             <div>
-                                <p id="conversion-text" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Exchange Basis: 1 PHP = P1.00</p>
-                                <h4 class="text-xs font-bold text-slate-300">Net Conversion Applied to Repository</h4>
+                                <p class="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Audit Status</p>
+                                <h4 class="text-xs font-bold text-slate-300 italic">"Personnel Payroll is a Major Operating Expense"</h4>
                             </div>
                             <div class="text-right">
                                 <p id="converted-amount" class="text-4xl font-black tracking-tighter text-emerald-400">₱0.00</p>
-                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Converted to Local HQ Currency</p>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Recorded to Payroll Ledger</p>
                             </div>
                         </div>
                     </div>
@@ -91,18 +81,14 @@
                     <h3 class="text-base font-black text-slate-900">Saved Salaries Value</h3>
                     <p class="text-xs text-slate-500 mt-1">Current month value</p>
                 </div>
-                <div class="p-6 space-y-3">
-                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Original</span>
-                        <span id="saved-original" class="text-sm font-black text-slate-900">-</span>
+                <div class="p-6 space-y-4">
+                    <div class="p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Salaries</p>
+                        <p id="saved-converted" class="text-2xl font-black text-slate-900">₱0.00</p>
                     </div>
-                    <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600">Converted (PHP)</span>
-                        <span id="saved-converted" class="text-sm font-black text-slate-900">P0.00</span>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-xl">
-                        <p class="text-xs font-bold text-slate-600">Notes</p>
-                        <p id="saved-notes" class="text-xs text-slate-800 mt-1">No notes saved.</p>
+                    <div class="p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Payroll Remarks</p>
+                        <p id="saved-notes" class="text-xs font-bold text-slate-600 mt-1 leading-relaxed">No notes saved.</p>
                     </div>
                 </div>
             </div>
@@ -128,19 +114,26 @@
             monthKey = flow.getCurrentMonthKey();
             const context = flow.getContext();
 
-            document.getElementById('fo-name').textContent = `Finance Officer: ${context.financeOfficer.name}`;
-            document.getElementById('branch-name').textContent = `Branch: ${context.branch.name}`;
-            document.getElementById('month-label').textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+            const foNameEl = document.getElementById('fo-name');
+            const branchNameEl = document.getElementById('branch-name');
+            const monthLabelEl = document.getElementById('month-label');
 
-            if (flow.isMonthLocked(monthKey, context.branch.id)) {
-                document.getElementById('locked-banner').classList.remove('hidden');
-                document.getElementById('save-btn').disabled = true;
-                document.getElementById('save-btn').classList.add('opacity-60', 'cursor-not-allowed');
+            if (foNameEl) foNameEl.textContent = `Finance Officer: ${context.financeOfficer.name}`;
+            if (branchNameEl) branchNameEl.textContent = `Branch: ${context.branch.name}`;
+            if (monthLabelEl) monthLabelEl.textContent = `Month: ${flow.formatMonthLabel(monthKey)}`;
+
+            const saveBtn = document.getElementById('save-btn');
+            if (flow.isMonthLocked(monthKey, context.branch.id) && saveBtn) {
+                const banner = document.getElementById('locked-banner');
+                if (banner) banner.classList.remove('hidden');
+                saveBtn.disabled = true;
+                saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
             }
 
-            document.getElementById('salaries-currency').addEventListener('change', refreshConversion);
-            document.getElementById('salaries-amount').addEventListener('input', refreshConversion);
-            document.getElementById('salaries-form').addEventListener('submit', async (e) => await saveExpense(e));
+            const amtInput = document.getElementById('salaries-amount');
+            const formEl = document.getElementById('salaries-form');
+            if (amtInput) amtInput.addEventListener('input', refreshConversion);
+            if (formEl) formEl.addEventListener('submit', async (e) => await saveExpense(e));
 
             await loadSavedData();
             await refreshConversion();
@@ -152,26 +145,26 @@
             const record = flow.getExpenseRecord(monthKey, 'salaries', context.branch.id);
             if (!record) return;
 
-            document.getElementById('salaries-amount').value = Number(record.originalAmount || 0).toFixed(2);
-            document.getElementById('salaries-currency').value = record.currency || 'PHP';
-            document.getElementById('salaries-notes').value = record.notes || '';
+            const amtEl = document.getElementById('salaries-amount');
+            const notesEl = document.getElementById('salaries-notes');
+            if (amtEl) amtEl.value = Number(record.originalAmount || 0).toFixed(2);
+            if (notesEl) notesEl.value = record.notes || '';
 
-            currentRate = Number(record.exchangeRate || 1);
-            document.getElementById('saved-original').textContent = `${record.currency || 'PHP'} ${Number(record.originalAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('saved-converted').textContent = flow.formatCurrency(record.amountPHP || 0);
-            document.getElementById('saved-notes').textContent = record.notes || 'No notes saved.';
+            currentRate = 1;
+            const savedConvEl = document.getElementById('saved-converted');
+            const savedNotesEl = document.getElementById('saved-notes');
+            if (savedConvEl) savedConvEl.textContent = flow.formatCurrency(record.amountPHP || 0);
+            if (savedNotesEl) savedNotesEl.textContent = record.notes || 'No notes saved.';
         }
 
         async function refreshConversion() {
             const flow = window.CoretexFinanceFlow;
-            const currency = document.getElementById('salaries-currency').value;
-            const amount = Number(document.getElementById('salaries-amount').value || 0);
+            const amtInput = document.getElementById('salaries-amount');
+            const amount = Number(amtInput ? amtInput.value : 0);
 
-            const result = await flow.fetchExchangeRate(currency);
-            currentRate = Number(result.rate || 1);
-
-            document.getElementById('conversion-text').textContent = `Exchange Basis: 1 ${currency} = ${flow.formatCurrency(currentRate)}`;
-            document.getElementById('converted-amount').textContent = flow.formatCurrency(amount * currentRate);
+            currentRate = 1;
+            const convAmtEl = document.getElementById('converted-amount');
+            if (convAmtEl) convAmtEl.textContent = flow.formatCurrency(amount * currentRate);
         }
 
         async function saveExpense(event) {
@@ -179,7 +172,7 @@
 
             const flow = window.CoretexFinanceFlow;
             const amount = Number(document.getElementById('salaries-amount').value || 0);
-            const currency = document.getElementById('salaries-currency').value;
+            const currency = 'PHP';
             const notes = document.getElementById('salaries-notes').value.trim();
 
             if (amount <= 0) {
@@ -200,9 +193,10 @@
                     monthKey
                 });
 
-                document.getElementById('saved-original').textContent = `${saved.record.currency} ${Number(saved.record.originalAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                document.getElementById('saved-converted').textContent = flow.formatCurrency(saved.record.amountPHP);
-                document.getElementById('saved-notes').textContent = saved.record.notes || 'No notes saved.';
+                const savedConvEl = document.getElementById('saved-converted');
+                const savedNotesEl = document.getElementById('saved-notes');
+                if (savedConvEl) savedConvEl.textContent = flow.formatCurrency(saved.record.amountPHP);
+                if (savedNotesEl) savedNotesEl.textContent = saved.record.notes || 'No notes saved.';
 
                 showToast('Salaries expense saved successfully.');
             } catch (error) {
