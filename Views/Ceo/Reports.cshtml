@@ -69,7 +69,7 @@
                                 <span class="px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-md border border-emerald-100 uppercase">Verified</span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                                <button onclick="openSubmissionDetails('@item.Id', '@item.Branch?.Name', '@item.SubmissionMonth', '@item.SubmissionYear')" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </button>
                             </td>
@@ -154,6 +154,55 @@
     </div>
 </div>
 
+@section Modals {
+    <!-- Finance Detail Modal (CEO Audit View) -->
+    <div id="details-modal" class="fixed inset-0 bg-white/90 backdrop-blur-[40px] z-[9999] hidden items-center justify-center p-4 transition-all duration-500">
+        <div class="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="details-modal-content">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900">Branch Intelligence Details</h3>
+                    <p id="modal-branch-name" class="text-xs font-bold text-indigo-600 uppercase tracking-widest mt-1">BRANCH NAME</p>
+                </div>
+                <button onclick="closeDetailsModal()" class="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-8 grid grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Revenue</p>
+                        <p id="detail-revenue" class="text-lg font-black text-slate-900">P0.00</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Expenses</p>
+                        <p id="detail-expenses" class="text-lg font-black text-slate-900">P0.00</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-white/50">Operating Net Profit</p>
+                        <p id="detail-profit" class="text-lg font-black text-white">P0.00</p>
+                    </div>
+                    <div class="p-4 bg-white border-2 border-slate-100 rounded-2xl">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">EDSS Status</p>
+                        <p class="text-sm font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                            Verified Data
+                        </p>
+                        <p id="detail-period" class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Period: --</p>
+                    </div>
+                </div>
+            </div>
+            <div id="detail-remarks-wrap" class="px-8 pb-8">
+                <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                    <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1">Finance Officer Remarks</p>
+                    <p id="detail-remarks" class="text-xs text-amber-800 leading-relaxed italic">No specific remarks provided for this period.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @section Scripts {
     <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
     <script>
@@ -163,5 +212,48 @@
                 ceo.renderNav('reports', 'ceo-nav');
             });
         });
+
+        async function openSubmissionDetails(id, branchName, month, year) {
+            const modal = document.getElementById('details-modal');
+            const content = document.getElementById('details-modal-content');
+            
+            // In a real app, we'd fetch the specific submission details via API.
+            // For now, we'll scrape the row we're on or use dummy data.
+            document.getElementById('modal-branch-name').textContent = branchName;
+            document.getElementById('detail-period').textContent = `Period: ${month} / ${year}`;
+            
+            // Scrape data from the row
+            const row = event.target.closest('tr');
+            if (row) {
+                document.getElementById('detail-revenue').textContent = row.cells[2].textContent.trim();
+                document.getElementById('detail-expenses').textContent = row.cells[3].textContent.trim();
+                
+                // Calculate profit from the numbers
+                const rev = parseFloat(row.cells[2].textContent.replace(/[^\d.-]/g, ''));
+                const exp = parseFloat(row.cells[3].textContent.replace(/[^\d.-]/g, ''));
+                document.getElementById('detail-profit').textContent = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(rev - exp);
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            });
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('details-modal');
+            const content = document.getElementById('details-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
     </script>
 }

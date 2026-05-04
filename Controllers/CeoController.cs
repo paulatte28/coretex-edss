@@ -185,6 +185,12 @@ namespace coretex_finalproj.Controllers
                 .OrderByDescending(s => s.SubmittedAt)
                 .Take(50)
                 .ToListAsync();
+
+            ViewBag.GeneratedReports = await _context.GeneratedReports
+                .OrderByDescending(r => r.GeneratedAt)
+                .Take(20)
+                .ToListAsync();
+
             return View(submissions);
         }
 

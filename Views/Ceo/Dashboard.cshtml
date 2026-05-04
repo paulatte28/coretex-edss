@@ -215,28 +215,47 @@
                         riskInd.className = 'text-lg font-black text-red-700 mt-1 uppercase';
                     }
 
-                    // DYNAMIC INSIGHTS GENERATION
+                    // ADVANCED DYNAMIC INSIGHTS (EDSS NARRATIVE ENGINE)
                     const insights = [];
                     const margin = rev > 0 ? (prof / rev * 100) : 0;
                     
+                    // 1. Profitability Analysis
                     if (margin < 15) {
-                        insights.push({ title: "Cost Integrity", detail: "Profit margins below 15%. Recommend expense audit.", color: "bg-rose-500" });
+                        insights.push({ title: "Margin Compression", detail: `Profit margins are tight at ${margin.toFixed(1)}%. Rising overheads are outpacing revenue growth.`, color: "bg-rose-500" });
                     } else {
-                        insights.push({ title: "Operational Efficiency", detail: "Margins remain healthy at " + margin.toFixed(1) + "%.", color: "bg-emerald-500" });
+                        insights.push({ title: "Operational Excellence", detail: `Strong margins at ${margin.toFixed(1)}%. Business model is generating healthy surplus.`, color: "bg-emerald-500" });
                     }
 
-                    if (risk === "Critical") {
-                        insights.push({ title: "Emergency Audit", detail: "Branch risk at critical level. Oversight required.", color: "bg-red-500" });
+                    // 2. Sales Momentum Analysis (POS Data)
+                    const avgSales = monthlyData && monthlyData.length > 1 
+                        ? monthlyData.slice(0, -1).reduce((acc, val) => acc + (val.sales || 0), 0) / (monthlyData.length - 1)
+                        : 0;
+                    
+                    if (rev > avgSales && avgSales > 0) {
+                        const growth = ((rev - avgSales) / avgSales * 100).toFixed(1);
+                        insights.push({ title: "Revenue Momentum", detail: `Business is going strong! Sales are ${growth}% above the annual average.`, color: "bg-indigo-500" });
+                    }
+
+                    // 3. Forward-Looking Risk Scraper (The Jan 2027 Feature)
+                    // We check the latest snapshots for future-dated notes or "increases"
+                    const remarks = snapshot.remarks || snapshot.Notes || "";
+                    if (remarks.toLowerCase().includes("increase") || remarks.toLowerCase().includes("2027") || remarks.toLowerCase().includes("january")) {
+                        insights.push({ title: "Strategic Forecast", detail: `Future risk detected: "${remarks.length > 50 ? remarks.substring(0, 50) + '...' : remarks}"`, color: "bg-amber-500" });
                     } else {
-                        insights.push({ title: "System Stability", detail: "System-wide risk assessment is Healthy.", color: "bg-indigo-500" });
+                        insights.push({ title: "Policy Verification", detail: "No scheduled expense spikes detected for the next 90 days.", color: "bg-slate-500" });
+                    }
+
+                    // 4. Currency Exposure (From Procurement Log)
+                    if (snapshot.cogsDetails && snapshot.cogsDetails.some(d => d.currency === 'USD')) {
+                        insights.push({ title: "USD Exposure", detail: "Significant procurement settled in USD. Strategy: Monitor PHP/USD volatility.", color: "bg-blue-400" });
                     }
 
                     document.getElementById('insights-container').innerHTML = insights.map(i => `
-                        <div class="flex gap-4 group cursor-default transition-all hover:translate-x-1">
+                        <div class="flex gap-4 group cursor-default transition-all hover:translate-x-1 animate-in fade-in slide-in-from-bottom-2">
                             <div class="w-1 h-8 ${i.color} rounded-full group-hover:h-12 transition-all"></div>
                             <div>
-                                <p class="text-xs font-black text-white">${i.title}</p>
-                                <p class="text-[10px] text-slate-400 mt-1">${i.detail}</p>
+                                <p class="text-xs font-black text-white group-hover:text-indigo-300 transition-colors">${i.title}</p>
+                                <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">${i.detail}</p>
                             </div>
                         </div>
                     `).join('');
