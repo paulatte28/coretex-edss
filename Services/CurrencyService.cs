@@ -23,7 +23,7 @@ namespace coretex_finalproj.Services
             // SIMULATED implementation of Exchange Rate API
             // using var client = new HttpClient();
             // var response = await client.GetAsync($"{baseUrl}{apiKey}/pair/{fromCurrency}/{toCurrency}/{amount}");
-            
+
             _logger.LogInformation($"[MOCK EXCHANGE RATE] Converting {amount} from {fromCurrency} to {toCurrency}");
             await Task.Delay(50);
 
@@ -33,7 +33,7 @@ namespace coretex_finalproj.Services
             if (fromCurrency == "EUR" && toCurrency == "USD") rate = 1.1m;
             if (fromCurrency == "PHP" && toCurrency == "USD") rate = 0.018m;
             if (fromCurrency == "USD" && toCurrency == "PHP") rate = 55.0m;
-            
+
             return amount * rate;
         }
     }

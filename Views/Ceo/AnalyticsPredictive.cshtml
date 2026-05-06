@@ -52,27 +52,49 @@
                 </div>
             </div>
 
-            <!-- SEASONALITY INDICATORS -->
-            <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Market Signals</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+    </div>
+
+    <!-- DYNAMIC MARKET INTELLIGENCE (FULL WIDTH) -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8 mt-8">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Global Market Intelligence</h3>
+                <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-md border border-emerald-500/20">Live SerpApi Feed</span>
+            </div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Region: Philippines (PH)</p>
+        </div>
+        
+        <div id="trends-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Shimmer Loading -->
+            <div class="animate-pulse bg-slate-50 h-32 rounded-3xl border border-slate-100"></div>
+            <div class="animate-pulse bg-slate-50 h-32 rounded-3xl border border-slate-100"></div>
+            <div class="animate-pulse bg-slate-50 h-32 rounded-3xl border border-slate-100"></div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.1em]">
+                Verified against <span class="text-indigo-500">Google Trends</span> database
+            </p>
+            <p class="text-[10px] text-slate-300 font-black italic">Click any card to analyze raw data source</p>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
+
+            <!-- NEW: PRESCRIPTIVE INTERVENTIONS -->
+            <div class="bg-indigo-600 rounded-[2.5rem] p-8 text-white">
+                <h3 class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.3em] mb-6">Strategic Interventions</h3>
+                <div class="space-y-6">
+                    <div class="p-5 bg-white/10 rounded-2xl border border-white/10">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-amber-400">Supply Chain Risk</p>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-black text-slate-900">Q2 Demand Spike</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase">High Rebound Logic</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black text-slate-900">Inventory Lag</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase">Pending Stock Balance</p>
-                        </div>
+                        <p class="text-xs font-black mb-1">Laptop Cost Volatility</p>
+                        <p class="text-[10px] text-indigo-100 leading-relaxed mb-4">System predicts a 15% increase in international procurement costs for Q1 2027 based on current USD trends.</p>
+                        <button id="btn-mitigate" onclick="applyMitigationStrategy()" class="w-full py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 transition-all">Mitigate Risk Now</button>
                     </div>
                 </div>
             </div>
@@ -159,7 +181,89 @@
                         }
                     }
                 });
+
+                // --- LIVE MARKET TRENDS RE-IMPLEMENTATION ---
+                ceo.fetchTrends("Laptops, Smartphones, Tablets").then(data => {
+                    const container = document.getElementById('trends-container');
+                    if (!data || !data.interest_over_time || !data.interest_over_time.averages) {
+                        container.innerHTML = '<p class="text-[10px] font-bold text-slate-400">Intelligence Offline: Check SerpApi Key</p>';
+                        return;
+                    }
+
+                    container.innerHTML = data.interest_over_time.averages.map(trend => {
+                        const score = trend.value;
+                        const color = score > 80 ? 'text-emerald-500' : score > 50 ? 'text-blue-500' : 'text-slate-400';
+                        const bgColor = score > 80 ? 'bg-emerald-50' : score > 50 ? 'bg-blue-50' : 'bg-slate-50';
+                        
+                        // Construct the Google Trends Redirect URL
+                        const googleUrl = `https://trends.google.com/trends/explore?geo=PH&q=${encodeURIComponent(trend.query)}`;
+
+                        return `
+                            <a href="${googleUrl}" target="_blank" class="group relative overflow-hidden p-6 ${bgColor} rounded-3xl border border-transparent hover:border-indigo-200 hover:shadow-xl transition-all duration-500 flex flex-col justify-between h-36">
+                                <div class="flex items-start justify-between">
+                                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                        <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-black ${color}">${score}%</p>
+                                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Interest Index</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-sm font-black text-slate-900 mb-0.5">${trend.query}</p>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
+                                            <div class="h-full ${score > 80 ? 'bg-emerald-500' : 'bg-blue-500'}" style="width: ${score}%"></div>
+                                        </div>
+                                        <span class="text-[8px] font-black text-slate-400 uppercase">Velocity</span>
+                                    </div>
+                                </div>
+
+                                <div class="absolute -right-2 -bottom-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                                     <svg class="w-20 h-20 text-slate-900" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 3.75L20.25 10.5L13.5 17.25M20.25 10.5H3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+                });
             });
         });
+
+        async function applyMitigationStrategy() {
+            const btn = document.getElementById('btn-mitigate');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> MITIGATING...';
+
+            const report = {
+                Title: "Supply Chain Mitigation: Laptop Procurement",
+                PeriodLabel: "Q1 2027 Forecast",
+                ReportHtml: "<h3>Predictive Mitigation Strategy Activated</h3><p>CEO has authorized emergency bulk-purchasing of Laptop stock to avoid predicted 15% price spike in Q1 2027.</p>",
+                SummaryData: "Risk Mitigated: Cost Volatility (Laptops)"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = "STRATEGY ACTIVE";
+                    btn.className = "w-full py-3 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest cursor-default";
+                    alert("Strategic Directive Issued: Procurement targets have been adjusted to mitigate Laptop cost volatility.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
     </script>
 }
