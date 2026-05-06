@@ -80,23 +80,38 @@
         </div>
     </div>
 
+    <!-- STRATEGIC ACTION CENTER -->
     <div class="mt-8">
-        <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
-
-            <!-- NEW: PRESCRIPTIVE INTERVENTIONS -->
-            <div class="bg-indigo-600 rounded-[2.5rem] p-8 text-white">
-                <h3 class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.3em] mb-6">Strategic Interventions</h3>
-                <div class="space-y-6">
-                    <div class="p-5 bg-white/10 rounded-2xl border border-white/10">
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-amber-400">Supply Chain Risk</p>
-                        </div>
-                        <p class="text-xs font-black mb-1">Laptop Cost Volatility</p>
-                        <p class="text-[10px] text-indigo-100 leading-relaxed mb-4">System predicts a 15% increase in international procurement costs for Q1 2027 based on current USD trends.</p>
-                        <button id="btn-mitigate" onclick="applyMitigationStrategy()" class="w-full py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 transition-all">Mitigate Risk Now</button>
+        <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-6">Strategic Action Center</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Intervention Card 1 -->
+            <div class="bg-indigo-600 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-900/20 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-indigo-200">Prescriptive Analysis</p>
                     </div>
+                    <h4 class="text-lg font-black mb-1">Laptop Cost Volatility</h4>
+                    <p class="text-[10px] text-indigo-100/80 leading-relaxed mb-6">Predicted 15% increase in international procurement costs for Q1 2027. Mitigation recommended.</p>
                 </div>
+                <button id="btn-mitigate" onclick="applyMitigationStrategy()" class="py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-lg">
+                    Execute Mitigation
+                </button>
+            </div>
+
+            <!-- Intervention Card 2 (Secondary/Placeholder for balance) -->
+            <div class="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Inventory Health</p>
+                    </div>
+                    <h4 class="text-lg font-black text-slate-900 mb-1">Stock Optimization</h4>
+                    <p class="text-[10px] text-slate-500 leading-relaxed mb-6">System detected excess inventory in 'Sandawa' branch for 'Components' category. Internal transfer suggested.</p>
+                </div>
+                <button class="py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all">
+                    Review Transfer
+                </button>
             </div>
         </div>
     </div>
