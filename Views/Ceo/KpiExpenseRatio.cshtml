@@ -37,6 +37,38 @@
             <div class="mt-4 h-80"><canvas id="chart-trend"></canvas></div>
         </div>
     </div>
+
+    <!-- STRATEGIC INTERVENTION: COST CUTTING -->
+    <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-8 opacity-10">
+            <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Prescriptive Intervention</h3>
+                    <p class="text-xl font-black text-white">Emergency Cost-Cutting Protocol</p>
+                </div>
+                <div class="px-4 py-1 bg-white/10 rounded-full border border-white/20">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio Target: < 35%</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <p class="text-sm text-slate-400 leading-relaxed mb-6">If the overhead-to-revenue ratio exceeds the safe limit, you can trigger a **Company-Wide Expenditure Audit**. This requires all branch finance officers to submit a digital "Justification Report" for any non-inventory expense exceeding ₱5,000.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button id="btn-cost-audit" onclick="initiateAuditProtocol()" class="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all shadow-xl shadow-white/10">Initiate Overhead Audit</button>
+                        <button class="px-8 py-4 bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest border border-slate-700">Set Ratio Limit</button>
+                    </div>
+                </div>
+                <div class="p-6 bg-white/5 rounded-3xl border border-white/10 flex flex-col justify-center">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Estimated Monthly Savings</p>
+                    <p class="text-3xl font-black text-emerald-400">₱142,500</p>
+                    <p class="text-[10px] text-slate-500 mt-2">Calculated based on 15% reduction in operating waste.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -92,5 +124,39 @@
                 });
             }
         });
+
+        async function initiateAuditProtocol() {
+            const btn = document.getElementById('btn-cost-audit');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> DEPLOYING AUDIT...';
+
+            const report = {
+                Title: "Directive: Emergency Expenditure Audit",
+                PeriodLabel: "Fiscal Lockdown",
+                ReportHtml: "<h3>Company-Wide Audit Protocol Triggered</h3><p>CEO has mandated a full audit of all branch operating expenses. Finance Officers must submit justification for all expenses > ₱5,000 by end of business tomorrow.</p>",
+                SummaryData: "Audit Scope: Global Branch Network"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = "AUDIT IN PROGRESS";
+                    btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
+                    alert("Strategic Directive Issued: Expenditure audit is now mandatory for all branches.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
     </script>
 }

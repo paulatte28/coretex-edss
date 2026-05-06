@@ -39,6 +39,41 @@
         <div class="mt-4 h-80"><canvas id="chart-margin"></canvas></div>
     </div>
 
+    <!-- STRATEGIC INTERVENTION: MARGIN GUARD -->
+    <div class="bg-indigo-900 rounded-[2.5rem] p-8 text-white">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h3 class="text-[10px] font-black text-indigo-300 uppercase tracking-[0.3em] mb-2">Prescriptive Intervention</h3>
+                <p class="text-xl font-black text-white">Profit Margin Guard System</p>
+            </div>
+            <div class="px-4 py-1 bg-white/10 rounded-full border border-white/20">
+                <span class="text-[10px] font-black text-indigo-200 uppercase tracking-widest">System Status: Monitoring</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <p class="text-sm text-indigo-100 leading-relaxed mb-6">If the overall profit margin falls below the 15% threshold, you can activate the **Pricing Floor Protocol**. This officially issues a directive to all branch managers to disable manual discounting and enforce a strict 20% markup on all new stock entries.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button id="btn-margin-guard" onclick="activateMarginGuard()" class="px-8 py-4 bg-white text-indigo-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-xl shadow-indigo-900/20">Enforce Pricing Floor</button>
+                    <button class="px-8 py-4 bg-indigo-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest border border-indigo-700">View Policy Draft</button>
+                </div>
+            </div>
+            <div class="p-6 bg-white/5 rounded-3xl border border-white/10">
+                <p class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4">Predicted Impact</p>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-indigo-100">Recovery Time</span>
+                        <span class="text-xs font-black text-emerald-400">45 Days</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-indigo-100">Margin Gain</span>
+                        <span class="text-xs font-black text-emerald-400">+3.2%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100">
             <h3 class="text-base font-black text-slate-900">Branch Breakdown</h3>
@@ -126,5 +161,39 @@
                 `).join('');
             }
         });
+
+        async function activateMarginGuard() {
+            const btn = document.getElementById('btn-margin-guard');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ACTIVATING...';
+
+            const report = {
+                Title: "Directive: Mandatory Pricing Floor",
+                PeriodLabel: "Active Intelligence",
+                ReportHtml: "<h3>Strategic Margin Guard Activated</h3><p>CEO has enforced a mandatory pricing floor across all branches. Manual discounting is disabled. 20% minimum markup required on all stock entries.</p>",
+                SummaryData: "Margin Threshold Locked: 15.0%"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = "GUARD ACTIVE";
+                    btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
+                    alert("Strategic Directive Issued: Pricing floor is now enforced across all operational nodes.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
     </script>
 }

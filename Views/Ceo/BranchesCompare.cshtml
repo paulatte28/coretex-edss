@@ -26,6 +26,33 @@
         <div class="mt-4 h-80"><canvas id="chart-branches"></canvas></div>
     </div>
 
+    <!-- STRATEGIC INTERVENTION: PERFORMANCE REPLICATION -->
+    <div class="bg-slate-50 rounded-[2.5rem] p-8 border-2 border-dashed border-slate-200 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">Prescriptive Intervention</h3>
+                <p class="text-xl font-black text-slate-900">Strategic Performance Replication</p>
+            </div>
+            <div class="px-4 py-1 bg-indigo-50 rounded-full border border-indigo-100">
+                <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Leadership Logic Active</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <p class="text-sm text-slate-600 leading-relaxed mb-6">If there is a significant performance gap between branches, you can trigger the **Workflow Synchronization Protocol**. This officially designates the #1 ranked branch as the "Operational Benchmark" and orders all other branches to adopt their inventory rotation and staffing strategy for the next 30 days.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button id="btn-sync-branches" onclick="replicateTopBranch()" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20">Synchronize Branch Workflows</button>
+                    <button class="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest border border-slate-200">Set Benchmark KPIs</button>
+                </div>
+            </div>
+            <div class="p-6 bg-white rounded-3xl border border-slate-100 flex flex-col justify-center text-center shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Target Network Gain</p>
+                <p class="text-3xl font-black text-indigo-600">+₱210,000</p>
+                <p class="text-[10px] text-slate-400 mt-2">Estimated revenue lift if lower branches match top efficiency.</p>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100">
             <h3 class="text-base font-black text-slate-900">Branch Comparison Table</h3>
@@ -81,5 +108,39 @@
                 </tr>
             `).join('');
         });
+
+        async function replicateTopBranch() {
+            const btn = document.getElementById('btn-sync-branches');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> SYNCHRONIZING...';
+
+            const report = {
+                Title: "Directive: Network-Wide Workflow Synchronization",
+                PeriodLabel: "Operational Excellence",
+                ReportHtml: "<h3>Operational Benchmark Directive Issued</h3><p>CEO has designated Branch #1 as the 'Operational Benchmark'. All branches are hereby ordered to adopt the benchmarked inventory rotation and staffing strategy immediately.</p>",
+                SummaryData: "Benchmark: Branch Performance Sync"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = "WORKFLOWS SYNCED";
+                    btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
+                    alert("Strategic Directive Issued: Benchmark workflows have been pushed to all operational nodes.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
     </script>
 }

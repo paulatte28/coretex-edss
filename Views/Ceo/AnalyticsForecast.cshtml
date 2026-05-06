@@ -26,6 +26,38 @@
         <div class="mt-4 h-80"><canvas id="chart-forecast"></canvas></div>
     </div>
 
+    <!-- STRATEGIC INTERVENTION: GROWTH CATALYST -->
+    <div class="bg-emerald-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden border border-emerald-800">
+        <div class="absolute top-0 right-0 p-8 opacity-10">
+            <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-[10px] font-black text-emerald-300 uppercase tracking-[0.3em] mb-2">Prescriptive Intervention</h3>
+                    <p class="text-xl font-black text-white">Strategic Revenue Acceleration</p>
+                </div>
+                <div class="px-4 py-1 bg-white/10 rounded-full border border-white/20">
+                    <span class="text-[10px] font-black text-emerald-200 uppercase tracking-widest">Growth Opportunity Detected</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <p class="text-sm text-emerald-100/70 leading-relaxed mb-6">If the forecast shows a stagnation in revenue, you can authorize a **Strategic Marketing Blitz**. This allocates a temporary ₱50,000 budget for targeted digital ads and branch-specific promotional events to capture the "Upper Confidence" sales potential.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button id="btn-growth-blitz" onclick="authorizeMarketingBlitz()" class="px-8 py-4 bg-white text-emerald-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-50 transition-all shadow-xl shadow-emerald-950/40">Authorize Marketing Blitz</button>
+                        <button class="px-8 py-4 bg-emerald-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest border border-emerald-700">View Campaign Brief</button>
+                    </div>
+                </div>
+                <div class="p-6 bg-white/5 rounded-3xl border border-white/10 flex flex-col justify-center text-center">
+                    <p class="text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-4">Upside Potential</p>
+                    <p class="text-3xl font-black text-white">+12.5%</p>
+                    <p class="text-[10px] text-emerald-400 mt-2">Predicted revenue lift in Q4.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100">
             <h3 class="text-base font-black text-slate-900">Forecast Table</h3>
@@ -111,5 +143,39 @@
                 `).join('');
             }
         });
+
+        async function authorizeMarketingBlitz() {
+            const btn = document.getElementById('btn-growth-blitz');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ALLOCATING BUDGET...';
+
+            const report = {
+                Title: "Directive: Authorize Marketing Blitz",
+                PeriodLabel: "Growth Phase",
+                ReportHtml: "<h3>Strategic Growth Catalyst Activated</h3><p>CEO has authorized an emergency ₱50,000 marketing budget for Q4 revenue acceleration. Campaign focuses on social media conversion and branch 'Holiday Specials'.</p>",
+                SummaryData: "Budget Authorized: ₱50,000"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = "CAMPAIGN LIVE";
+                    btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
+                    alert("Strategic Directive Issued: Marketing budget has been released and campaign is now live.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
     </script>
 }

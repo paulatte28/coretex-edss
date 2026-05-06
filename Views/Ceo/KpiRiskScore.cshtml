@@ -26,6 +26,38 @@
         <p id="risk-sub" class="text-sm font-bold text-emerald-700 mt-2">Business Health: Healthy</p>
     </div>
 
+    <!-- STRATEGIC INTERVENTION: RISK MITIGATION -->
+    <div class="bg-rose-950 rounded-[2.5rem] p-8 text-white relative overflow-hidden border border-rose-900/50">
+        <div class="absolute top-0 right-0 p-8 opacity-20">
+            <svg class="w-32 h-32 text-rose-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/></svg>
+        </div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em] mb-2">Prescriptive Intervention</h3>
+                    <p class="text-xl font-black text-white">Emergency Capital Expenditure Freeze</p>
+                </div>
+                <div class="px-4 py-1 bg-rose-500/20 rounded-full border border-rose-500/30">
+                    <span class="text-[10px] font-black text-rose-300 uppercase tracking-widest animate-pulse">Monitoring Threats</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <p class="text-sm text-rose-200/70 leading-relaxed mb-6">If the Risk Score enters the **YELLOW** or **RED** zones, you can execute a **Global Capital Freeze**. This officially revokes the autonomous procurement authority of all branch managers, requiring CEO approval for any expense over ₱1,000.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button id="btn-risk-freeze" onclick="executeCapitalFreeze()" class="px-8 py-4 bg-rose-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-500 transition-all shadow-xl shadow-rose-950/40">Execute Budget Freeze</button>
+                        <button class="px-8 py-4 bg-rose-900/40 text-rose-300 rounded-2xl font-black text-xs uppercase tracking-widest border border-rose-800/50">Risk Thresholds</button>
+                    </div>
+                </div>
+                <div class="p-6 bg-white/5 rounded-3xl border border-white/10 flex flex-col justify-center">
+                    <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-4">Risk Mitigation Impact</p>
+                    <p class="text-3xl font-black text-white">-18%</p>
+                    <p class="text-[10px] text-rose-400 mt-2">Predicted reduction in liquidity risk within 30 days.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
         <h3 class="text-base font-black text-slate-900">Factors Contributing to Score</h3>
         <div id="factor-list" class="mt-4 space-y-2"></div>
@@ -103,5 +135,39 @@
                 }
             });
         });
+
+        async function executeCapitalFreeze() {
+            const btn = document.getElementById('btn-risk-freeze');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> LOCKING TREASURY...';
+
+            const report = {
+                Title: "Directive: Global Capital Expenditure Freeze",
+                PeriodLabel: "High-Risk Status",
+                ReportHtml: "<h3>Emergency Budget Freeze Activated</h3><p>CEO has revoked autonomous procurement authority for all branches. All expenses > ₱1,000 now require direct CEO signature via the Executive Terminal.</p>",
+                SummaryData: "Budget Lock: ACTIVE"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = "BUDGET LOCKED";
+                    btn.className = "px-8 py-4 bg-rose-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-rose-500/20";
+                    alert("Strategic Directive Issued: Operational nodes have been notified of the mandatory capital freeze.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
     </script>
 }
