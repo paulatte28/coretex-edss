@@ -24,6 +24,28 @@
 </style>
 
 <div class="space-y-6 pb-20 animate-slide-in">
+    <!-- NEW: CEO DIRECTIVE BANNER (Real-time Command Receiver) -->
+    <div id="ceo-directive-banner" class="hidden transform transition-all duration-700 -translate-y-10 opacity-0 mb-6">
+        <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-2xl border-4 border-indigo-400 flex items-center justify-between relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+            <div class="relative z-10 flex items-center space-x-6">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center animate-pulse">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.4em] mb-1">Executive Directive Active</p>
+                    <h3 class="text-xl font-black tracking-tight">CEO ORDER: MANDATORY PRICING FLOOR</h3>
+                    <p class="text-xs text-indigo-100 mt-1 font-bold">Manual discounts are disabled. Minimum 20% markup enforced on all transactions.</p>
+                </div>
+            </div>
+            <div class="relative z-10 hidden md:block">
+                <div class="px-4 py-2 bg-white/10 rounded-xl border border-white/20">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-indigo-100">Status: ENFORCED</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- EXECUTIVE STATUS BAR -->
     <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
@@ -192,6 +214,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderCart();
             filterCategory('All');
+            
+            // CHECK FOR CEO DIRECTIVES (Real-time listener for the demo)
+            setInterval(() => {
+                const isEnforced = localStorage.getItem('coretex_pricing_floor');
+                const banner = document.getElementById('ceo-directive-banner');
+                if (isEnforced === 'true') {
+                    banner.classList.remove('hidden');
+                    setTimeout(() => {
+                        banner.classList.remove('-translate-y-10', 'opacity-0');
+                    }, 50);
+                } else {
+                    banner.classList.add('-translate-y-10', 'opacity-0');
+                    setTimeout(() => banner.classList.add('hidden'), 700);
+                }
+            }, 1000);
         });
 
         let cart = [];
