@@ -125,18 +125,28 @@
             }
         });
 
-        async function initiateAuditProtocol() {
-            const btn = document.getElementById('btn-cost-audit');
+        async function initiateAudit() {
+            const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
+            const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
+            
+            let msg = "Initiate Mandatory Overhead Audit?";
+            if (isBlitz || isFreeze) {
+                msg = "⚠️ STRATEGIC OVERRIDE\nYou are currently in Growth or Emergency Lockdown mode. Starting an Audit will override those protocols. Proceed?";
+            }
+
+            if (!confirm(msg)) return;
+
+            const btn = document.getElementById('audit-btn');
             const originalText = btn.textContent;
             
             btn.disabled = true;
-            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> DEPLOYING AUDIT...';
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> INITIALIZING...';
 
             const report = {
-                Title: "Directive: Emergency Expenditure Audit",
-                PeriodLabel: "Fiscal Lockdown",
-                ReportHtml: "<h3>Company-Wide Audit Protocol Triggered</h3><p>CEO has mandated a full audit of all branch operating expenses. Finance Officers must submit justification for all expenses > ₱5,000 by end of business tomorrow.</p>",
-                SummaryData: "Audit Scope: Global Branch Network"
+                Title: "Strategic Audit Protocol Initiated",
+                PeriodLabel: "Fiscal Discipline Phase",
+                ReportHtml: "<h3>Executive Order: Overhead Audit Active</h3><p>CEO has initiated a company-wide audit of all operational overhead. Justification is now mandatory for all expense submissions.</p>",
+                SummaryData: "Audit Status: ENFORCED"
             };
 
             try {
@@ -151,10 +161,14 @@
                     btn.textContent = "AUDIT IN PROGRESS";
                     btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
                     
-                    // SIGNAL TO THE FINANCE DEPARTMENT
+                    // CONFLICT RESOLUTION
+                    localStorage.removeItem('coretex_marketing_blitz');
+                    localStorage.removeItem('coretex_capital_freeze');
+                    
+                    // SIGNAL TO FINANCE
                     localStorage.setItem('coretex_overhead_audit', 'true');
                     
-                    alert("Strategic Directive Issued: Expenditure audit is now mandatory for all branches.");
+                    alert("Strategic Directive Issued: Overhead audit is now active across all financial modules.");
                 }
             } catch (error) {
                 btn.disabled = false;
@@ -162,5 +176,16 @@
                 alert("Communication Error: Could not dispatch directive.");
             }
         }
+
+        // SELF-HEALING STRATEGY MONITOR
+        setInterval(() => {
+            const isAudit = localStorage.getItem('coretex_overhead_audit') === 'true';
+            // Simulate: If ratio drops below 10%, auto-heal
+            if (isAudit && currentRatio < 10) {
+                localStorage.removeItem('coretex_overhead_audit');
+                alert("🚀 AUTONOMOUS RECOVERY: System has detected that Expense Ratio has improved to <10%. The Strategic Audit Protocol has been automatically deactivated.");
+                window.location.reload();
+            }
+        }, 3000);
     </script>
 }

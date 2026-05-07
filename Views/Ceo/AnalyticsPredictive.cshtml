@@ -201,12 +201,16 @@
                 });
 
                 // --- LIVE MARKET TRENDS RE-IMPLEMENTATION ---
+                window.lastTrendScore = 0; // Global for monitor
                 ceo.fetchTrends("Laptops, Smartphones, Tablets").then(data => {
                     const container = document.getElementById('trends-container');
                     if (!data || !data.interest_over_time || !data.interest_over_time.averages) {
                         container.innerHTML = '<p class="text-[10px] font-bold text-slate-400">Intelligence Offline: Check SerpApi Key</p>';
                         return;
                     }
+
+                    // Save average for self-healing logic
+                    window.lastTrendScore = data.interest_over_time.averages[0].value;
 
                     container.innerHTML = data.interest_over_time.averages.map(trend => {
                         const score = trend.value;
@@ -319,5 +323,14 @@
                 alert("Strategic Sync Error: Could not broadcast global directive.");
             }
         }
+        // SELF-HEALING STRATEGY MONITOR
+        setInterval(() => {
+            const isMitigated = btn.textContent === "STRATEGY ACTIVE";
+            // Simulate: If market interest is low, risk is gone, auto-heal
+            if (isMitigated && typeof lastTrendScore !== 'undefined' && lastTrendScore < 50) {
+                alert("🚀 AUTONOMOUS RECOVERY: Market data shows Laptop volatility has stabilized (Interest < 50%). Strategic Mitigation has been automatically deactivated.");
+                window.location.reload();
+            }
+        }, 5000);
     </script>
 }

@@ -145,6 +145,16 @@
         });
 
         async function authorizeMarketingBlitz() {
+            const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
+            const isFloor = localStorage.getItem('coretex_pricing_floor') === 'true';
+            
+            let msg = "Authorize Strategic Marketing Blitz (₱50,000 Budget)?";
+            if (isFreeze || isFloor) {
+                msg = "⚠️ STRATEGIC OVERRIDE\nYou are currently in a Capital Lockdown or Pricing Defense mode. Starting this Blitz will lift those restrictions to allow growth spending. Proceed?";
+            }
+
+            if (!confirm(msg)) return;
+
             const btn = document.getElementById('btn-growth-blitz');
             const originalText = btn.textContent;
             
@@ -170,13 +180,14 @@
                     btn.textContent = "CAMPAIGN LIVE";
                     btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
                     
-                    // CONFLICT RESOLUTION: Clear Pricing Floor if active
+                    // TRIPLE CONFLICT RESOLUTION: Clear everything else
                     localStorage.removeItem('coretex_pricing_floor');
+                    localStorage.removeItem('coretex_capital_freeze');
                     
                     // SIGNAL TO THE RETAIL TERMINAL
                     localStorage.setItem('coretex_marketing_blitz', 'true');
                     
-                    alert("Strategic Directive Issued: Marketing budget released. (Pricing floor mandates have been suspended to encourage volume).");
+                    alert("Strategic Directive Issued: Marketing budget released. (All crisis lockdowns and pricing mandates have been lifted).");
                 }
             } catch (error) {
                 btn.disabled = false;
@@ -184,5 +195,15 @@
                 alert("Communication Error: Could not dispatch directive.");
             }
         }
+        // SELF-HEALING STRATEGY MONITOR
+        setInterval(() => {
+            const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
+            // Simulate: If forecast goes above 1M, success reached, auto-heal
+            if (isBlitz && forecastAmt > 1000000) {
+                localStorage.removeItem('coretex_marketing_blitz');
+                alert("🚀 AUTONOMOUS RECOVERY: System has detected that Projected Revenue has reached success targets (>₱1.0M). The Strategic Marketing Blitz has been automatically deactivated to preserve budget.");
+                window.location.reload();
+            }
+        }, 3000);
     </script>
 }

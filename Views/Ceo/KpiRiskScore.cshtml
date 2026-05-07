@@ -134,9 +134,28 @@
                     }
                 }
             });
+            // SELF-HEALING STRATEGY MONITOR
+            setInterval(() => {
+                const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
+                if (isFreeze && risk.code === 'GREEN') {
+                    localStorage.removeItem('coretex_capital_freeze');
+                    alert("🚀 AUTONOMOUS RECOVERY: System has detected that Risk Score has returned to GREEN levels. The Capital Freeze has been automatically deactivated to restore full procurement authority.");
+                    window.location.reload();
+                }
+            }, 3000);
         });
 
         async function executeCapitalFreeze() {
+            const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
+            const isFloor = localStorage.getItem('coretex_pricing_floor') === 'true';
+            
+            let msg = "Execute Global Capital Expenditure Freeze?";
+            if (isBlitz || isFloor) {
+                msg = "⚠️ STRATEGIC OVERRIDE\nYou are currently running Growth or Defense protocols. Executing this Freeze will automatically cancel those strategies. Proceed?";
+            }
+
+            if (!confirm(msg)) return;
+
             const btn = document.getElementById('btn-risk-freeze');
             const originalText = btn.textContent;
             
@@ -161,7 +180,15 @@
                 if (data.success) {
                     btn.textContent = "BUDGET LOCKED";
                     btn.className = "px-8 py-4 bg-rose-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-rose-500/20";
-                    alert("Strategic Directive Issued: Operational nodes have been notified of the mandatory capital freeze.");
+                    
+                    // TRIPLE CONFLICT RESOLUTION: Clear everything else
+                    localStorage.removeItem('coretex_pricing_floor');
+                    localStorage.removeItem('coretex_marketing_blitz');
+                    
+                    // SIGNAL TO ALL SYSTEMS (Lockdown Mode)
+                    localStorage.setItem('coretex_capital_freeze', 'true');
+                    
+                    alert("EMERGENCY PROTOCOL ACTIVE: All other directives have been suspended. The system is now in Global Capital Lockdown.");
                 }
             } catch (error) {
                 btn.disabled = false;

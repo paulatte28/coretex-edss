@@ -46,7 +46,26 @@
         </div>
     </div>
 
-    <!-- NEW: MARKETING BLITZ BANNER (Real-time Growth Receiver) -->
+    <!-- NEW: CRISIS PROTOCOL BANNER (Real-time Emergency Receiver) -->
+    <div id="crisis-protocol-banner" class="hidden transform transition-all duration-700 -translate-y-10 opacity-0 mb-6">
+        <div class="bg-rose-600 rounded-3xl p-6 text-white shadow-2xl border-4 border-rose-400 flex items-center justify-between relative overflow-hidden">
+            <div class="relative z-10 flex items-center space-x-6">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center animate-pulse">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-rose-100 uppercase tracking-[0.4em] mb-1">Treasury Lockdown Active</p>
+                    <h3 class="text-xl font-black tracking-tight">⚠️ CRISIS PROTOCOL: CAPITAL FREEZE</h3>
+                    <p class="text-xs text-rose-50 mt-1 font-bold">Executive Order: All non-essential procurement and high-value orders are suspended.</p>
+                </div>
+            </div>
+            <div class="relative z-10 hidden md:block">
+                <div class="px-4 py-2 bg-white/10 rounded-xl border border-white/20">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-rose-100">Status: LOCKED</span>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="marketing-blitz-banner" class="hidden transform transition-all duration-700 -translate-y-10 opacity-0 mb-6">
         <div class="bg-emerald-500 rounded-3xl p-6 text-white shadow-2xl border-4 border-emerald-300 flex items-center justify-between relative overflow-hidden">
             <div class="relative z-10 flex items-center space-x-6">
@@ -243,10 +262,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderCart();
             filterCategory('All');
-               // EXECUTIVE DIRECTIVE LISTENER (Real-time bridge for the demo)
+            // EXECUTIVE DIRECTIVE LISTENER (Real-time bridge for the demo)
             setInterval(() => {
                 const isEnforced = localStorage.getItem('coretex_pricing_floor');
                 const isBlitz = localStorage.getItem('coretex_marketing_blitz');
+                const isFreeze = localStorage.getItem('coretex_capital_freeze');
                 
                 // Pricing Floor Banner Logic
                 const banner = document.getElementById('ceo-directive-banner');
@@ -274,6 +294,20 @@
                     if (!blitzBanner.classList.contains('hidden')) {
                         blitzBanner.classList.add('-translate-y-10', 'opacity-0');
                         setTimeout(() => blitzBanner.classList.add('hidden'), 700);
+                    }
+                }
+
+                // Capital Freeze Banner Logic
+                const freezeBanner = document.getElementById('crisis-protocol-banner');
+                if (isFreeze === 'true') {
+                    if (freezeBanner.classList.contains('hidden')) {
+                        freezeBanner.classList.remove('hidden');
+                        setTimeout(() => freezeBanner.classList.remove('-translate-y-10', 'opacity-0'), 50);
+                    }
+                } else {
+                    if (!freezeBanner.classList.contains('hidden')) {
+                        freezeBanner.classList.add('-translate-y-10', 'opacity-0');
+                        setTimeout(() => freezeBanner.classList.add('hidden'), 700);
                     }
                 }
             }, 1000);
@@ -323,6 +357,13 @@
         }
 
         function addToCart(id, name, price) {
+            // CEO DIRECTIVE: CAPITAL FREEZE LOCK (Hard restriction on assets > ₱50k)
+            const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
+            if (isFreeze && price > 50000) {
+                alert("⚠️ TRANSACTION BLOCKED\nExecutive Capital Freeze is active. High-value asset sales (>₱50,000) require CEO bypass authorization.");
+                return;
+            }
+
             const existing = cart.find(i => i.id === id);
             if (existing) {
                 existing.qty++;

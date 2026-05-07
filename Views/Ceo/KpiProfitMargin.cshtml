@@ -198,6 +198,62 @@
             }
         });
 
+        async function enforceNow() {
+            const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
+            const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
+            
+            let msg = "Enforce Mandatory Pricing Floor (5% Surcharge)?";
+            if (isBlitz || isFreeze) {
+                msg = "⚠️ STRATEGIC OVERRIDE\nYou are currently in Growth or Emergency Lockdown mode. Enforcing a Pricing Floor will cancel those strategies. Proceed?";
+            }
+
+            if (!confirm(msg)) return;
+
+            const btn = document.getElementById('enforce-btn');
+            const revokeBtn = document.getElementById('revoke-btn');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ENFORCING...';
+
+            const report = {
+                Title: "Directive: Mandatory Pricing Floor Enforced",
+                PeriodLabel: "Fiscal Protection Phase",
+                ReportHtml: "<h3>Operational Directive: Margin Guard Active</h3><p>CEO has enforced a global 5% pricing floor surcharge to protect profit margins against rising operational costs.</p>",
+                SummaryData: "Surcharge: 5% Active"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('coretex_pricing_floor', 'true');
+                    btn.textContent = "GUARD ACTIVE";
+                    btn.classList.add('hidden');
+                    revokeBtn.classList.remove('hidden');
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert("Communication Error: Could not dispatch directive.");
+            }
+        }
+
+        // SELF-HEALING STRATEGY MONITOR
+        setInterval(() => {
+            const isFloor = localStorage.getItem('coretex_pricing_floor') === 'true';
+            // Simulate: If margin returns above 40%, auto-heal
+            if (isFloor && currentMargin > 40) {
+                localStorage.removeItem('coretex_pricing_floor');
+                alert("🚀 AUTONOMOUS RECOVERY: System has detected that Profit Margin has recovered to >40%. The Pricing Floor surcharge has been automatically deactivated.");
+                window.location.reload();
+            }
+        }, 3000);
+
         async function activateMarginGuard() {
             const btn = document.getElementById('btn-margin-guard');
             const revokeBtn = document.getElementById('btn-revoke-guard');
@@ -227,13 +283,14 @@
                     btn.classList.add('hidden');
                     revokeBtn.classList.remove('hidden');
                     
-                    // CONFLICT RESOLUTION: Clear Marketing Blitz if active
+                    // TRIPLE CONFLICT RESOLUTION: Clear everything else
                     localStorage.removeItem('coretex_marketing_blitz');
+                    localStorage.removeItem('coretex_capital_freeze');
                     
                     // SIGNAL TO THE POS SYSTEM
                     localStorage.setItem('coretex_pricing_floor', 'true');
                     
-                    alert("Strategic Directive Issued: Pricing floor is now enforced. (Conflicting growth directives have been suspended).");
+                    alert("Strategic Directive Issued: Pricing floor is now enforced. (All other conflicting directives have been suspended).");
                 }
             } catch (error) {
                 btn.disabled = false;
