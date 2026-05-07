@@ -132,6 +132,24 @@
     <div class="w-full max-w-md fade-in">
         <!-- Logo & Header -->
         <div class="text-center mb-8">
+            <!-- EXECUTIVE BULLETIN CONTAINER -->
+            <div id="executive-bulletin" class="hidden mb-8 p-6 bg-indigo-950 border border-indigo-500/30 rounded-[2rem] shadow-2xl text-left relative overflow-hidden group transition-all hover:border-indigo-400/50">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
+                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-[0.2em]">Leadership Directive</span>
+                    </div>
+                    <p id="bulletin-text" class="text-white text-sm font-bold leading-relaxed italic"></p>
+                    <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
+                        <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Coretex Strategic Alignment</p>
+                        <p id="bulletin-time" class="text-[8px] font-medium text-indigo-500"></p>
+                    </div>
+                </div>
+            </div>
+
             <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-6">
                 <img src="/images/logo.png" alt="Coretex Logo" class="w-14 h-14 object-contain"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
@@ -271,6 +289,30 @@
     </div>
 
     <script>
+        // EXECUTIVE BULLETIN LOADER
+        document.addEventListener('DOMContentLoaded', function() {
+            const bulletinData = localStorage.getItem('coretex_market_response');
+            if (bulletinData) {
+                try {
+                    const data = JSON.parse(bulletinData);
+                    const container = document.getElementById('executive-bulletin');
+                    const textEl = document.getElementById('bulletin-text');
+                    const timeEl = document.getElementById('bulletin-time');
+                    
+                    if (container && textEl && timeEl) {
+                        textEl.textContent = `"${data.message}"`;
+                        
+                        // Calculate relative time
+                        const date = new Date(data.timestamp);
+                        timeEl.textContent = `Issued: ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                        
+                        container.classList.remove('hidden');
+                        container.classList.add('animate-bounce-subtle'); // Custom entry feel
+                    }
+                } catch (e) { console.error("Bulletin Error", e); }
+            }
+        });
+
         // Toggle password visibility
         const togglePassword = document.getElementById('toggle-password');
         const passwordInput = document.getElementById('password');
