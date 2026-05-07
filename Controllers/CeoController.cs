@@ -327,5 +327,30 @@ namespace coretex_finalproj.Controllers
                 .ToListAsync();
             return View(logs);
         }
+        [HttpPost]
+        public async Task<IActionResult> AutonomousPriceAdjustment([FromBody] AdjustmentRequest request)
+        {
+            var products = await _context.Products
+                .Where(p => p.Category == request.Category)
+                .ToListAsync();
+
+            int count = 0;
+            foreach (var product in products)
+            {
+                product.Price = product.Price * (1 + request.Percentage / 100);
+                count++;
+            }
+
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("AUTO_PRICE_ADJUST", $"Autonomous {request.Percentage}% markup applied to {count} {request.Category} products.");
+
+            return Json(new { success = true, count = count });
+        }
+
+        public class AdjustmentRequest
+        {
+            public string Category { get; set; } = string.Empty;
+            public decimal Percentage { get; set; }
+        }
     }
 }

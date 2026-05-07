@@ -169,7 +169,14 @@
                 if (data.success) {
                     btn.textContent = "CAMPAIGN LIVE";
                     btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
-                    alert("Strategic Directive Issued: Marketing budget has been released and campaign is now live.");
+                    
+                    // CONFLICT RESOLUTION: Clear Pricing Floor if active
+                    localStorage.removeItem('coretex_pricing_floor');
+                    
+                    // SIGNAL TO THE RETAIL TERMINAL
+                    localStorage.setItem('coretex_marketing_blitz', 'true');
+                    
+                    alert("Strategic Directive Issued: Marketing budget released. (Pricing floor mandates have been suspended to encourage volume).");
                 }
             } catch (error) {
                 btn.disabled = false;

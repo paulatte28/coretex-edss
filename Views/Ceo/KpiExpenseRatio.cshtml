@@ -150,6 +150,10 @@
                 if (data.success) {
                     btn.textContent = "AUDIT IN PROGRESS";
                     btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
+                    
+                    // SIGNAL TO THE FINANCE DEPARTMENT
+                    localStorage.setItem('coretex_overhead_audit', 'true');
+                    
                     alert("Strategic Directive Issued: Expenditure audit is now mandatory for all branches.");
                 }
             } catch (error) {

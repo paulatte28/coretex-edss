@@ -50,6 +50,9 @@
                         <div class="bg-emerald-500 h-full w-[84%]"></div>
                     </div>
                 </div>
+                <button onclick="applyGlobalStrategy()" class="w-full mt-6 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-xl">
+                    Apply Strategy
+                </button>
             </div>
 
         </div>
@@ -257,11 +260,20 @@
             const report = {
                 Title: "Supply Chain Mitigation: Laptop Procurement",
                 PeriodLabel: "Q1 2027 Forecast",
-                ReportHtml: "<h3>Predictive Mitigation Strategy Activated</h3><p>CEO has authorized emergency bulk-purchasing of Laptop stock to avoid predicted 15% price spike in Q1 2027.</p>",
+                ReportHtml: "<h3>Predictive Mitigation Strategy Activated</h3><p>CEO has authorized emergency autonomous price adjustments for Laptops to avoid predicted 15% price spike in Q1 2027.</p>",
                 SummaryData: "Risk Mitigated: Cost Volatility (Laptops)"
             };
 
             try {
+                // PART 1: AUTONOMOUS ACTION (Update the Database Prices)
+                const adjustResponse = await fetch('/ceo/AutonomousPriceAdjustment', {
+                    method: 'POST',
+                    body: JSON.stringify({ Category: "Laptops", Percentage: 10 }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const adjustData = await adjustResponse.json();
+
+                // PART 2: DIRECTIVE LOGGING (Save the Report)
                 const response = await fetch('/ceo/SaveReport', {
                     method: 'POST',
                     body: JSON.stringify(report),
@@ -269,15 +281,42 @@
                 });
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success && adjustData.success) {
                     btn.textContent = "STRATEGY ACTIVE";
                     btn.className = "w-full py-3 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest cursor-default";
-                    alert("Strategic Directive Issued: Procurement targets have been adjusted to mitigate Laptop cost volatility.");
+                    alert(`Autonomous Strategy Success: ${adjustData.count} Laptop prices adjusted by 10% automatically.`);
                 }
             } catch (error) {
                 btn.disabled = false;
                 btn.textContent = originalText;
-                alert("Communication Error: Could not dispatch directive.");
+                alert("Communication Error: Could not dispatch autonomous directive.");
+            }
+        }
+        async function applyGlobalStrategy() {
+            if (!confirm("Execute Global Strategy for Operational Excellence, Revenue Momentum, and Policy Verification?")) return;
+
+            const report = {
+                Title: "Global Strategic Alignment Executed",
+                PeriodLabel: "Predictive Q3 Alignment",
+                ReportHtml: "<h3>Global Strategy Deployed</h3><ul><li><b>Operational Excellence:</b> Margin Guard activated to protect 36.3% surplus.</li><li><b>Revenue Momentum:</b> Performance directive issued to sustain 500%+ growth.</li><li><b>Policy Verification:</b> All branch protocols synchronized with HQ.</li></ul>",
+                SummaryData: "Global Strategy: Active"
+            };
+
+            try {
+                // ACTION 1: Autonomous Margin Lock
+                localStorage.setItem('coretex_pricing_floor', 'true');
+
+                // ACTION 2: Save Global Directive
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                alert("GLOBAL STRATEGY APPLIED: Operational Excellence protocols and Revenue Momentum directives are now active across all branches.");
+                window.location.reload(); // Refresh to show active status if needed
+            } catch (error) {
+                alert("Strategic Sync Error: Could not broadcast global directive.");
             }
         }
     </script>

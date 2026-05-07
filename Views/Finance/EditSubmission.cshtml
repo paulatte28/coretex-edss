@@ -25,6 +25,27 @@
         <p id="status-meta" class="text-xs mt-1"></p>
     </div>
 
+    <!-- NEW: CEO AUDIT BANNER (Real-time Audit Receiver) -->
+    <div id="ceo-audit-banner" class="hidden transform transition-all duration-700 -translate-y-10 opacity-0 mb-6">
+        <div class="bg-amber-500 rounded-3xl p-6 text-slate-900 shadow-2xl border-4 border-amber-300 flex items-center justify-between relative overflow-hidden">
+            <div class="relative z-10 flex items-center space-x-6">
+                <div class="w-14 h-14 bg-slate-900/10 rounded-2xl flex items-center justify-center animate-bounce">
+                    <svg class="w-8 h-8 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-amber-900 uppercase tracking-[0.4em] mb-1">Executive Oversite Active</p>
+                    <h3 class="text-xl font-black tracking-tight">🚨 CEO AUDIT PROTOCOL: ENABLED</h3>
+                    <p class="text-xs text-amber-900 mt-1 font-bold">Category justifications are MANDATORY during this audit phase.</p>
+                </div>
+            </div>
+            <div class="relative z-10 hidden md:block">
+                <div class="px-4 py-2 bg-slate-900/10 rounded-xl border border-slate-900/20">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-900">Status: ENFORCING</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form id="edit-form" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100">
             <h3 class="text-lg font-black text-slate-900">Expense Adjustment Form</h3>
@@ -132,6 +153,37 @@
             bindLivePreview();
 
             document.getElementById('edit-form').addEventListener('submit', submitEdit);
+
+            // CHECK FOR CEO AUDIT DIRECTIVE (Enforcement Logic)
+            setInterval(() => {
+                const isAudited = localStorage.getItem('coretex_overhead_audit');
+                const banner = document.getElementById('ceo-audit-banner');
+                const notes = ['cogs-notes', 'rent-notes', 'salaries-notes', 'utilities-notes'];
+                
+                if (isAudited === 'true') {
+                    banner.classList.remove('hidden');
+                    setTimeout(() => banner.classList.remove('-translate-y-10', 'opacity-0'), 50);
+                    
+                    // ENFORCE JUSTIFICATION
+                    notes.forEach(id => {
+                        const el = document.getElementById(id);
+                        el.required = true;
+                        el.placeholder = "MANDATORY: Provide Audit Justification";
+                        el.classList.add('border-amber-400', 'bg-amber-50');
+                    });
+                } else {
+                    banner.classList.add('-translate-y-10', 'opacity-0');
+                    setTimeout(() => banner.classList.add('hidden'), 700);
+                    
+                    // RELAX JUSTIFICATION
+                    notes.forEach(id => {
+                        const el = document.getElementById(id);
+                        el.required = false;
+                        el.placeholder = "Notes";
+                        el.classList.remove('border-amber-400', 'bg-amber-50');
+                    });
+                }
+            }, 1000);
         });
 
         function evaluateEditEligibility() {

@@ -46,6 +46,27 @@
         </div>
     </div>
 
+    <!-- NEW: MARKETING BLITZ BANNER (Real-time Growth Receiver) -->
+    <div id="marketing-blitz-banner" class="hidden transform transition-all duration-700 -translate-y-10 opacity-0 mb-6">
+        <div class="bg-emerald-500 rounded-3xl p-6 text-white shadow-2xl border-4 border-emerald-300 flex items-center justify-between relative overflow-hidden">
+            <div class="relative z-10 flex items-center space-x-6">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center animate-bounce">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-emerald-100 uppercase tracking-[0.4em] mb-1">Growth Protocol Active</p>
+                    <h3 class="text-xl font-black tracking-tight">🚀 MARKETING BLITZ: PROMOTION LIVE</h3>
+                    <p class="text-xs text-emerald-50 mt-1 font-bold">Offer exclusive 'Coretex Bundles' to all customers to maximize revenue lift!</p>
+                </div>
+            </div>
+            <div class="relative z-10 hidden md:block">
+                <div class="px-4 py-2 bg-white/10 rounded-xl border border-white/20">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-100">Status: ACCELERATING</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- EXECUTIVE STATUS BAR -->
     <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
@@ -153,17 +174,25 @@
                     </div>
                 </div>
 
-                <div class="mt-8 pt-8 border-t border-slate-100 space-y-6">
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operational Tax</p>
-                            <p class="text-sm font-bold text-slate-900">₱0.00</p>
+                    <div class="mt-8 pt-8 border-t border-slate-100 space-y-6">
+                        <div id="margin-guard-row" class="hidden flex justify-between items-center p-3 bg-indigo-50 rounded-xl border border-indigo-100 animate-pulse">
+                            <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Margin Protection (CEO)</p>
+                            <p id="margin-guard-amt" class="text-sm font-bold text-indigo-700">+₱0.00</p>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <p class="text-xs font-black text-slate-900 uppercase tracking-widest">Grand Total</p>
-                            <p id="cart-total" class="text-3xl font-black tracking-tighter text-indigo-600">₱0.00</p>
+                        <div id="marketing-blitz-row" class="hidden flex justify-between items-center p-3 bg-emerald-50 rounded-xl border border-emerald-100 animate-pulse">
+                            <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Marketing Rebate (CEO)</p>
+                            <p id="marketing-blitz-amt" class="text-sm font-bold text-emerald-700">-₱0.00</p>
                         </div>
-                    </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operational Tax</p>
+                                <p class="text-sm font-bold text-slate-900">₱0.00</p>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs font-black text-slate-900 uppercase tracking-widest">Grand Total</p>
+                                <p id="cart-total" class="text-3xl font-black tracking-tighter text-indigo-600">₱0.00</p>
+                            </div>
+                        </div>
                     
                     <button id="checkout-btn" onclick="processCheckout()" disabled class="w-full py-6 bg-slate-900 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all flex items-center justify-center space-x-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
@@ -214,19 +243,38 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderCart();
             filterCategory('All');
-            
-            // CHECK FOR CEO DIRECTIVES (Real-time listener for the demo)
+               // EXECUTIVE DIRECTIVE LISTENER (Real-time bridge for the demo)
             setInterval(() => {
                 const isEnforced = localStorage.getItem('coretex_pricing_floor');
+                const isBlitz = localStorage.getItem('coretex_marketing_blitz');
+                
+                // Pricing Floor Banner Logic
                 const banner = document.getElementById('ceo-directive-banner');
                 if (isEnforced === 'true') {
-                    banner.classList.remove('hidden');
-                    setTimeout(() => {
-                        banner.classList.remove('-translate-y-10', 'opacity-0');
-                    }, 50);
+                    if (banner.classList.contains('hidden')) {
+                        banner.classList.remove('hidden');
+                        setTimeout(() => banner.classList.remove('-translate-y-10', 'opacity-0'), 50);
+                        renderCart();
+                    }
                 } else {
-                    banner.classList.add('-translate-y-10', 'opacity-0');
-                    setTimeout(() => banner.classList.add('hidden'), 700);
+                    if (!banner.classList.contains('hidden')) {
+                        banner.classList.add('-translate-y-10', 'opacity-0');
+                        setTimeout(() => { banner.classList.add('hidden'); renderCart(); }, 700);
+                    }
+                }
+
+                // Marketing Blitz Banner Logic
+                const blitzBanner = document.getElementById('marketing-blitz-banner');
+                if (isBlitz === 'true') {
+                    if (blitzBanner.classList.contains('hidden')) {
+                        blitzBanner.classList.remove('hidden');
+                        setTimeout(() => blitzBanner.classList.remove('-translate-y-10', 'opacity-0'), 50);
+                    }
+                } else {
+                    if (!blitzBanner.classList.contains('hidden')) {
+                        blitzBanner.classList.add('-translate-y-10', 'opacity-0');
+                        setTimeout(() => blitzBanner.classList.add('hidden'), 700);
+                    }
                 }
             }, 1000);
         });
@@ -328,7 +376,35 @@
                     </div>`;
             }).join('');
 
-            totalEl.textContent = `₱${total.toLocaleString()}`;
+            // CEO DIRECTIVE: MARGIN PROTECTION SURCHARGE (5%)
+            const isEnforced = localStorage.getItem('coretex_pricing_floor') === 'true';
+            const mgRow = document.getElementById('margin-guard-row');
+            const mgAmtEl = document.getElementById('margin-guard-amt');
+            
+            if (isEnforced) {
+                const surcharge = total * 0.05;
+                total += surcharge;
+                mgRow.classList.remove('hidden');
+                mgAmtEl.textContent = `+₱${surcharge.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            } else {
+                mgRow.classList.add('hidden');
+            }
+
+            // CEO DIRECTIVE: MARKETING BLITZ REBATE (10%)
+            const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
+            const blitzRow = document.getElementById('marketing-blitz-row');
+            const blitzAmtEl = document.getElementById('marketing-blitz-amt');
+
+            if (isBlitz) {
+                const rebate = total * 0.10;
+                total -= rebate;
+                blitzRow.classList.remove('hidden');
+                blitzAmtEl.textContent = `-₱${rebate.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            } else {
+                blitzRow.classList.add('hidden');
+            }
+
+            totalEl.textContent = `₱${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             btn.disabled = false;
         }
 
@@ -343,6 +419,31 @@
             renderCart();
         }
 
+        async function postToDb(item) {
+            const isEnforced = localStorage.getItem('coretex_pricing_floor') === 'true';
+            let finalAmount = item.qty * item.price;
+            if (isEnforced) finalAmount += (finalAmount * 0.05);
+
+            const response = await fetch('/Cashier/CreateSale', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    productName: item.name, 
+                    quantity: item.qty, 
+                    unitPrice: item.price, 
+                    amount: finalAmount,
+                    customerName: "Executive Demo Walk-in" 
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || "Server rejected the commitment.");
+            }
+
+            return await response.json();
+        }
+
         async function processCheckout() {
             const btn = document.getElementById('checkout-btn');
             btn.disabled = true;
@@ -351,20 +452,8 @@
             
             try {
                 let orderId = "";
-                // Loop through items to commit to DB
                 for (const item of cart) {
-                    const response = await fetch('/Cashier/CreateSale', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            productName: item.name, 
-                            quantity: item.qty, 
-                            unitPrice: item.price, 
-                            amount: item.qty * item.price,
-                            customerName: "Executive Demo Walk-in" 
-                        })
-                    });
-                    const res = await response.json();
+                    const res = await postToDb(item);
                     orderId = res.orderId;
                 }
                 
@@ -372,7 +461,7 @@
                 showStep('Committing Secure Record...', 1000);
                 setTimeout(() => finalizeSuccess(), 2000);
             } catch (err) {
-                alert("Database commit failed. Network error.");
+                alert("Database commit failed: " + err.message);
                 btn.disabled = false;
                 hideOverlay();
             }
@@ -400,7 +489,6 @@
                 hideOverlay();
                 cart = [];
                 renderCart();
-                // Reset title/step for next time
                 setTimeout(() => {
                     title.textContent = "Committing to SQL...";
                     icon.classList.add('scale-50');

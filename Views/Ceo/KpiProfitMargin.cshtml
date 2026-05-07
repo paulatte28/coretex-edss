@@ -55,6 +55,7 @@
                 <p class="text-sm text-indigo-100 leading-relaxed mb-6">If the overall profit margin falls below the 15% threshold, you can activate the **Pricing Floor Protocol**. This officially issues a directive to all branch managers to disable manual discounting and enforce a strict 20% markup on all new stock entries.</p>
                 <div class="flex flex-wrap gap-4">
                     <button id="btn-margin-guard" onclick="activateMarginGuard()" class="px-8 py-4 bg-white text-indigo-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-xl shadow-indigo-900/20">Enforce Pricing Floor</button>
+                    <button id="btn-revoke-guard" onclick="revokeMarginGuard()" class="hidden px-8 py-4 bg-rose-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-700 transition-all shadow-xl shadow-rose-900/20">Revoke Directive</button>
                     <button onclick="openPolicyDraft()" class="px-8 py-4 bg-indigo-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest border border-indigo-700">View Policy Draft</button>
                 </div>
             </div>
@@ -199,6 +200,7 @@
 
         async function activateMarginGuard() {
             const btn = document.getElementById('btn-margin-guard');
+            const revokeBtn = document.getElementById('btn-revoke-guard');
             const originalText = btn.textContent;
             
             btn.disabled = true;
@@ -222,16 +224,56 @@
                 if (data.success) {
                     btn.textContent = "GUARD ACTIVE";
                     btn.className = "px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-default shadow-xl shadow-emerald-500/20";
+                    btn.classList.add('hidden');
+                    revokeBtn.classList.remove('hidden');
+                    
+                    // CONFLICT RESOLUTION: Clear Marketing Blitz if active
+                    localStorage.removeItem('coretex_marketing_blitz');
                     
                     // SIGNAL TO THE POS SYSTEM
                     localStorage.setItem('coretex_pricing_floor', 'true');
                     
-                    alert("Strategic Directive Issued: Pricing floor is now enforced across all operational nodes.");
+                    alert("Strategic Directive Issued: Pricing floor is now enforced. (Conflicting growth directives have been suspended).");
                 }
             } catch (error) {
                 btn.disabled = false;
                 btn.textContent = originalText;
                 alert("Communication Error: Could not dispatch directive.");
+            }
+        }
+
+        async function revokeMarginGuard() {
+            if (!confirm("Are you sure you want to revoke this directive and return to normal pricing operations?")) return;
+
+            const btn = document.getElementById('btn-margin-guard');
+            const revokeBtn = document.getElementById('btn-revoke-guard');
+
+            const report = {
+                Title: "Directive Terminated: Pricing Floor Lifted",
+                PeriodLabel: "Normalization",
+                ReportHtml: "<h3>Strategic Margin Guard Deactivated</h3><p>CEO has revoked the mandatory pricing floor. Branches are now authorized to resume manual discounting and standard markup procedures.</p>",
+                SummaryData: "Status: Normal Operations Resumed"
+            };
+
+            try {
+                const response = await fetch('/ceo/SaveReport', {
+                    method: 'POST',
+                    body: JSON.stringify(report),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('coretex_pricing_floor', 'false');
+                    revokeBtn.classList.add('hidden');
+                    btn.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = "Enforce Pricing Floor";
+                    btn.className = "px-8 py-4 bg-white text-indigo-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-xl shadow-indigo-900/20";
+                    alert("Strategic Directive Terminated: Normal branch operations have resumed.");
+                }
+            } catch (error) {
+                alert("Error: Could not transmit revocation signal.");
             }
         }
 
