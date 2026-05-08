@@ -307,7 +307,7 @@
                 } else {
                     if (!freezeBanner.classList.contains('hidden')) {
                         freezeBanner.classList.add('-translate-y-10', 'opacity-0');
-                        setTimeout(() => freezeBanner.classList.add('hidden'), 700);
+                        setTimeout(() => { freezeBanner.classList.add('hidden'); }, 700);
                     }
                 }
             }, 1000);

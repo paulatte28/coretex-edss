@@ -132,21 +132,24 @@
     <div class="w-full max-w-md fade-in">
         <!-- Logo & Header -->
         <div class="text-center mb-8">
-            <!-- EXECUTIVE BULLETIN CONTAINER -->
-            <div id="executive-bulletin" class="hidden mb-8 p-6 bg-indigo-950 border border-indigo-500/30 rounded-[2rem] shadow-2xl text-left relative overflow-hidden group transition-all hover:border-indigo-400/50">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
-                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-[0.2em]">Leadership Directive</span>
+            <!-- EXECUTIVE BULLETIN (CEO Directive Feed) -->
+            <div id="executive-bulletin" class="hidden absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-xl z-50 animate-slide-in">
+                <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-2xl border-4 border-indigo-400 flex items-center justify-between relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                    <div class="relative z-10 flex items-center space-x-6">
+                        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center animate-pulse">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.4em] mb-1">Global Strategy Update</p>
+                            <h3 id="directive-title" class="text-xl font-black tracking-tight">Executive Directive Active</h3>
+                            <p id="directive-msg" class="text-xs text-indigo-100 mt-1 font-bold">Awaiting secure transmission from HQ...</p>
+                            <p id="directive-time" class="text-[9px] text-indigo-300 mt-2 font-black uppercase tracking-widest opacity-60">Issued: --:--</p>
+                        </div>
                     </div>
-                    <p id="bulletin-text" class="text-white text-sm font-bold leading-relaxed italic"></p>
-                    <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
-                        <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Coretex Strategic Alignment</p>
-                        <p id="bulletin-time" class="text-[8px] font-medium text-indigo-500"></p>
-                    </div>
+                    <button onclick="dismissDirective()" class="relative z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -289,29 +292,44 @@
     </div>
 
     <script>
-        // EXECUTIVE BULLETIN LOADER
+        // GLOBAL DIRECTIVE LOADER (Persistent Executive Bulletin)
         document.addEventListener('DOMContentLoaded', function() {
             const bulletinData = localStorage.getItem('coretex_market_response');
             if (bulletinData) {
                 try {
                     const data = JSON.parse(bulletinData);
-                    const container = document.getElementById('executive-bulletin');
-                    const textEl = document.getElementById('bulletin-text');
-                    const timeEl = document.getElementById('bulletin-time');
                     
-                    if (container && textEl && timeEl) {
-                        textEl.textContent = `"${data.message}"`;
-                        
-                        // Calculate relative time
+                    // Check if this specific directive was already dismissed by the user
+                    const dismissedId = localStorage.getItem('coretex_dismissed_directive');
+                    if (dismissedId === data.id.toString()) return;
+
+                    const container = document.getElementById('executive-bulletin');
+                    const msgEl = document.getElementById('directive-msg');
+                    const timeEl = document.getElementById('directive-time');
+                    
+                    if (container && msgEl && timeEl) {
+                        msgEl.textContent = data.message;
                         const date = new Date(data.timestamp);
                         timeEl.textContent = `Issued: ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
                         
                         container.classList.remove('hidden');
-                        container.classList.add('animate-bounce-subtle'); // Custom entry feel
                     }
-                } catch (e) { console.error("Bulletin Error", e); }
+                } catch (e) { console.error("Directive Sync Error", e); }
             }
         });
+
+        function dismissDirective() {
+            const bulletinData = localStorage.getItem('coretex_market_response');
+            if (bulletinData) {
+                const data = JSON.parse(bulletinData);
+                localStorage.setItem('coretex_dismissed_directive', data.id); // Track by unique ID
+                const container = document.getElementById('executive-bulletin');
+                if (container) {
+                    container.classList.add('animate-slide-out'); // Add a smooth exit
+                    setTimeout(() => container.classList.add('hidden'), 500);
+                }
+            }
+        }
 
         // Toggle password visibility
         const togglePassword = document.getElementById('toggle-password');
