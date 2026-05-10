@@ -10,30 +10,20 @@ using coretex_finalproj.Data;
 namespace coretex_finalproj.Controllers
 {
     [Authorize(Roles = "CEO")]
-    public class CeoController : Controller
+    public class CeoController(
+        Data.ApplicationDbContext context,
+        AnalyticsService analytics,
+        NewsService news,
+        TrendService trends,
+        UserManager<AppUser> userManager,
+        AuditLoggingService auditLog) : Controller
     {
-        private readonly Data.ApplicationDbContext _context;
-        private readonly AnalyticsService _analytics;
-        private readonly NewsService _news;
-        private readonly TrendService _trends;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly AuditLoggingService _auditLog;
-
-        public CeoController(
-            Data.ApplicationDbContext context, 
-            AnalyticsService analytics, 
-            NewsService news, 
-            TrendService trends,
-            UserManager<AppUser> userManager,
-            AuditLoggingService auditLog)
-        {
-            _context = context;
-            _analytics = analytics;
-            _news = news;
-            _trends = trends;
-            _userManager = userManager;
-            _auditLog = auditLog;
-        }
+        private readonly Data.ApplicationDbContext _context = context;
+        private readonly AnalyticsService _analytics = analytics;
+        private readonly NewsService _news = news;
+        private readonly TrendService _trends = trends;
+        private readonly UserManager<AppUser> _userManager = userManager;
+        private readonly AuditLoggingService _auditLog = auditLog;
 
         public IActionResult Index()
         {
@@ -314,8 +304,10 @@ namespace coretex_finalproj.Controllers
             var report = await _context.GeneratedReports.FindAsync(id);
             if (report == null) return NotFound();
 
+            var reportTitle = report.Title;
             _context.GeneratedReports.Remove(report);
             await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("REPORT_DELETE", $"CEO purged an executive report from the archives: {reportTitle}");
             return Json(new { success = true });
         }
 
@@ -337,14 +329,72 @@ namespace coretex_finalproj.Controllers
             int count = 0;
             foreach (var product in products)
             {
-                product.Price = product.Price * (1 + request.Percentage / 100);
+                product.Price *= (1 + request.Percentage / 100);
                 count++;
             }
 
             await _context.SaveChangesAsync();
             await _auditLog.LogActivityAsync("AUTO_PRICE_ADJUST", $"Autonomous {request.Percentage}% markup applied to {count} {request.Category} products.");
 
-            return Json(new { success = true, count = count });
+            return Json(new { success = true, count });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AutonomousStockRebalance([FromBody] RebalanceRequest request)
+        {
+            // 1. Identify the source branch (Sandawa as per UI)
+            var sourceBranch = await _context.Branches.FirstOrDefaultAsync(b => b.Name.Contains(request.SourceBranch));
+            if (sourceBranch == null) return BadRequest(new { message = "Source branch not found" });
+
+            // 2. Find target branch (any other active branch)
+            var targetBranch = await _context.Branches.FirstOrDefaultAsync(b => b.Id != sourceBranch.Id && !b.IsArchived);
+            if (targetBranch == null) return BadRequest(new { message = "No target branch available for rebalancing" });
+
+            // 3. Find products in the category with 'excess' stock (> 20)
+            var products = await _context.Products
+                .Where(p => p.BranchId == sourceBranch.Id && p.Category == request.Category && p.StockQuantity > 20)
+                .ToListAsync();
+
+            int transferCount = 0;
+            int totalItems = 0;
+
+            foreach (var p in products)
+            {
+                int moveAmount = p.StockQuantity / 2; // Move half the stock
+                p.StockQuantity -= moveAmount;
+                
+                // Find or create product in target branch
+                var targetProduct = await _context.Products.FirstOrDefaultAsync(tp => tp.BranchId == targetBranch.Id && tp.Name == p.Name);
+                if (targetProduct != null)
+                {
+                    targetProduct.StockQuantity += moveAmount;
+                }
+                else
+                {
+                    // Create it if it doesn't exist
+                    _context.Products.Add(new Product
+                    {
+                        Name = p.Name,
+                        Category = p.Category,
+                        Price = p.Price,
+                        StockQuantity = moveAmount,
+                        BranchId = targetBranch.Id
+                    });
+                }
+                transferCount++;
+                totalItems += moveAmount;
+            }
+
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("STOCK_REBALANCE", $"Autonomous rebalancing complete: {totalItems} items ({transferCount} SKUs) moved from {sourceBranch.Name} to {targetBranch.Name}.");
+
+            return Json(new { success = true, skuCount = transferCount, totalItems, targetBranch = targetBranch.Name });
+        }
+
+        public class RebalanceRequest
+        {
+            public string Category { get; set; } = string.Empty;
+            public string SourceBranch { get; set; } = string.Empty;
         }
 
         public class AdjustmentRequest

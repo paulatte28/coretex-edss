@@ -1,7 +1,9 @@
 using coretex_finalproj.Models;
+using coretex_finalproj.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
@@ -25,7 +27,11 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = _userManager.GetUserId(User);
+            var user = await _context.Users
+                .Include(u => u.Branch)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
             if (user == null) return RedirectToAction("Login", "Home");
 
             ViewBag.RecentActivity = _context.ActivityLogs
@@ -45,11 +51,15 @@ namespace coretex_finalproj.Controllers
             var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
             if (result.Succeeded)
             {
-                TempData["Success"] = "Password changed successfully!";
+                // LOG TO CEO AUDIT TRAIL
+                var auditLog = (AuditLoggingService)HttpContext.RequestServices.GetRequiredService(typeof(AuditLoggingService));
+                await auditLog.LogActivityAsync("SECURITY_IDENTITY_UPDATE", $"User {user.Email} updated their personal authentication credentials.");
+                
+                TempData["Success"] = "SECURITY SYNCHRONIZED: Password updated and logged to audit trail.";
             }
             else
             {
-                TempData["Error"] = string.Join(", ", result.Errors.Select(e => e.Description));
+                TempData["Error"] = "AUTHENTICATION FAILED: " + string.Join(", ", result.Errors.Select(e => e.Description));
             }
             return RedirectToAction("Index");
         }

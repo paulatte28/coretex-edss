@@ -18,22 +18,31 @@ namespace coretex_finalproj.Services
             _geoService = geoService;
         }
 
-        public async Task LogActivityAsync(string actionType, string description)
+        public async Task LogActivityAsync(string actionType, string description, Guid? explicitBranchId = null)
         {
             var httpContext = _httpContextAccessor.HttpContext;
             var user = httpContext?.User;
             var userName = user?.Identity?.Name ?? "Anonymous";
             var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            // Try to find BranchId from claims
             Guid branchId = Guid.Empty;
-            var branchIdClaim = user?.FindFirstValue("BranchId");
-            if (!string.IsNullOrEmpty(branchIdClaim) && Guid.TryParse(branchIdClaim, out Guid bId))
+
+            // Use explicit branch ID if provided (e.g. CEO setting target for a specific branch)
+            if (explicitBranchId.HasValue && explicitBranchId.Value != Guid.Empty)
             {
-                branchId = bId;
+                branchId = explicitBranchId.Value;
+            }
+            else
+            {
+                // Auto-detect from claims
+                var branchIdClaim = user?.FindFirstValue("BranchId");
+                if (!string.IsNullOrEmpty(branchIdClaim) && Guid.TryParse(branchIdClaim, out Guid bId))
+                {
+                    branchId = bId;
+                }
             }
 
-            // Fallback: If no branch from claims (e.g. login failure or anonymous), use MAIN or first available branch
+            // Fallback for global actions
             if (branchId == Guid.Empty)
             {
                  var branch = _context.Branches.FirstOrDefault(b => b.BranchCode == "MAIN") 

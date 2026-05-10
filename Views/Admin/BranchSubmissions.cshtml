@@ -1,6 +1,11 @@
+@model IEnumerable<coretex_finalproj.Models.BranchSubmission>
 @{
     ViewData["Title"] = "Branch Submissions";
     Layout = "_AdminLayout";
+    var branches = (IEnumerable<coretex_finalproj.Models.Branch>)ViewBag.Branches;
+    var submittedCount = Model.Count();
+    var totalBranches = branches?.Count() ?? 0;
+    var pendingCount = totalBranches - submittedCount;
 }
 
 <div class="space-y-8">
@@ -11,105 +16,127 @@
                 <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </a>
-                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Submissions</span>
+                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-full">Reporting Hub</span>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Branch Submission Status</h2>
-            <p class="text-sm text-slate-500 mt-1">Monitor monthly submission status from all branches</p>
-        </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-wrap items-center gap-4">
-        <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Month/Year</label>
-            <select id="month-filter" onchange="filterByMonth()" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                <option value="">All Months</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Status</label>
-            <select id="status-filter" onchange="loadSubmissions()" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                <option value="">All Status</option>
-                <option value="submitted">✅ Submitted</option>
-                <option value="pending">⏳ Pending</option>
-                <option value="overdue">❌ Overdue</option>
-            </select>
-        </div>
-        <div class="ml-auto">
-            <button onclick="refreshSubmissions()" class="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                <span class="font-bold text-sm">Refresh</span>
-            </button>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">System-Wide Submission Audit</h2>
+            <p class="text-sm text-slate-500 mt-1">Real-time monitoring of node compliance and data integrity</p>
         </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+            <p class="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Active Nodes</p>
+            <p class="text-5xl font-black text-slate-900">@totalBranches</p>
+            <div class="mt-4 flex items-center text-xs font-bold text-slate-400">
+                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                MONITORED BRANCHES
             </div>
-            <p class="text-3xl font-black text-slate-900" id="total-branches">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Total Branches</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+            <p class="text-sm font-black text-emerald-600 uppercase tracking-widest mb-1">Submitted</p>
+            <p class="text-5xl font-black text-emerald-600">@submittedCount</p>
+            <div class="mt-4 flex items-center text-xs font-bold text-emerald-600">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                DATA RECEIVED
             </div>
-            <p class="text-3xl font-black text-emerald-600" id="submitted-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">✅ Submitted</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+            <p class="text-sm font-black text-amber-600 uppercase tracking-widest mb-1">Pending</p>
+            <p class="text-5xl font-black text-amber-600">@pendingCount</p>
+            <div class="mt-4 flex items-center text-xs font-bold text-amber-600">
+                <span class="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
+                AWAITING ACTION
             </div>
-            <p class="text-3xl font-black text-amber-600" id="pending-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">⏳ Pending</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-            </div>
-            <p class="text-3xl font-black text-red-600" id="overdue-count">0</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">❌ Overdue</p>
         </div>
     </div>
 
     <!-- Submissions Table -->
     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-6 border-b border-slate-100">
-            <h3 class="text-lg font-black text-slate-900">Submission Details</h3>
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <h3 class="text-lg font-black text-slate-900">Branch Compliance Audit</h3>
+            <span class="px-3 py-1 bg-white border border-slate-200 text-slate-500 text-[10px] font-bold rounded-full uppercase">Current Cycle</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Branch</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Finance Officer</th>
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Branch Node</th>
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Submission Date</th>
-                        <th class="px-6 py-4 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Revenue Impact</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Timestamp</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Control</th>
                     </tr>
                 </thead>
-                <tbody id="submissions-table" class="divide-y divide-slate-100">
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No branches configured yet. <a href="/Admin/BranchManagement" class="text-blue-600 hover:underline">Add branches</a> to get started.
-                        </td>
-                    </tr>
+                <tbody class="divide-y divide-slate-100">
+                    @if (branches != null)
+                    {
+                        foreach (var branch in branches)
+                        {
+                            var submission = Model.FirstOrDefault(s => s.BranchId == branch.Id);
+                            <tr class="hover:bg-slate-50 transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-slate-900">@branch.Name</p>
+                                            <p class="text-[10px] text-slate-400 uppercase font-black">ID: @branch.BranchCode</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (submission != null)
+                                    {
+                                        <span class="inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                            ✅ Finalized
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase rounded-full">
+                                            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full mr-2 animate-pulse"></span>
+                                            ⏳ Awaiting
+                                        </span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm font-bold text-slate-700">@(submission != null ? submission.SalesRevenue.ToString("C0") : "—")</p>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">
+                                    @(submission != null ? submission.SubmittedAt.ToString("MMM dd, yyyy HH:mm") : "N/A")
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    @if (submission != null)
+                                    {
+                                        <button class="px-4 py-2 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase rounded-xl hover:bg-indigo-600 hover:text-white transition-all">Audit Data</button>
+                                    }
+                                    else
+                                    {
+                                        <button onclick="openReminderModal('@branch.Id')" class="px-4 py-2 bg-amber-50 text-amber-600 text-[10px] font-black uppercase rounded-xl hover:bg-amber-600 hover:text-white transition-all">Send Alert</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
+        </div>
+    </div>
+    
+    <!-- Recent Activity Timeline -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100">
+            <h3 class="text-lg font-black text-slate-900">Recent Activity Timeline</h3>
+        </div>
+        <div class="p-6">
+            <div id="submission-timeline" class="space-y-4">
+                <p class="text-slate-400 text-sm italic">Initializing timeline...</p>
+            </div>
         </div>
     </div>
 </div>
@@ -174,316 +201,28 @@ System Administrator</textarea>
 
 @section Scripts {
     <script>
-        let currentMonthFilter = new Date().toISOString().slice(0, 7);
-
-        function initMonthFilter() {
-            const select = document.getElementById('month-filter');
-            const now = new Date();
-            
-            for (let i = 0; i < 12; i++) {
-                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                const value = date.toISOString().slice(0, 7);
-                const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                const option = document.createElement('option');
-                option.value = value;
-                option.textContent = label;
-                if (i === 0) option.selected = true;
-                select.appendChild(option);
-            }
-        }
-
-        function filterByMonth() {
-            currentMonthFilter = document.getElementById('month-filter').value;
-            loadSubmissions();
-        }
-
-        function isOverdue(month) {
-            const now = new Date();
-            const currentMonth = now.toISOString().slice(0, 7);
-            const day = now.getDate();
-            
-            // Overdue if it's past the 5th of the current month and not submitted
-            // or if it's a previous month entirely
-            if (month < currentMonth) return true;
-            if (month === currentMonth && day > 5) return true;
-            return false;
-        }
-
-        function loadSubmissions() {
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-            const submissions = JSON.parse(localStorage.getItem('coretex_submissions') || '[]');
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            const statusFilter = document.getElementById('status-filter').value;
-
-            document.getElementById('total-branches').textContent = branches.length;
-            
-            const monthSubmissions = submissions.filter(s => 
-                !currentMonthFilter || s.month === currentMonthFilter
-            );
-            
-            const submittedBranches = new Set(monthSubmissions.map(s => s.branchId));
-            
-            let submittedCount = 0;
-            let pendingCount = 0;
-            let overdueCount = 0;
-            
-            branches.forEach(branch => {
-                if (submittedBranches.has(branch.id)) {
-                    submittedCount++;
-                } else if (isOverdue(currentMonthFilter || new Date().toISOString().slice(0, 7))) {
-                    overdueCount++;
-                } else {
-                    pendingCount++;
-                }
-            });
-
-            document.getElementById('submitted-count').textContent = submittedCount;
-            document.getElementById('pending-count').textContent = pendingCount;
-            document.getElementById('overdue-count').textContent = overdueCount;
-
-            const tbody = document.getElementById('submissions-table');
-            
-            if (branches.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No branches configured yet. <a href="/Admin/BranchManagement" class="text-blue-600 hover:underline">Add branches</a> to get started.
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            let filteredBranches = branches.map(branch => {
-                const submission = monthSubmissions.find(s => s.branchId === branch.id);
-                let status = 'pending';
-                if (submission) {
-                    status = 'submitted';
-                } else if (isOverdue(currentMonthFilter || new Date().toISOString().slice(0, 7))) {
-                    status = 'overdue';
-                }
-                return { ...branch, submission, status };
-            });
-
-            if (statusFilter) {
-                filteredBranches = filteredBranches.filter(b => b.status === statusFilter);
-            }
-
-            if (filteredBranches.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No branches match the selected filter.
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filteredBranches.map(branch => {
-                const financeOfficer = users.find(u => u.branchId === branch.id && u.role === 'Finance Officer');
-                
-                const statusBadge = {
-                    'submitted': '<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-full">✅ Submitted</span>',
-                    'pending': '<span class="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase rounded-full">⏳ Pending</span>',
-                    'overdue': '<span class="px-3 py-1 bg-red-100 text-red-700 text-[10px] font-black uppercase rounded-full">❌ Overdue</span>'
-                };
-                
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                </div>
-                                <span class="font-bold text-slate-900">${branch.name}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600">${financeOfficer ? financeOfficer.name : '<span class="text-slate-400 italic">Not assigned</span>'}</td>
-                        <td class="px-6 py-4">${statusBadge[branch.status]}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600">${branch.submission ? formatDate(branch.submission.submittedAt) : '—'}</td>
-                        <td class="px-6 py-4 text-center">
-                            ${branch.submission 
-                                ? `<button onclick="viewSubmission('${branch.submission.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors">View Details</button>`
-                                : `<button onclick="openReminderModal('${branch.id}')" class="px-3 py-1.5 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg hover:bg-amber-100 transition-colors">Send Reminder</button>`
-                            }
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
         function openReminderModal(branchId) {
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            const branch = branches.find(b => b.id === branchId);
-            const fo = users.find(u => u.branchId === branchId && u.role === 'Finance Officer');
-            
             document.getElementById('reminder-branch-id').value = branchId;
-            document.getElementById('reminder-fo-name').textContent = fo ? `${fo.name} (${branch?.name})` : branch?.name || 'Finance Officer';
-            document.getElementById('reminder-email').value = fo?.email || 'No email assigned';
-            
-            document.getElementById('reminder-modal').classList.remove('hidden');
-            document.getElementById('reminder-modal').classList.add('flex');
+            document.getElementById('reminder-modal').classList.replace('hidden', 'flex');
         }
 
         function closeReminderModal() {
-            document.getElementById('reminder-modal').classList.add('hidden');
-            document.getElementById('reminder-modal').classList.remove('flex');
+            document.getElementById('reminder-modal').classList.replace('flex', 'hidden');
         }
 
         function confirmSendReminder() {
-            const branchId = document.getElementById('reminder-branch-id').value;
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-            const branch = branches.find(b => b.id === branchId);
-            
-            // Log activity
-            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            activities.unshift({
-                id: Date.now(),
-                action: 'Reminder Sent',
-                description: `Submission reminder sent to ${branch?.name}`,
-                type: 'branch',
-                timestamp: new Date().toISOString(),
-                user: 'System Administrator'
-            });
-            localStorage.setItem('coretex_activities', JSON.stringify(activities.slice(0, 100)));
-            
+            // In a real system, this would call an API to send an email
+            showToast('Strategic Alert sent to Branch Manager.');
             closeReminderModal();
-            showToast('Reminder sent successfully!');
         }
 
-        function viewSubmission(id) {
-            const submissions = JSON.parse(localStorage.getItem('coretex_submissions') || '[]');
-            const submission = submissions.find(s => s.id === id);
-            if (submission) {
-                alert(`Submission Details:\n\nTotal Sales: ${formatCurrency(submission.totalSales)}\nTotal Expenses: ${formatCurrency(submission.totalExpenses)}\nProfit: ${formatCurrency(submission.totalSales - submission.totalExpenses)}\nSubmitted: ${formatDate(submission.submittedAt)}`);
-            }
-        }
-
-        function refreshSubmissions() {
-            loadSubmissions();
-            showToast('Data refreshed!');
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            toast.classList.remove('hidden');
-            toast.classList.add('flex');
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            t.classList.replace('hidden', 'flex');
             setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('flex');
+                t.classList.replace('flex', 'hidden');
             }, 3000);
         }
-
-        function formatCurrency(amount) {
-            return '₱' + Number(amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
-        }
-
-        function formatDate(dateStr) {
-            return new Date(dateStr).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initMonthFilter();
-            loadSubmissions();
-        });
-    </script>
-}
-                `;
-            }).join('');
-
-            // Render timeline
-            renderTimeline(monthSubmissions);
-        }
-
-        function renderTimeline(submissions) {
-            const container = document.getElementById('submission-timeline');
-            
-            if (submissions.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-sm italic">No submission activity for this period.</p>';
-                return;
-            }
-
-            const sorted = [...submissions].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-
-            container.innerHTML = sorted.slice(0, 10).map(sub => {
-                const branch = branches.find(b => b.id === sub.branchId);
-                return `
-                    <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-xl">
-                        <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-bold text-sm text-slate-900">${branch ? branch.name : 'Unknown Branch'} submitted monthly data</p>
-                            <p class="text-xs text-slate-500 mt-1">Sales: ${formatCurrency(sub.totalSales)} • Expenses: ${formatCurrency(sub.totalExpenses)}</p>
-                        </div>
-                        <p class="text-xs text-slate-400">${formatTimeAgo(sub.submittedAt)}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function viewSubmission(id) {
-            const submissions = JSON.parse(localStorage.getItem('coretex_submissions') || '[]');
-            const submission = submissions.find(s => s.id === id);
-            if (submission) {
-                alert(`Submission Details:\n\nTotal Sales: ${formatCurrency(submission.totalSales)}\nTotal Expenses: ${formatCurrency(submission.totalExpenses)}\nProfit: ${formatCurrency(submission.totalSales - submission.totalExpenses)}\nSubmitted: ${formatDate(submission.submittedAt)}`);
-            }
-        }
-
-        function sendReminder(branchId) {
-            const branches = JSON.parse(localStorage.getItem('coretex_branches') || '[]');
-            const branch = branches.find(b => b.id === branchId);
-            if (branch) {
-                alert(`Reminder sent to Finance Officer at ${branch.name}.\n\n(In production, this would send an email via SendGrid)`);
-                if (window.logActivity) {
-                    window.logActivity('Reminder Sent', `Submission reminder sent to ${branch.name}`, 'branch');
-                }
-            }
-        }
-
-        function refreshSubmissions() {
-            loadSubmissions();
-        }
-
-        function formatCurrency(amount) {
-            return '₱' + Number(amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
-        }
-
-        function formatDate(dateStr) {
-            return new Date(dateStr).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        function formatTimeAgo(timestamp) {
-            const now = new Date();
-            const then = new Date(timestamp);
-            const diffMs = now - then;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins}m ago`;
-            if (diffHours < 24) return `${diffHours}h ago`;
-            return `${diffDays}d ago`;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initMonthFilter();
-            loadSubmissions();
-        });
     </script>
 }

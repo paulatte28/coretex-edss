@@ -46,8 +46,21 @@ namespace coretex_finalproj.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
-            var sales = await _context.Sales.Where(s => s.Date >= DateTime.Today).ToListAsync();
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            var branchId = user?.BranchId;
+
+            var productQuery = _context.Products.AsQueryable();
+            var salesQuery = _context.Sales.Where(s => s.Date >= DateTime.Today).AsQueryable();
+
+            if (branchId != null && !User.IsInRole("ADMIN"))
+            {
+                productQuery = productQuery.Where(p => p.BranchId == branchId);
+                salesQuery = salesQuery.Where(s => s.BranchId == branchId);
+            }
+
+            ViewBag.Products = await productQuery.OrderBy(p => p.Name).ToListAsync();
+            var sales = await salesQuery.ToListAsync();
             return View(sales);
         }
 
@@ -71,7 +84,7 @@ namespace coretex_finalproj.Controllers
             {
                 _context.Sales.Add(sale);
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}");
+                await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}", user.BranchId);
                 return Json(new { success = true, orderId = sale.OrderId, amount = sale.Amount });
             }
 
@@ -86,8 +99,9 @@ namespace coretex_finalproj.Controllers
             if (sale != null)
             {
                 sale.IsArchived = true;
+                _context.Sales.Update(sale);
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("SALE_ARCHIVE", $"Archived sale {sale.OrderId}");
+                await _auditLog.LogActivityAsync("SALE_ARCHIVE", $"Archived sale {sale.OrderId}", sale.BranchId);
             }
             return RedirectToAction(nameof(Pos));
         }
@@ -99,7 +113,16 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> Transactions(string search)
         {
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+
             var query = _context.Sales.Include(s => s.Branch).AsQueryable();
+
+            // SECURITY ISOLATION: Branch staff can only see their own branch transactions
+            if (user?.BranchId != null && !User.IsInRole("ADMIN"))
+            {
+                query = query.Where(s => s.BranchId == user.BranchId);
+            }
 
             if (!string.IsNullOrEmpty(search))
             {

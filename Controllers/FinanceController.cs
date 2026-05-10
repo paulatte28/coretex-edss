@@ -28,7 +28,18 @@ namespace coretex_finalproj.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
-            var expenses = await _context.Expenses.Include(e => e.Branch).OrderByDescending(e => e.Date).Take(10).ToListAsync();
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            
+            var query = _context.Expenses.Include(e => e.Branch).AsQueryable();
+            
+            // SECURITY ISOLATION: Only show branch-specific data unless Global Admin
+            if (user?.BranchId != null && !User.IsInRole("ADMIN"))
+            {
+                query = query.Where(e => e.BranchId == user.BranchId);
+            }
+
+            var expenses = await query.OrderByDescending(e => e.Date).Take(10).ToListAsync();
             return View(expenses);
         }
 
@@ -75,7 +86,7 @@ namespace coretex_finalproj.Controllers
 
                 _context.Expenses.Add(expense);
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("EXPENSE_CREATE", $"Created expense: {expense.Description} for {expense.Amount:C} PHP");
+                await _auditLog.LogActivityAsync("EXPENSE_CREATE", $"Created expense: {expense.Description} for {expense.Amount:C} PHP", user.BranchId);
                 return Json(new { success = true, id = expense.Id, amount = expense.Amount });
             }
             return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });

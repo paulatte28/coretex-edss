@@ -31,10 +31,10 @@ namespace coretex_finalproj.Services
             var realSales = await salesQuery.SumAsync(s => s.Amount);
             var realExpenses = await expensesQuery.SumAsync(e => e.Amount);
             
-            // SIMULATED BASE: We add a baseline so the CEO dashboard always looks "Established"
-            // This represents the 5 months of historical operations before today.
-            decimal baseSales = 2850000m; 
-            decimal baseExpenses = 1620000m;
+            // SIMULATED BASE: Only add baseline for Global View (null branchId)
+            // For specific branches, we use 100% Real, LIVE data.
+            decimal baseSales = branchId.HasValue ? 0 : 2850000m; 
+            decimal baseExpenses = branchId.HasValue ? 0 : 1620000m;
 
             var totalSales = baseSales + realSales;
             var totalExpenses = baseExpenses + realExpenses;

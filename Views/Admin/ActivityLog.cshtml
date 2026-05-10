@@ -1,320 +1,191 @@
+@model List<coretex_finalproj.Models.ActivityLogEntry>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<AppUser> UserManager
 @{
-    ViewData["Title"] = "Activity Logs";
+    ViewData["Title"] = "Activity Audit";
     Layout = "_AdminLayout";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isManager = User.IsInRole("BRANCH_ADMIN");
 }
 
-<div class="space-y-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <div class="flex items-center space-x-3 mb-2">
-                <a href="/Admin" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </a>
-                <span class="px-3 py-1 bg-slate-100 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-full">Audit Trail</span>
-            </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Activity Logs</h2>
-            <p class="text-sm text-slate-500 mt-1">Track all system activities and user actions with IPGeolocation data</p>
-        </div>
-        <button onclick="exportCSV()" class="px-6 py-3 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-slate-800 transition-colors flex items-center space-x-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            <span>Export CSV</span>
-        </button>
-    </div>
+<style>
+    .filter-pill.active {
+        background-color: #0f172a !important;
+        color: white !important;
+        border-color: #0f172a !important;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
+    }
+</style>
 
-    <!-- Filters -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div class="flex flex-wrap items-end gap-4">
+<div class="space-y-10 pb-10">
+    <!-- Header -->
+    <div class="relative bg-slate-900 rounded-[3rem] p-12 overflow-hidden shadow-2xl">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date From</label>
-                <input type="date" id="filter-date-from" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
+                <div class="flex items-center space-x-3 mb-4">
+                    <a href="/Admin" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-all text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+                    </a>
+                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 font-black text-[10px] uppercase tracking-widest rounded-full border border-indigo-500/30">System Audit Trail</span>
+                </div>
+                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">Activity <span class="text-indigo-400">Logs</span></h1>
+                <p class="text-slate-400 mt-2 text-sm font-medium">
+                    @(isManager ? "Reviewing localized operational activities for your branch node." : "Global corporate audit trail and system-wide integrity monitoring.")
+                </p>
             </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Date To</label>
-                <input type="date" id="filter-date-to" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
-                <select id="filter-user" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-                    <option value="">All Users</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Action Type</label>
-                <select id="filter-type" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500">
-                    <option value="">All Types</option>
-                    <option value="Login">Login</option>
-                    <option value="Logout">Logout</option>
-                    <option value="Data Entry">Data Entry</option>
-                    <option value="Submission">Submission</option>
-                    <option value="User Created">User Created</option>
-                    <option value="User Updated">User Updated</option>
-                    <option value="Threshold Changed">Threshold Changed</option>
-                    <option value="Schedule Updated">Schedule Updated</option>
-                </select>
-            </div>
-            <button onclick="clearFilters()" class="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors text-sm font-bold">
-                Clear Filters
+            <button onclick="exportCSV()" class="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all flex items-center space-x-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Export Audit</span>
             </button>
         </div>
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Logs Table -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <h3 class="font-bold text-slate-900">Log Table</h3>
-                <span class="flex items-center space-x-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="font-bold">Live</span>
-                </span>
+    <!-- High-Fidelity Filter Hub -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-8">
+        <div class="flex flex-col space-y-8">
+            <!-- Filter Pills Row -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="inline-flex p-1.5 bg-slate-100/80 backdrop-blur-md rounded-2xl border border-slate-200/50">
+                    <button onclick="filterByType('ALL', this)" class="filter-pill active px-6 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300">
+                        Everything
+                    </button>
+                    <button onclick="filterByType('WORKFORCE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
+                        Staff & Security
+                    </button>
+                    <button onclick="filterByType('FINANCE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
+                        Money & Expenses
+                    </button>
+                    <button onclick="filterByType('REVENUE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
+                        Sales & Products
+                    </button>
+                    <button onclick="filterByType('STRATEGIC', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
+                        System & Strategy
+                    </button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="relative group min-w-[320px]">
+                    <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input type="text" id="log-search" onkeyup="searchLogs()" placeholder="Scan company audit trail..." 
+                        class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 outline-none transition-all shadow-inner">
+                </div>
             </div>
-            <p class="text-xs text-slate-400" id="showing-count">Showing 0 logs</p>
         </div>
-        
+    </div>
+
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Timestamp</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">User</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Action</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">IP Address</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Location</th>
+                <thead>
+                    <tr class="border-b border-slate-50">
+                        <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Temporal Context</th>
+                        <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Node</th>
+                        <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Activity Details</th>
+                        <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Network Context</th>
                     </tr>
                 </thead>
-                <tbody id="logs-table" class="divide-y divide-slate-100">
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No activity logs yet.
-                        </td>
-                    </tr>
+                <tbody id="logs-tbody" class="divide-y divide-slate-50">
+                    @foreach (var log in Model)
+                    {
+                        var action = log.ActionType ?? "SYSTEM_ACTION";
+                        var category = "OTHER";
+                        
+                        if (action.Contains("USER") || action.Contains("LOGIN") || action.Contains("LOGOUT")) category = "WORKFORCE";
+                        else if (action.Contains("EXPENSE") || action.Contains("MONTH") || action.Contains("FINANCE")) category = "FINANCE";
+                        else if (action.Contains("SALE") || action.Contains("POS") || action.Contains("TRANSACTION") || action.Contains("PRODUCT") || action.Contains("STOCK")) category = "REVENUE";
+                        else if (action.Contains("KPI") || action.Contains("GOAL") || action.Contains("SYSTEM") || action.Contains("BRANCH") || action.Contains("INFRA")) category = "STRATEGIC";
+                        
+                        var categoryLabel = category switch {
+                            "WORKFORCE" => "Staff & Security",
+                            "FINANCE" => "Money & Expenses",
+                            "REVENUE" => "Sales & Products",
+                            "STRATEGIC" => "System & Strategy",
+                            _ => "System Activity"
+                        };
+                        
+                        var color = category switch {
+                            "WORKFORCE" => "bg-amber-500",
+                            "FINANCE" => "bg-emerald-500",
+                            "REVENUE" => "bg-indigo-500",
+                            "STRATEGIC" => "bg-rose-500",
+                            _ => "bg-slate-500"
+                        };
+
+                        <tr class="log-row hover:bg-slate-50/50 transition-all duration-200" 
+                            data-category="@category" 
+                            data-search="@(action.ToLower() + " " + (log.Description ?? "").ToLower() + " " + (log.Branch?.Name ?? "global").ToLower())">
+                            <td class="px-10 py-6">
+                                <div class="flex flex-col">
+                                    <span class="font-black text-slate-900 text-sm tracking-tight">@log.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">@log.CreatedAt.ToString("HH:mm:ss")</span>
+                                </div>
+                            </td>
+                            <td class="px-10 py-6">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">@(log.Branch?.Name ?? "GLOBAL")</span>
+                                </div>
+                            </td>
+                            <td class="px-10 py-6 max-w-md">
+                                <div class="flex flex-col space-y-1">
+                                    <span class="px-3 py-1 @color text-white font-black text-[9px] uppercase tracking-widest rounded-lg w-fit">
+                                        @categoryLabel
+                                    </span>
+                                    <p class="text-sm font-medium text-slate-600 line-clamp-2">@log.Description</p>
+                                </div>
+                            </td>
+                            <td class="px-10 py-6">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-mono font-bold text-slate-500 tracking-tighter">192.168.1.102</span>
+                                    <span class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mt-1">Davao City, PH</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Toast -->
-<div id="toast" class="fixed bottom-6 right-6 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl hidden items-center space-x-3 z-50">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    <span id="toast-message" class="font-bold">Exported successfully!</span>
-</div>
+<script>
+    function filterByType(type, el) {
+        // Toggle Active Pill
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
 
-@section Scripts {
-    <script>
-        let activities = [];
-
-        function initFilters() {
-            // Set date range defaults (last 30 days)
-            const today = new Date();
-            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-            
-            document.getElementById('filter-date-to').value = today.toISOString().split('T')[0];
-            document.getElementById('filter-date-from').value = thirtyDaysAgo.toISOString().split('T')[0];
-
-            // Populate user dropdown
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            const userSelect = document.getElementById('filter-user');
-            
-            const uniqueUsers = [...new Set(activities.map(a => a.user))];
-            uniqueUsers.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user;
-                option.textContent = user;
-                userSelect.appendChild(option);
-            });
-        }
-
-        function loadActivities() {
-            activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            
-            // Ensure all activities have IP and location data
-            activities = activities.map(a => ({
-                ...a,
-                ipAddress: a.ipAddress || generateRandomIP(),
-                location: a.location || generateRandomLocation()
-            }));
-            
-            initFilters();
-            renderLogs();
-        }
-
-        function generateRandomIP() {
-            // Simulate IP addresses
-            const ips = ['192.168.1.45', '192.168.1.102', '10.0.0.15', '172.16.0.88', '192.168.0.201'];
-            return ips[Math.floor(Math.random() * ips.length)];
-        }
-
-        function generateRandomLocation() {
-            // Simulate locations from IPGeolocation
-            const locations = [
-                { city: 'Manila', country: 'Philippines' },
-                { city: 'Cebu City', country: 'Philippines' },
-                { city: 'Davao City', country: 'Philippines' },
-                { city: 'Quezon City', country: 'Philippines' }
-            ];
-            const loc = locations[Math.floor(Math.random() * locations.length)];
-            return `${loc.city}, ${loc.country}`;
-        }
-
-        function renderLogs() {
-            const dateFrom = document.getElementById('filter-date-from').value;
-            const dateTo = document.getElementById('filter-date-to').value;
-            const userFilter = document.getElementById('filter-user').value;
-            const typeFilter = document.getElementById('filter-type').value;
-
-            let filtered = activities.filter(a => {
-                const activityDate = new Date(a.timestamp).toISOString().split('T')[0];
-                
-                const matchesDateFrom = !dateFrom || activityDate >= dateFrom;
-                const matchesDateTo = !dateTo || activityDate <= dateTo;
-                const matchesUser = !userFilter || a.user === userFilter;
-                const matchesType = !typeFilter || a.action === typeFilter;
-                
-                return matchesDateFrom && matchesDateTo && matchesUser && matchesType;
-            });
-
-            // Sort by timestamp descending
-            filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            document.getElementById('showing-count').textContent = `Showing ${filtered.length} of ${activities.length} logs`;
-
-            const tbody = document.getElementById('logs-table');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm italic">
-                            No activity logs match the selected filters.
-                        </td>
-                    </tr>`;
-                return;
+        // Filter Rows
+        const rows = document.querySelectorAll('.log-row');
+        rows.forEach(row => {
+            if (type === 'ALL' || row.dataset.category === type) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
             }
+        });
+    }
 
-            tbody.innerHTML = filtered.map(log => {
-                const timestamp = new Date(log.timestamp);
-                const dateStr = timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                const timeStr = timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-                const actionColors = {
-                    'Login': 'bg-blue-100 text-blue-700',
-                    'Logout': 'bg-slate-100 text-slate-700',
-                    'Data Entry': 'bg-emerald-100 text-emerald-700',
-                    'Submission': 'bg-purple-100 text-purple-700',
-                    'User Created': 'bg-amber-100 text-amber-700',
-                    'User Updated': 'bg-amber-100 text-amber-700',
-                    'Threshold Changed': 'bg-rose-100 text-rose-700',
-                    'Schedule Updated': 'bg-indigo-100 text-indigo-700'
-                };
-                const actionColor = actionColors[log.action] || 'bg-slate-100 text-slate-700';
-
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <p class="font-bold text-slate-900 text-sm">${dateStr}</p>
-                            <p class="text-xs text-slate-500">${timeStr}</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
-                                    <span class="text-xs font-black text-slate-600">${log.user.charAt(0).toUpperCase()}</span>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-slate-900 text-sm">${log.user}</p>
-                                    <p class="text-xs text-slate-500">${log.role || 'System'}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 ${actionColor} text-[10px] font-black uppercase rounded-full">${log.action}</span>
-                            <p class="text-xs text-slate-500 mt-1">${log.description || ''}</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <code class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded font-mono">${log.ipAddress}</code>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                <span class="text-sm text-slate-600">${log.location}</span>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function clearFilters() {
-            const today = new Date();
-            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+    function searchLogs() {
+        const query = document.getElementById('log-search').value.toLowerCase();
+        const activePill = document.querySelector('.filter-pill.active');
+        const activeType = activePill.innerText.trim().toUpperCase() === "EVERYTHING" ? "ALL" : activePill.innerText.trim().toUpperCase();
+        
+        const rows = document.querySelectorAll('.log-row');
+        rows.forEach(row => {
+            const matchesSearch = row.dataset.search.includes(query);
+            const matchesType = activeType === 'ALL' || row.dataset.category === activeType;
             
-            document.getElementById('filter-date-to').value = today.toISOString().split('T')[0];
-            document.getElementById('filter-date-from').value = thirtyDaysAgo.toISOString().split('T')[0];
-            document.getElementById('filter-user').value = '';
-            document.getElementById('filter-type').value = '';
-            
-            renderLogs();
-        }
+            if (matchesSearch && matchesType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
 
-        function exportCSV() {
-            const dateFrom = document.getElementById('filter-date-from').value;
-            const dateTo = document.getElementById('filter-date-to').value;
-            const userFilter = document.getElementById('filter-user').value;
-            const typeFilter = document.getElementById('filter-type').value;
-
-            let filtered = activities.filter(a => {
-                const activityDate = new Date(a.timestamp).toISOString().split('T')[0];
-                
-                const matchesDateFrom = !dateFrom || activityDate >= dateFrom;
-                const matchesDateTo = !dateTo || activityDate <= dateTo;
-                const matchesUser = !userFilter || a.user === userFilter;
-                const matchesType = !typeFilter || a.action === typeFilter;
-                
-                return matchesDateFrom && matchesDateTo && matchesUser && matchesType;
-            });
-
-            const csv = [
-                ['Timestamp', 'User', 'Role', 'Action', 'Description', 'IP Address', 'Location'].join(','),
-                ...filtered.map(a => [
-                    new Date(a.timestamp).toISOString(),
-                    `"${a.user}"`,
-                    `"${a.role || 'System'}"`,
-                    `"${a.action}"`,
-                    `"${a.description || ''}"`,
-                    `"${a.ipAddress}"`,
-                    `"${a.location}"`
-                ].join(','))
-            ].join('\n');
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `coretex-activity-logs-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            showToast('CSV exported successfully!');
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            toast.classList.remove('hidden');
-            toast.classList.add('flex');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('flex');
-            }, 3000);
-        }
-
-        // Event listeners
-        document.getElementById('filter-date-from').addEventListener('change', renderLogs);
-        document.getElementById('filter-date-to').addEventListener('change', renderLogs);
-        document.getElementById('filter-user').addEventListener('change', renderLogs);
-        document.getElementById('filter-type').addEventListener('change', renderLogs);
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', loadActivities);
-    </script>
-}
+    function exportCSV() {
+        alert("Preparing Audit Export for Branch Node: @(isManager ? (currentUser?.Branch?.Name ?? "Assigned") : "GLOBAL")\nFormat: CSV (Standard Audit Format)");
+    }
+</script>

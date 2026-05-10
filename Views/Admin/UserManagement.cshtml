@@ -17,6 +17,11 @@
     var foCount = displayUsers.Count(u => u.Role == "FINANCE");
     var cashierCount = displayUsers.Count(u => u.Role == "CASHIER");
     var activeStaff = displayUsers.Count(u => u.IsActive);
+
+    // Manager-Specific Operational Logic
+    var hasFinance = foCount > 0;
+    var isOperational = hasFinance && displayUsers.Any(u => u.Role == "BRANCH_ADMIN");
+    var securityRisk = displayUsers.Any(u => !u.EmailConfirmed || !u.TwoFactorEnabled);
 }
 
 <div class="space-y-10 pb-10">
@@ -47,75 +52,50 @@
         <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Enhanced Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="group bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                </div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Pool</span>
-            </div>
-            <p class="text-4xl font-black text-slate-900">@totalStaff</p>
-            <p class="text-xs text-slate-400 font-bold mt-1 uppercase">Total Personnel</p>
-        </div>
-
-        <div class="group bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                </div>
-                <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Finance Ops</span>
-            </div>
-            <p class="text-4xl font-black text-slate-900">@foCount</p>
-            <p class="text-xs text-slate-400 font-bold mt-1 uppercase">Officers Assigned</p>
-        </div>
-
-        <div class="group bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                </div>
-                <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Terminal Ops</span>
-            </div>
-            <p class="text-4xl font-black text-slate-900">@cashierCount</p>
-            <p class="text-xs text-slate-400 font-bold mt-1 uppercase">Active Cashiers</p>
-        </div>
-
-        <div class="group bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                </div>
-                <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Compliance</span>
-            </div>
-            <p class="text-4xl font-black text-slate-900">@activeStaff</p>
-            <p class="text-xs text-slate-400 font-bold mt-1 uppercase">Online Status</p>
-        </div>
-    </div>
-
-    <!-- Redesigned Staff Table -->
+    <!-- Sleek Minimalist Header & Filters -->
     <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-        <div class="p-10 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-            <div>
-                <h3 class="text-xl font-black text-slate-900 tracking-tight">Deployment Roster</h3>
-                <p class="text-xs text-slate-400 font-bold uppercase mt-1 tracking-widest">Current Active Personnel</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                @if (!isManager) {
+        <div class="p-10 border-b border-slate-50 bg-slate-50/30">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Deployment Roster</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase mt-1 tracking-widest">Active Personnel Directory</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Quick Filter Pills -->
+                    <button onclick="filterByRole('')" class="filter-pill active px-5 py-2.5 bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all border border-slate-200/50">
+                        @(isManager ? "Entire Team" : "All Personnel")
+                    </button>
+                    @if (!isManager)
+                    {
+                        <button onclick="filterByRole('BRANCH_ADMIN')" class="filter-pill px-5 py-2.5 bg-white text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-amber-50 hover:text-amber-600 transition-all border border-slate-200">
+                            Managers
+                        </button>
+                    }
+                    <button onclick="filterByRole('FINANCE')" class="filter-pill px-5 py-2.5 bg-white text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-200">
+                        @(isManager ? "Finance Specialist" : "Finance Ops")
+                    </button>
+                    <button onclick="filterByRole('CASHIER')" class="filter-pill px-5 py-2.5 bg-white text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-200">
+                        @(isManager ? "Terminal Staff" : "Cashiers")
+                    </button>
+                    
+                    <div class="h-8 w-[1px] bg-slate-200 mx-2 hidden lg:block"></div>
+
+                    @if (!isManager) {
+                        <div class="relative group">
+                            <select id="branch-filter" onchange="filterUsers()" class="pl-5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black uppercase tracking-wider focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none min-w-[180px]">
+                                <option value="">Global (All Nodes)</option>
+                                @foreach (var branch in branches) {
+                                    <option value="@branch.Id" data-name="@branch.Name">@branch.Name</option>
+                                }
+                            </select>
+                            <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    }
                     <div class="relative group">
-                        <select id="branch-filter" onchange="filterUsers()" class="pl-6 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium appearance-none min-w-[200px]">
-                            <option value="">All Branches (Global)</option>
-                            @foreach (var branch in branches) {
-                                <option value="@branch.Id">@branch.Name</option>
-                            }
-                        </select>
-                        <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" id="search-input" onkeyup="filterUsers()" placeholder="Search..." class="pl-11 pr-6 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-48 font-medium">
                     </div>
-                }
-                <div class="relative group">
-                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <input type="text" id="search-input" onkeyup="filterUsers()" placeholder="Search directory..." class="pl-11 pr-6 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-80 font-medium">
                 </div>
             </div>
         </div>
@@ -134,8 +114,9 @@
                     @foreach (var user in displayUsers)
                     {
                         <tr class="user-row hover:bg-slate-50/50 transition-all duration-200" 
-                            data-name="@user.FullName.ToLower()" 
-                            data-email="@user.Email.ToLower()"
+                            data-name="@(user.FullName?.ToLower() ?? "")" 
+                            data-email="@(user.Email?.ToLower() ?? "")"
+                            data-role="@(user.Role ?? "")"
                             data-branch="@(user.BranchId?.ToString() ?? "")">
                             <td class="px-10 py-6">
                                 <div class="flex items-center space-x-4">
@@ -150,17 +131,26 @@
                             </td>
                             <td class="px-10 py-6">
                                 @{
+                                    var isLead = user.Role == "BRANCH_ADMIN";
                                     var roleColor = user.Role switch {
                                         "ADMIN" => "bg-rose-500",
                                         "CEO" => "bg-indigo-600",
-                                        "BRANCH_ADMIN" => "bg-purple-500",
+                                        "BRANCH_ADMIN" => "bg-amber-500 ring-4 ring-amber-500/20",
                                         "FINANCE" => "bg-emerald-500",
-                                        _ => "bg-slate-500"
+                                        "CASHIER" => "bg-slate-500",
+                                        _ => "bg-slate-400"
                                     };
                                 }
-                                <span class="px-3 py-1.5 @roleColor text-white font-black text-[9px] uppercase tracking-[0.15em] rounded-lg shadow-sm">
-                                    @user.Role.Replace("_", " ")
-                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-3 py-1.5 @roleColor text-white font-black text-[9px] uppercase tracking-[0.15em] rounded-lg shadow-sm min-w-[80px] text-center">
+                                        @(string.IsNullOrEmpty(user.Role) ? "USER" : user.Role.Replace("_", " "))
+                                    </span>
+                                    @if (isLead) {
+                                        <div class="p-1 bg-amber-100 text-amber-600 rounded-md" title="Branch Lead">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        </div>
+                                    }
+                                </div>
                             </td>
                             <td class="px-10 py-6">
                                 <div class="flex items-center space-x-2">
@@ -176,7 +166,7 @@
                             </td>
                             <td class="px-10 py-6">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="openEditModal('@user.Id', '@user.FullName', '@user.Role')" class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                                    <button onclick="openEditModal('@user.Id', '@user.FullName', '@user.Role', '@user.IsActive')" class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </button>
                                     <button onclick="openDeleteModal('@user.Id', '@user.FullName')" class="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
@@ -192,150 +182,190 @@
     </div>
 </div>
 
-<!-- Create User Modal -->
-<div id="user-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in duration-300">
-        <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <h3 class="text-2xl font-black text-slate-900">Provision User</h3>
-            <button onclick="closeModal('user-modal')" class="text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <form action="/Admin/CreateUser" method="post" class="p-8 space-y-6">
-            @Html.AntiForgeryToken()
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
-                <input type="text" name="fullName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all" placeholder="Enter name">
+@section Modals {
+    <!-- Create User Modal -->
+    <div id="user-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[9999] hidden items-center justify-center animate-in fade-in duration-300">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in duration-300">
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-2xl font-black text-slate-900">Provision User</h3>
+                <button onclick="closeModal('user-modal')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
-                <input type="email" name="email" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all" placeholder="user@@coretex.com">
-            </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Security Role</label>
-                <select name="role" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all appearance-none">
-                    @if (isManager) {
-                        <option value="FINANCE">Finance Officer</option>
-                        <option value="CASHIER">Branch Cashier</option>
-                    } else {
-                        <option value="CEO">CEO / Owner</option>
-                        <option value="BRANCH_ADMIN">Branch Manager</option>
-                        <option value="FINANCE">Finance Officer</option>
-                        <option value="CASHIER">Branch Cashier</option>
-                    }
-                </select>
-            </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Assigned Node (Branch)</label>
-                @if (isManager) {
-                    <input type="hidden" name="branchId" value="@(branches.FirstOrDefault()?.Id)" />
-                    <div class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-bold text-sm">
-                        @(branches.FirstOrDefault()?.Name ?? "Main Branch")
-                    </div>
-                    <p class="text-[10px] text-amber-600 font-bold mt-2 uppercase tracking-tight">Locked to your operational branch</p>
-                } else {
-                    <select name="branchId" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all appearance-none">
-                        <option value="">Global Access (No Branch)</option>
-                        @foreach (var branch in branches) {
-                            <option value="@branch.Id">@branch.Name</option>
+            <form action="/Admin/CreateUser" method="post" class="p-8 space-y-6">
+                @Html.AntiForgeryToken()
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+                    <input type="text" name="fullName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all" placeholder="Enter name">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Security Role</label>
+                    <select name="role" id="create-role" onchange="suggestCredentials()" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all appearance-none">
+                        @if (isManager) {
+                            <option value="FINANCE">Finance Officer</option>
+                            <option value="CASHIER">Branch Cashier</option>
+                        } else {
+                            <option value="CEO">CEO / Owner</option>
+                            <option value="BRANCH_ADMIN">Branch Manager</option>
+                            <option value="FINANCE">Finance Officer</option>
+                            <option value="CASHIER">Branch Cashier</option>
                         }
                     </select>
-                }
-            </div>
-            <div class="pt-4 flex space-x-3">
-                <button type="submit" class="flex-1 px-6 py-4 bg-secondary text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-500/20">
-                    Deploy User
-                </button>
-                <button type="button" onclick="closeModal('user-modal')" class="px-6 py-4 bg-slate-100 text-slate-500 font-black text-sm uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Edit User Modal -->
-<div id="edit-user-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <h3 class="text-2xl font-black text-slate-900">Modify Personnel</h3>
-            <button onclick="closeModal('edit-user-modal')" class="text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <form action="/Admin/UpdateUser" method="post" class="p-8 space-y-6">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="userId" id="edit-user-id">
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Updated Full Name</label>
-                <input type="text" name="fullName" id="edit-full-name" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all">
-            </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Role Reassignment</label>
-                <select name="role" id="edit-role" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all">
-                    @if (isManager) {
-                        <option value="FINANCE">Finance Officer</option>
-                        <option value="CASHIER">Branch Cashier</option>
-                    } else {
-                        <option value="CEO">CEO / Owner</option>
-                        <option value="BRANCH_ADMIN">Branch Manager</option>
-                        <option value="FINANCE">Finance Officer</option>
-                        <option value="CASHIER">Branch Cashier</option>
-                    }
-                </select>
-            </div>
-            <div class="pt-4 flex space-x-3">
-                <button type="submit" class="flex-1 px-6 py-4 bg-indigo-600 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">
-                    Update Records
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Delete User Modal -->
-<div id="delete-user-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        <div class="p-8 bg-rose-50 border-b border-rose-100 flex items-center justify-between">
-            <h3 class="text-2xl font-black text-rose-900">Revoke Access</h3>
-            <button onclick="closeModal('delete-user-modal')" class="text-rose-400 hover:text-rose-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <form action="/Admin/DeleteUser" method="post" class="p-8 space-y-6">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="userId" id="delete-user-id">
-            <div class="text-center">
-                <div class="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.876c1.27 0 2.09-1.383 1.458-2.455L13.458 4.455c-.632-1.072-2.174-1.072-2.806 0L3.062 15.545c-.632 1.072.188 2.455 1.458 2.455z"/></svg>
                 </div>
-                <h4 class="text-xl font-black text-slate-900">Are you sure?</h4>
-                <p class="text-slate-500 mt-2 font-medium">You are about to terminate access for <span id="delete-user-name" class="font-black text-slate-900 text-rose-600"></span>. This action is recorded in the audit logs.</p>
-            </div>
-            <div class="pt-4 flex space-x-3">
-                <button type="submit" class="flex-1 px-6 py-4 bg-rose-600 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-rose-700 transition-all">
-                    Terminate Access
-                </button>
-                <button type="button" onclick="closeModal('delete-user-modal')" class="flex-1 px-6 py-4 bg-slate-100 text-slate-500 font-black text-sm uppercase tracking-widest rounded-xl">
-                    Cancel
-                </button>
-            </div>
-        </form>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Assigned Node (Branch)</label>
+                    @if (isManager) {
+                        <input type="hidden" name="branchId" id="create-branch" value="@(branches.FirstOrDefault()?.Id)" />
+                        <div class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-bold text-sm">
+                            @(branches.FirstOrDefault()?.Name ?? "Main Branch")
+                        </div>
+                        <p class="text-[10px] text-amber-600 font-bold mt-2 uppercase tracking-tight">Locked to your operational branch</p>
+                    } else {
+                        <select name="branchId" id="create-branch" onchange="suggestCredentials()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all appearance-none">
+                            <option value="">Global Access (No Branch)</option>
+                            @foreach (var branch in branches) {
+                                <option value="@branch.Id" data-name="@branch.Name">@branch.Name</option>
+                            }
+                        </select>
+                    }
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Suggested Email Address</label>
+                    <input type="email" id="create-email" name="email" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all" placeholder="user@@coretex.com">
+                    <p id="suggested-pass-hint" class="text-[9px] text-indigo-500 font-bold mt-2 uppercase tracking-tight hidden">System will auto-generate secure password</p>
+                </div>
+                <div class="pt-4 flex space-x-3">
+                    <button type="submit" class="flex-1 px-6 py-4 bg-secondary text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-500/20">
+                        Deploy User
+                    </button>
+                    <button type="button" onclick="closeModal('user-modal')" class="px-6 py-4 bg-slate-100 text-slate-500 font-black text-sm uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[9999] hidden items-center justify-center animate-in fade-in duration-300">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-2xl font-black text-slate-900">Modify Personnel</h3>
+                <button onclick="closeModal('edit-user-modal')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form action="/Admin/UpdateUser" method="post" class="p-8 space-y-6">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userId" id="edit-user-id">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Updated Full Name</label>
+                    <input type="text" name="fullName" id="edit-full-name" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Role Reassignment</label>
+                    <select name="role" id="edit-role" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 outline-none transition-all">
+                        @if (isManager) {
+                            <option value="FINANCE">Finance Officer</option>
+                            <option value="CASHIER">Branch Cashier</option>
+                        } else {
+                            <option value="CEO">CEO / Owner</option>
+                            <option value="BRANCH_ADMIN">Branch Manager</option>
+                            <option value="FINANCE">Finance Officer</option>
+                            <option value="CASHIER">Branch Cashier</option>
+                        }
+                    </select>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account Status</p>
+                        <p class="text-xs font-bold text-slate-600 mt-0.5">Toggle operational access</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="isActive" id="edit-is-active" class="sr-only peer" value="true">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+
+                <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Security Override</p>
+                    <p class="text-[10px] text-amber-500 font-medium mt-1 leading-relaxed">If the employee is locked out, you can reset their password to the system default.</p>
+                    <button type="button" onclick="resetUserPassword()" class="mt-3 w-full py-2 bg-white border border-amber-200 text-amber-600 font-black text-[10px] uppercase tracking-widest rounded-lg hover:bg-amber-100 transition-all">
+                        Reset to Default Password
+                    </button>
+                </div>
+
+                <div class="pt-4 flex space-x-3">
+                    <button type="submit" class="flex-1 px-6 py-4 bg-indigo-600 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">
+                        Update Records
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete User Modal -->
+    <div id="delete-user-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[9999] hidden items-center justify-center animate-in fade-in duration-300">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-8 bg-rose-50 border-b border-rose-100 flex items-center justify-between">
+                <h3 class="text-2xl font-black text-rose-900">Revoke Access</h3>
+                <button onclick="closeModal('delete-user-modal')" class="text-rose-400 hover:text-rose-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form action="/Admin/DeleteUser" method="post" class="p-8 space-y-6">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userId" id="delete-user-id">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.876c1.27 0 2.09-1.383 1.458-2.455L13.458 4.455c-.632-1.072-2.174-1.072-2.806 0L3.062 15.545c-.632 1.072.188 2.455 1.458 2.455z"/></svg>
+                    </div>
+                    <h4 class="text-xl font-black text-slate-900">Are you sure?</h4>
+                    <p class="text-slate-500 mt-2 font-medium">You are about to terminate access for <span id="delete-user-name" class="font-black text-slate-900 text-rose-600"></span>. This action is recorded in the audit logs.</p>
+                </div>
+                <div class="pt-4 flex space-x-3">
+                    <button type="submit" class="flex-1 px-6 py-4 bg-rose-600 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-rose-700 transition-all">
+                        Terminate Access
+                    </button>
+                    <button type="button" onclick="closeModal('delete-user-modal')" class="flex-1 px-6 py-4 bg-slate-100 text-slate-500 font-black text-sm uppercase tracking-widest rounded-xl">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script>
         function openCreateModal() {
             document.getElementById('user-modal').classList.remove('hidden');
             document.getElementById('user-modal').classList.add('flex');
+            suggestCredentials(); // Auto-suggest immediately based on current context
         }
-        function openEditModal(id, name, role) {
+        function openEditModal(id, name, role, isActive) {
             document.getElementById('edit-user-id').value = id;
             document.getElementById('edit-full-name').value = name;
             document.getElementById('edit-role').value = role;
+            document.getElementById('edit-is-active').checked = isActive === 'True';
             document.getElementById('edit-user-modal').classList.remove('hidden');
             document.getElementById('edit-user-modal').classList.add('flex');
+        }
+        async function resetUserPassword() {
+            const userId = document.getElementById('edit-user-id').value;
+            if (!confirm('Are you sure you want to reset this user\'s password to the default "CoretexReset123!"?')) return;
+            
+            try {
+                const response = await fetch(`/Admin/ResetPassword?userId=${userId}`, { method: 'POST' });
+                if (response.ok) {
+                    alert('Password has been reset to: CoretexReset123!');
+                } else {
+                    alert('Failed to reset password.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred.');
+            }
         }
         function openDeleteModal(id, name) {
             document.getElementById('delete-user-id').value = id;
@@ -347,6 +377,21 @@
             document.getElementById(modalId).classList.add('hidden');
             document.getElementById(modalId).classList.remove('flex');
         }
+        let currentRoleFilter = "";
+
+        function filterByRole(role) {
+            currentRoleFilter = role;
+            filterUsers();
+            
+            // Highlight active card
+            document.querySelectorAll('.cursor-pointer').forEach(card => {
+                card.classList.remove('ring-4', 'ring-indigo-500/20', 'border-indigo-500');
+            });
+            if(role) {
+                event.currentTarget.classList.add('ring-4', 'ring-indigo-500/20', 'border-indigo-500');
+            }
+        }
+
         function filterUsers() {
             const search = document.getElementById('search-input').value.toLowerCase();
             const branchFilter = document.getElementById('branch-filter')?.value || "";
@@ -356,16 +401,46 @@
                 const name = row.getAttribute('data-name');
                 const email = row.getAttribute('data-email');
                 const branchId = row.getAttribute('data-branch');
+                const role = row.getAttribute('data-role');
                 
                 const matchesSearch = name.includes(search) || email.includes(search);
                 const matchesBranch = branchFilter === "" || branchId === branchFilter;
+                const matchesRole = currentRoleFilter === "" || role === currentRoleFilter;
                 
-                if (matchesSearch && matchesBranch) {
+                if (matchesSearch && matchesBranch && matchesRole) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
+        }
+        function suggestCredentials() {
+            const roleSelect = document.getElementById('create-role');
+            const branchSelect = document.getElementById('create-branch');
+            const emailInput = document.getElementById('create-email');
+            const hint = document.getElementById('suggested-pass-hint');
+
+            if (!roleSelect || !branchSelect || !emailInput) return;
+
+            const role = roleSelect.value.toLowerCase().split('_')[0]; // finance, cashier, branch (manager)
+            let branchName = "";
+            
+            if (branchSelect.tagName === "SELECT") {
+                const selectedOption = branchSelect.options[branchSelect.selectedIndex];
+                branchName = selectedOption.getAttribute('data-name') || "";
+            } else {
+                // For Branch Managers (hidden input)
+                branchName = "@(branches.FirstOrDefault()?.Name ?? "")";
+            }
+
+            if (branchName) {
+                const branchClean = branchName.toLowerCase().replace(" branch", "").replace(" ", "");
+                emailInput.value = `${role}.${branchClean}@@coretex.com`;
+                hint.classList.remove('hidden');
+            } else {
+                emailInput.value = `${role}@@coretex.com`;
+                hint.classList.add('hidden');
+            }
         }
     </script>
 }

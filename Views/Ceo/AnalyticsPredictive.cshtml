@@ -112,7 +112,7 @@
                     <h4 class="text-lg font-black text-slate-900 mb-1">Stock Optimization</h4>
                     <p class="text-[10px] text-slate-500 leading-relaxed mb-6">System detected excess inventory in 'Sandawa' branch for 'Components' category. Internal transfer suggested.</p>
                 </div>
-                <button class="py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all">
+                <button id="btn-rebalance" onclick="applyStockRebalance()" class="py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all">
                     Review Transfer
                 </button>
             </div>
@@ -123,6 +123,56 @@
 @section Scripts {
     <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
     <script>
+        async function applyStockRebalance() {
+            const btn = document.getElementById('btn-rebalance');
+            const originalText = btn.textContent;
+
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> OPTIMIZING...';
+
+            const payload = {
+                Category: "Components",
+                SourceBranch: "Sandawa"
+            };
+
+            const report = {
+                Title: "Inventory Rebalance: Components Optimization",
+                PeriodLabel: "Live Stock Alignment",
+                ReportHtml: "<h3>Autonomous Inventory Optimization</h3><p>CEO has authorized the rebalancing of excess 'Components' stock from the Sandawa branch to improve global inventory turnover.</p>",
+                SummaryData: "Stock Optimized: Components"
+            };
+
+            try {
+                // PART 1: Execute Transfer
+                const transferResponse = await fetch('/ceo/AutonomousStockRebalance', {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const transferData = await transferResponse.json();
+
+                if (transferResponse.ok && transferData.success) {
+                    // PART 2: Log Strategy (Only if transfer worked)
+                    await fetch('/ceo/SaveReport', {
+                        method: 'POST',
+                        body: JSON.stringify(report),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    btn.textContent = "OPTIMIZATION COMPLETE";
+                    btn.className = "w-full py-3 bg-emerald-100 text-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-default";
+                    alert(`Inventory Optimized: ${transferData.totalItems} units across ${transferData.skuCount} product lines moved to ${transferData.targetBranch}.`);
+                } else {
+                    throw new Error(transferData.message || "Optimization failed: No excess stock found to rebalance.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                alert(error.message);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const ceo = window.CoretexCeo;
             ceo.initialize().then(() => {
@@ -256,20 +306,17 @@
 
         async function applyMitigationStrategy() {
             const btn = document.getElementById('btn-mitigate');
-            const originalText = btn.textContent;
             
+            // IF ALREADY ACTIVE, TOGGLE TO DEACTIVATE
+            if (btn.textContent.includes("STRATEGY ACTIVE") || btn.textContent.includes("STOP")) {
+                return deactivateMitigationStrategy();
+            }
+
+            const originalText = btn.textContent;
             btn.disabled = true;
             btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> MITIGATING...';
 
-            const report = {
-                Title: "Supply Chain Mitigation: Laptop Procurement",
-                PeriodLabel: "Q1 2027 Forecast",
-                ReportHtml: "<h3>Predictive Mitigation Strategy Activated</h3><p>CEO has authorized emergency autonomous price adjustments for Laptops to avoid predicted 15% price spike in Q1 2027.</p>",
-                SummaryData: "Risk Mitigated: Cost Volatility (Laptops)"
-            };
-
             try {
-                // PART 1: AUTONOMOUS ACTION (Update the Database Prices)
                 const adjustResponse = await fetch('/ceo/AutonomousPriceAdjustment', {
                     method: 'POST',
                     body: JSON.stringify({ Category: "Laptops", Percentage: 10 }),
@@ -277,23 +324,43 @@
                 });
                 const adjustData = await adjustResponse.json();
 
-                // PART 2: DIRECTIVE LOGGING (Save the Report)
-                const response = await fetch('/ceo/SaveReport', {
-                    method: 'POST',
-                    body: JSON.stringify(report),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const data = await response.json();
-                
-                if (data.success && adjustData.success) {
-                    btn.textContent = "STRATEGY ACTIVE";
-                    btn.className = "w-full py-3 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest cursor-default";
-                    alert(`Autonomous Strategy Success: ${adjustData.count} Laptop prices adjusted by 10% automatically.`);
+                if (adjustData.success) {
+                    btn.disabled = false;
+                    btn.textContent = "STOP STRATEGY";
+                    btn.className = "w-full py-3 bg-red-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg";
+                    alert(`Strategy Activated: ${adjustData.count} Laptop prices increased by 10%.`);
                 }
             } catch (error) {
                 btn.disabled = false;
                 btn.textContent = originalText;
-                alert("Communication Error: Could not dispatch autonomous directive.");
+                alert("Communication Error.");
+            }
+        }
+
+        async function deactivateMitigationStrategy() {
+            const btn = document.getElementById('btn-mitigate');
+            btn.disabled = true;
+            btn.innerHTML = 'REVERTING...';
+
+            try {
+                // To revert a 10% increase, we apply a ~9.09% decrease (1/1.1)
+                const response = await fetch('/ceo/AutonomousPriceAdjustment', {
+                    method: 'POST',
+                    body: JSON.stringify({ Category: "Laptops", Percentage: -9.09 }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    btn.disabled = false;
+                    btn.textContent = "EXECUTE MITIGATION";
+                    btn.className = "py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-lg";
+                    alert("Strategy Deactivated: Prices have been reverted to original levels.");
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = "STOP STRATEGY";
+                alert("Error deactivating strategy.");
             }
         }
         async function applyGlobalStrategy() {

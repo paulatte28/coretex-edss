@@ -20,6 +20,13 @@ namespace coretex_finalproj.Data
 
             await EnsureSchemaAsync(context, logger);
 
+            // --- DATA SANITIZATION (WIPE JUNK) ---
+            if (context.ActivityLogs.Any()) { context.ActivityLogs.RemoveRange(context.ActivityLogs); }
+            if (context.SystemNotifications.Any()) { context.SystemNotifications.RemoveRange(context.SystemNotifications); }
+            if (context.Sales.Any()) { context.Sales.RemoveRange(context.Sales); }
+            if (context.Expenses.Any()) { context.Expenses.RemoveRange(context.Expenses); }
+            await context.SaveChangesAsync();
+
             // PROACTIVE PATCH: Rename "Main Branch" to "Claveria HQ" if it exists
             var existingMainBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Main Branch");
             if (existingMainBranch != null)
@@ -28,7 +35,6 @@ namespace coretex_finalproj.Data
                 existingMainBranch.Address = "Claveria St., Davao City";
                 existingMainBranch.BranchCode = "CHQ-001";
                 await context.SaveChangesAsync();
-                logger?.LogInformation("Migrated 'Main Branch' to 'Claveria HQ'.");
             }
 
             if (!await TableExistsAsync(context, "Branches"))
@@ -51,48 +57,16 @@ namespace coretex_finalproj.Data
                 };
                 context.Branches.Add(defaultBranch);
 
-                // Add Other Specific Branches
-                context.Branches.AddRange(
-                    new Branch { Name = "Sandawa Branch", Address = "Sandawa, Matina", BranchCode = "SND-002" },
-                    new Branch { Name = "Toril Branch", Address = "Toril District", BranchCode = "TRL-003" },
-                    new Branch { Name = "Agdao Branch", Address = "Agdao Public Market", BranchCode = "AGD-004" },
-                    new Branch { Name = "Buhangin Branch", Address = "Buhangin Highway", BranchCode = "BHG-005" }
-                );
+                // Add ONLY the essential Sandawa Node
+                context.Branches.Add(new Branch { Name = "Sandawa Branch", Address = "Sandawa, Matina", BranchCode = "SND-002" });
 
                 await context.SaveChangesAsync();
 
-                // Seed a robust Enterprise Catalog
+                // Seed a minimal, high-end Product Catalog
                 context.Products.AddRange(
-                    // Laptops
                     new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex ZenBook Pro", Category = "Laptops", Price = 85000.00m, StockQuantity = 25, LowStockThreshold = 5 },
                     new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "X-Series Workstation", Category = "Laptops", Price = 120000.00m, StockQuantity = 10, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 },
-                    
-                    // Components
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "NVIDIA RTX 4090 (Core Edition)", Category = "Components", Price = 110000.00m, StockQuantity = 15, LowStockThreshold = 3 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "64GB DDR5 Server RAM", Category = "Components", Price = 18000.00m, StockQuantity = 100, LowStockThreshold = 20 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "2TB NVMe Gen5 SSD", Category = "Components", Price = 12500.00m, StockQuantity = 200, LowStockThreshold = 30 },
-                    
-                    // Infrastructure
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Rack-Mount Storage Node", Category = "Infrastructure", Price = 250000.00m, StockQuantity = 5, LowStockThreshold = 1 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Enterprise Router AX9000", Category = "Infrastructure", Price = 45000.00m, StockQuantity = 12, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Firewall Hub", Category = "Infrastructure", Price = 32000.00m, StockQuantity = 8, LowStockThreshold = 2 },
-                    
-                    // Software
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Security Suite (1yr)", Category = "Software", Price = 5500.00m, StockQuantity = 1000, LowStockThreshold = 100 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Cloud Backup Subscription", Category = "Software", Price = 1200.00m, StockQuantity = 1000, LowStockThreshold = 100 }
-                );
-
-                // Seed some initial sales
-                context.Sales.AddRange(
-                    new Sale { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, OrderId = "ORD-001", CustomerName = "Acme Corp", Amount = 1500.00m, ProductName = "Premium Widget", Quantity = 5, UnitPrice = 300.00m, Status = "Completed", Date = DateTime.UtcNow.AddDays(-2) },
-                    new Sale { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, OrderId = "ORD-002", CustomerName = "Globex", Amount = 350.50m, ProductName = "Basic Component", Quantity = 10, UnitPrice = 35.05m, Status = "Pending", Date = DateTime.UtcNow.AddDays(-1) }
-                );
-
-                // Seed some initial expenses
-                context.Expenses.AddRange(
-                    new Expense { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Category = "Software", Description = "Monthly SaaS", Amount = 300.00m, Date = DateTime.UtcNow.AddDays(-5) },
-                    new Expense { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Category = "Utilities", Description = "Office Electricity", Amount = 150.00m, Date = DateTime.UtcNow.AddDays(-3) }
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 }
                 );
 
                 await context.SaveChangesAsync();
@@ -149,6 +123,17 @@ namespace coretex_finalproj.Data
             Guid defaultBranchId,
             ILogger? logger)
         {
+            // --- USER PURGE (ROSTER SANITIZATION) ---
+            var allUsers = await userManager.Users.ToListAsync();
+            foreach (var u in allUsers)
+            {
+                if (u.Email != "ceo@coretex.com" && u.Email != "admin@coretex.com")
+                {
+                    await userManager.DeleteAsync(u);
+                }
+            }
+            logger?.LogInformation("Purged legacy test roster. Only CEO and Admin remain.");
+
             var roles = new[] { "ADMIN", "CEO", "FINANCE", "CASHIER", "BRANCH_ADMIN", "USER" };
 
             foreach (var role in roles)
@@ -172,7 +157,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "admin@coretex.com",
                 fullName: "System Administrator",
-                password: "Password12345!",
+                password: "Admin12345!",
                 role: "ADMIN",
                 branchId: null,
                 logger: logger);
@@ -181,23 +166,26 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "ceo@coretex.com",
                 fullName: "Chief Executive Officer",
-                password: "Password12345!",
+                password: "Ceo12345!",
                 role: "CEO",
                 branchId: null,
                 logger: logger);
 
-            // --- Multi-Branch Staffing Loop ---
+            // --- Multi-Branch Staffing Loop (Professional Naming Convention) ---
             var allBranches = await context.Branches.ToListAsync();
             foreach (var branch in allBranches)
             {
-                var branchSlug = branch.Name.ToLower().Replace(" ", "");
+                // Clean name for email (e.g., "Sandawa Branch" -> "sandawa")
+                var branchClean = branch.Name.ToLower().Replace(" branch", "").Replace(" ", "");
+                // Camel case for password (e.g., "Sandawa Branch" -> "Sandawa")
+                var branchPascal = char.ToUpper(branchClean[0]) + branchClean.Substring(1);
                 
                 // 1. Branch Manager
                 await EnsureUserAsync(
                     userManager,
-                    email: $"{branchSlug}_manager@coretex.com",
+                    email: $"manager.{branchClean}@coretex.com",
                     fullName: $"{branch.Name} Manager",
-                    password: "Password12345!",
+                    password: $"Manager{branchPascal}123!",
                     role: "BRANCH_ADMIN",
                     branchId: branch.Id,
                     logger: logger);
@@ -205,9 +193,9 @@ namespace coretex_finalproj.Data
                 // 2. Finance Officer
                 await EnsureUserAsync(
                     userManager,
-                    email: $"{branchSlug}_finance@coretex.com",
+                    email: $"finance.{branchClean}@coretex.com",
                     fullName: $"{branch.Name} Finance",
-                    password: "Password12345!",
+                    password: $"Finance{branchPascal}123!",
                     role: "FINANCE",
                     branchId: branch.Id,
                     logger: logger);
@@ -215,19 +203,13 @@ namespace coretex_finalproj.Data
                 // 3. Branch Cashier
                 await EnsureUserAsync(
                     userManager,
-                    email: $"{branchSlug}_cashier@coretex.com",
+                    email: $"cashier.{branchClean}@coretex.com",
                     fullName: $"{branch.Name} Cashier",
-                    password: "Password12345!",
+                    password: $"Cashier{branchPascal}123!",
                     role: "CASHIER",
                     branchId: branch.Id,
                     logger: logger);
             }
-
-            // Keep original credentials working for backward compatibility
-            var defaultOpsBranchId = allBranches.FirstOrDefault(b => b.Name.Contains("Sandawa"))?.Id ?? defaultBranchId;
-            await EnsureUserAsync(userManager, "manager@coretex.com", "Default Manager", "Password12345!", "BRANCH_ADMIN", defaultOpsBranchId, logger);
-            await EnsureUserAsync(userManager, "finance@coretex.com", "Default Finance", "Password12345!", "FINANCE", defaultOpsBranchId, logger);
-            await EnsureUserAsync(userManager, "cashier@coretex.com", "Default Cashier", "Password12345!", "CASHIER", defaultOpsBranchId, logger);
         }
 
         private static async Task EnsureUserAsync(

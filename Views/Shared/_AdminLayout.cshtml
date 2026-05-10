@@ -131,6 +131,18 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span class="font-semibold tracking-tight text-sm">Risk Scoring</span>
                     </a>
+
+                    <div class="pt-6">
+                        <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Strategic Governance</p>
+                        <a href="/Admin/KPIThresholds" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/KPIThresholds" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/KPIThresholds" ? "scale-[1.02]" : "")">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span class="font-bold tracking-tight text-sm">Strategic Thresholds</span>
+                        </a>
+                        <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
+                            <span class="font-bold tracking-tight text-sm">Activity Audit Log</span>
+                        </a>
+                    </div>
                 }
 
                 @if (User.IsInRole("FINANCE"))
@@ -138,6 +150,10 @@
                     <a href="/finance/dashboard" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.StartsWithSegments("/finance") ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.StartsWithSegments("/finance") ? "scale-[1.02]" : "")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span class="font-semibold tracking-tight text-sm">Finance Dashboard</span>
+                    </a>
+                    <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Activity Audit Log</span>
                     </a>
                 }
 
@@ -172,30 +188,32 @@
                     </a>
 
                     <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="font-semibold tracking-tight text-sm">Activity Logs</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Activity Audit Log</span>
                     </a>
 
-                    <div class="pt-8 mb-10">
-                        <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Configuration</p>
+                    @if (User.IsInRole("ADMIN") || User.IsInRole("CEO")) {
+                        <div class="pt-8 mb-10">
+                            <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Configuration</p>
 
-                        <a href="/Admin/KPIThresholds" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/KPIThresholds" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/KPIThresholds" ? "scale-[1.02]" : "")">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            <span class="font-semibold tracking-tight text-sm">KPI Goals & Targets</span>
-                        </a>
-
-                        @if (User.IsInRole("ADMIN")) {
-                            <a href="/Admin/ReportSchedule" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ReportSchedule" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ReportSchedule" ? "scale-[1.02]" : "")">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                <span class="font-semibold tracking-tight text-sm">Executive Summary Hub</span>
+                            <a href="/Admin/KPIThresholds" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/KPIThresholds" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/KPIThresholds" ? "scale-[1.02]" : "")">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                <span class="font-semibold tracking-tight text-sm">KPI Goals & Targets</span>
                             </a>
 
-                            <a href="/Admin/Archives" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/Archives" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/Archives" ? "scale-[1.02]" : "")">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
-                                <span class="font-semibold tracking-tight text-sm">System Data Backups</span>
-                            </a>
-                        }
-                    </div>
+                            @if (User.IsInRole("ADMIN")) {
+                                <a href="/Admin/ReportSchedule" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ReportSchedule" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ReportSchedule" ? "scale-[1.02]" : "")">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"/></svg>
+                                    <span class="font-semibold tracking-tight text-sm">Executive Summary Hub</span>
+                                </a>
+
+                                <a href="/Admin/Archives" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/Archives" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/Archives" ? "scale-[1.02]" : "")">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                                    <span class="font-semibold tracking-tight text-sm">System Data Backups</span>
+                                </a>
+                            }
+                        </div>
+                    }
                 </div>
             }
 

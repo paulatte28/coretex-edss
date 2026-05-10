@@ -14,12 +14,14 @@ namespace coretex_finalproj.Controllers
         private readonly ApplicationDbContext _context;
         private readonly NotificationService _notificationService;
         private readonly AnalyticsService _analytics;
+        private readonly AuditLoggingService _auditLog;
 
-        public ReportController(ApplicationDbContext context, NotificationService notificationService, AnalyticsService analytics)
+        public ReportController(ApplicationDbContext context, NotificationService notificationService, AnalyticsService analytics, AuditLoggingService auditLog)
         {
             _context = context;
             _notificationService = notificationService;
             _analytics = analytics;
+            _auditLog = auditLog;
         }
 
         // --- Live Action Endpoints ---
@@ -83,6 +85,8 @@ namespace coretex_finalproj.Controllers
 
             // 4. Send Email
             bool emailSuccess = await _notificationService.SendExecutiveReportEmailAsync(emailAddress, "Your Monthly Executive Report", content);
+            
+            await _auditLog.LogActivityAsync("REPORT_GENERATE", $"Generated executive monthly report for {emailAddress}");
 
             return emailSuccess ? Ok() : StatusCode(500);
         }
@@ -115,6 +119,7 @@ namespace coretex_finalproj.Controllers
                       $"Generated At,{DateTime.Now}";
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
+            await _auditLog.LogActivityAsync("REPORT_EXPORT", "Exported executive health dashboard to CSV");
             return File(bytes, "text/csv", $"CoretexReport_{DateTime.Now:yyyyMMdd}.csv");
         }
     }

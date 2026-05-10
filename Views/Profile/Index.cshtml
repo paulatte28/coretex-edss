@@ -30,8 +30,8 @@
 
             <div class="text-center md:text-left flex-1">
                 <div class="flex items-center justify-center md:justify-start gap-3 mb-2">
-                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border border-indigo-500/30">Lvl 10 Superuser</span>
-                    <span class="px-3 py-1 bg-white/5 text-white/40 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/10">Admin Terminal</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border border-indigo-500/30">@(Model.Role == "CEO" ? "Strategic Owner" : Model.Role == "BRANCH_ADMIN" ? "Node Authority" : "Service Specialist")</span>
+                    <span class="px-3 py-1 bg-white/5 text-white/40 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/10">@(Model.Role == "CEO" ? "Global Terminal" : "Local Terminal")</span>
                 </div>
                 <h2 class="text-4xl font-black tracking-tight">@Model.FullName</h2>
                 <p class="text-slate-400 font-medium mt-1">@Model.Email</p>
@@ -40,7 +40,7 @@
             <div class="flex gap-4">
                 <div class="text-center px-6 py-4 bg-white/5 border border-white/10 rounded-3xl">
                     <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Assigned Branch</p>
-                    <p class="font-black text-sm text-white uppercase">Main HQ</p>
+                    <p class="font-black text-sm text-white uppercase">@(Model.Branch?.Name ?? "Global Admin")</p>
                 </div>
             </div>
         </div>
