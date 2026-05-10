@@ -180,6 +180,10 @@
 
             document.getElementById('already-submitted').classList.remove('hidden');
             document.getElementById('submitted-meta').textContent = `Submitted on ${flow.formatDateTime(snapshot.submissionDate)} | Status: ${snapshot.submissionStatus || 'Submitted'}`;
+            
+            // SECURITY: Hide checklist and submit button for locked months
+            const checklistArea = document.querySelector('.bg-white.rounded-3xl.shadow-sm.border.border-slate-100.p-6.space-y-4');
+            if (checklistArea) checklistArea.classList.add('hidden');
         }
 
         function openConfirmModal() {

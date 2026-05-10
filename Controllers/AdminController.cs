@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace coretex_finalproj.Controllers
 {
-    [Authorize(Roles = "ADMIN,BRANCH_ADMIN,CEO,FINANCE")]
+    [Authorize(Roles = "ADMIN,BRANCH_ADMIN,CEO,FINANCE,CASHIER")]
     public class AdminController(
         AnalyticsService analytics,
         ApplicationDbContext context,
@@ -564,10 +564,17 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> ActivityLog()
         {
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                var signInManager = HttpContext.RequestServices.GetRequiredService<SignInManager<AppUser>>();
+                await signInManager.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
+
             IQueryable<ActivityLogEntry> query = _context.ActivityLogs.Include(l => l.Branch);
 
             // ROLE-SPECIFIC SCOPING: Branch Managers and Finance see only their OWN logs (My Audit Logs)
-            if (User.IsInRole("BRANCH_ADMIN") || User.IsInRole("FINANCE"))
+            if (User.IsInRole("BRANCH_ADMIN") || User.IsInRole("FINANCE") || User.IsInRole("CASHIER"))
             {
                 query = query.Where(l => l.UserName == currentUser.UserName);
             }

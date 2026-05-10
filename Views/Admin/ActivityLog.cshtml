@@ -59,6 +59,12 @@
                             Management & Operations
                         </button>
                     }
+                    @if (User.IsInRole("FINANCE"))
+                    {
+                        <button onclick="filterByType('FINANCE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
+                            Money & Expenses
+                        </button>
+                    }
                     @if (!isManager && !User.IsInRole("FINANCE"))
                     {
                         <button onclick="filterByType('FINANCE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">

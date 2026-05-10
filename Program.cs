@@ -127,7 +127,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "cashier_daily_summary",
-    pattern: "cashier/daily-summary",
+    pattern: "cashier/dailysummary",
     defaults: new { controller = "Cashier", action = "DailySummary" });
 
 app.MapControllerRoute(
@@ -166,9 +166,14 @@ app.MapControllerRoute(
     defaults: new { controller = "Finance", action = "Review" });
 
 app.MapControllerRoute(
-    name: "finance_submit",
-    pattern: "finance/submit",
-    defaults: new { controller = "Finance", action = "Submit" });
+    name: "finance_activity_log",
+    pattern: "finance/activitylog",
+    defaults: new { controller = "Admin", action = "ActivityLog" });
+
+app.MapControllerRoute(
+    name: "cashier_activity_log",
+    pattern: "cashier/activitylog",
+    defaults: new { controller = "Admin", action = "ActivityLog" });
 
 app.MapControllerRoute(
     name: "finance_edit_submission",
