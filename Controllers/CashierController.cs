@@ -50,6 +50,12 @@ namespace coretex_finalproj.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             var branchId = user?.BranchId;
 
+            if (branchId != null)
+            {
+                var branch = await _context.Branches.FindAsync(branchId);
+                ViewBag.BranchName = branch?.Name;
+            }
+
             var productQuery = _context.Products.AsQueryable();
             var salesQuery = _context.Sales.Where(s => s.Date >= DateTime.Today).AsQueryable();
 
@@ -69,14 +75,30 @@ namespace coretex_finalproj.Controllers
         {
             if (sale == null) return BadRequest("Invalid sale data.");
 
-            // Get the logged-in user's branch
             var userName = User.Identity?.Name;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             if (user == null || user.BranchId == null) return BadRequest("User not assigned to a branch.");
 
-            // Auto-Generate Order ID (CTX-YYYY-XXXX)
+            // --- INVENTORY SYNC LOGIC ---
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == sale.ProductName && p.BranchId == user.BranchId);
+            if (product != null)
+            {
+                if (product.StockQuantity < sale.Quantity)
+                {
+                    return Json(new { success = false, message = $"Insufficient stock for {product.Name}. Only {product.StockQuantity} left." });
+                }
+                
+                // DECREMENT STOCK
+                product.StockQuantity -= sale.Quantity;
+                _context.Products.Update(product);
+            }
+
+            // Auto-Generate Order ID (CTX-BRANCH-YYYY-XXXX)
+            var branch = await _context.Branches.FindAsync(user.BranchId);
+            var branchPrefix = branch?.BranchCode?.Replace("-", "") ?? "NODE";
             var count = await _context.Sales.CountAsync() + 1;
-            sale.OrderId = $"CTX-{DateTime.Now.Year}-{count:D4}";
+            
+            sale.OrderId = $"CTX-{branchPrefix}-{DateTime.Now.Year}-{count:D4}";
             sale.Date = DateTime.Now;
             sale.BranchId = user.BranchId.Value;
 
@@ -84,26 +106,13 @@ namespace coretex_finalproj.Controllers
             {
                 _context.Sales.Add(sale);
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}", user.BranchId);
+                
+                await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}. Inventory decremented for {sale.ProductName}.", user.BranchId);
+                
                 return Json(new { success = true, orderId = sale.OrderId, amount = sale.Amount });
             }
 
             return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ArchiveSale(Guid id)
-        {
-            var sale = await _context.Sales.FindAsync(id);
-            if (sale != null)
-            {
-                sale.IsArchived = true;
-                _context.Sales.Update(sale);
-                await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("SALE_ARCHIVE", $"Archived sale {sale.OrderId}", sale.BranchId);
-            }
-            return RedirectToAction(nameof(Pos));
         }
 
         public IActionResult DailySummary()
@@ -169,5 +178,54 @@ namespace coretex_finalproj.Controllers
                 })
             });
         }
+
+        public async Task<IActionResult> StockHealth()
+        {
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
+
+            var products = await _context.Products
+                .Where(p => p.BranchId == user.BranchId)
+                .OrderBy(p => p.StockQuantity)
+                .ToListAsync();
+
+            // EDSS LOGIC: Identify critical items
+            var criticalItems = products.Where(p => p.StockQuantity <= p.LowStockThreshold).ToList();
+            var healthyItems = products.Where(p => p.StockQuantity > p.LowStockThreshold).ToList();
+
+            ViewBag.CriticalItems = criticalItems;
+            ViewBag.HealthyItems = healthyItems;
+            
+            await _auditLog.LogActivityAsync("INVENTORY_AUDIT", $"Cashier {user.Email} performed a stock health surveillance check.", user.BranchId);
+
+            return View(products);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RequestRestock(Guid productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) return NotFound();
+
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            
+            // LOG THE DECISION SUPPORT ACTION
+            await _auditLog.LogActivityAsync("RESTOCK_REQUEST", $"CRITICAL: Cashier requested urgent replenishment for {product.Name} (Current Stock: {product.StockQuantity})", user?.BranchId);
+
+            return Json(new { success = true, message = $"Restock request for {product.Name} has been transmitted to management." });
+        }
+
+        public async Task<IActionResult> ActivityLog()
+        {
+            var userName = User.Identity?.Name;
+            var logs = await _context.ActivityLogs
+                .Where(l => l.UserName == userName)
+                .OrderByDescending(l => l.CreatedAt)
+                .ToListAsync();
+
+            return View(logs);
+        }
     }
-}
+}

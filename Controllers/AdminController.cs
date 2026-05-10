@@ -566,15 +566,15 @@ namespace coretex_finalproj.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             IQueryable<ActivityLogEntry> query = _context.ActivityLogs.Include(l => l.Branch);
 
-            if (currentUser?.BranchId != null && !User.IsInRole("CEO") && !User.IsInRole("ADMIN"))
+            // ROLE-SPECIFIC SCOPING: Branch Managers and Finance see only their OWN logs (My Audit Logs)
+            if (User.IsInRole("BRANCH_ADMIN") || User.IsInRole("FINANCE"))
+            {
+                query = query.Where(l => l.UserName == currentUser.UserName);
+            }
+            // ADMIN ISOLATION: Admins see their branch-wide logs unless they are global admins
+            else if (currentUser?.BranchId != null && !User.IsInRole("CEO") && !User.IsInRole("ADMIN"))
             {
                 query = query.Where(l => l.BranchId == currentUser.BranchId);
-            }
-
-            // DEPARTMENT ISOLATION: Finance only sees Finance-related logs
-            if (User.IsInRole("FINANCE"))
-            {
-                query = query.Where(l => l.ActionType.Contains("EXPENSE") || l.ActionType.Contains("MONTH") || l.ActionType.Contains("FINANCE"));
             }
 
             var logs = await query

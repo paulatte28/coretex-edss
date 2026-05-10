@@ -151,17 +151,37 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span class="font-semibold tracking-tight text-sm">Finance Dashboard</span>
                     </a>
-                    <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
+                    <a href="/finance/activitylog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/finance/activitylog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/finance/activitylog" ? "scale-[1.02]" : "")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
-                        <span class="font-semibold tracking-tight text-sm">Activity Audit Log</span>
+                        <span class="font-semibold tracking-tight text-sm">My Audit Logs</span>
                     </a>
                 }
 
                 @if (User.IsInRole("CASHIER"))
                 {
-                    <a href="/cashier/pos" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.StartsWithSegments("/cashier") ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.StartsWithSegments("/cashier") ? "scale-[1.02]" : "")">
+                    <a href="/cashier/pos" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.Value?.ToLower().Contains("/cashier/pos") == true ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.Value?.ToLower().Contains("/cashier/pos") == true ? "scale-[1.02]" : "")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                         <span class="font-semibold tracking-tight text-sm">POS Terminal</span>
+                    </a>
+
+                    <a href="/cashier/transactions" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.Value?.ToLower().Contains("/cashier/transactions") == true ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.Value?.ToLower().Contains("/cashier/transactions") == true ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Transaction Ledger</span>
+                    </a>
+
+                    <a href="/cashier/dailysummary" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.Value?.ToLower().Contains("/cashier/dailysummary") == true ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.Value?.ToLower().Contains("/cashier/dailysummary") == true ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Daily Summary</span>
+                    </a>
+
+                    <a href="/cashier/stockhealth" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.Value?.ToLower().Contains("/cashier/stockhealth") == true ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.Value?.ToLower().Contains("/cashier/stockhealth") == true ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">Inventory Health</span>
+                    </a>
+
+                    <a href="/cashier/activitylog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.Value?.ToLower().Contains("/cashier/activitylog") == true ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path.Value?.ToLower().Contains("/cashier/activitylog") == true ? "scale-[1.02]" : "")">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="font-semibold tracking-tight text-sm">My Activity Logs</span>
                     </a>
                 }
 
@@ -189,7 +209,7 @@
 
                     <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
-                        <span class="font-semibold tracking-tight text-sm">Activity Audit Log</span>
+                        <span class="font-semibold tracking-tight text-sm">My Audit Logs</span>
                     </a>
 
                     @if (User.IsInRole("ADMIN") || User.IsInRole("CEO")) {
@@ -219,7 +239,7 @@
 
         <!-- Shared Links -->
                 <div class="pt-4 pb-10 border-t border-white/5">
-                    <a href="/Profile" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Profile" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300">
+                    <a href="/security/manage-profile" class="group flex items-center space-x-3 p-4 @(Context.Request.Path.Value?.ToLower().Contains("/security") == true ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         <span class="font-bold tracking-tight text-sm">My Profile</span>
                     </a>
@@ -294,10 +314,10 @@
                     </div>
 
                     <div class="flex items-center space-x-6">
-                        <div class="text-right">
+                        <a href="/security/manage-profile" class="text-right hover:opacity-80 transition-opacity block">
                             <p id="user-role-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@(User.IsInRole("CEO") ? "CEO" : User.IsInRole("ADMIN") ? "System Admin" : User.IsInRole("BRANCH_ADMIN") ? "Branch Manager" : User.IsInRole("FINANCE") ? "Finance" : "Staff")</p>
                             <p id="user-name-label" class="text-sm font-black text-slate-800">@(User.Identity?.Name ?? "Guest")</p>
-                        </div>
+                        </a>
                         
                         <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="inline">
                             <button type="submit" class="group relative">

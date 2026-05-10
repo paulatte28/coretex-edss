@@ -251,10 +251,9 @@ app.MapControllerRoute(
     defaults: new { controller = "Ceo", action = "ReportsGenerate" });
 
 app.MapControllerRoute(
-    name: "ceo_reports",
-    pattern: "ceo/reports",
-    defaults: new { controller = "Ceo", action = "Reports" });
-
+    name: "profile",
+    pattern: "security/manage-profile",
+    defaults: new { controller = "Profile", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",

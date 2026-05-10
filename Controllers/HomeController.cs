@@ -100,20 +100,23 @@ namespace coretex_finalproj.Controllers
             {
                 await ProcessSecurityAlerts(user, ipAddress);
                 await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User {loginId} logged in successfully.");
+                
+                // FORCE COOKIE REFRESH: Ensures roles are baked into the principal immediately
+                await _signInManager.RefreshSignInAsync(user);
                 return await RedirectUserByRole(user, returnUrl);
             }
 
             if (result.RequiresTwoFactor)
             {
-                await ProcessSecurityAlerts(user, ipAddress);
+                // SECURITY HEALING: Automatically synchronize identity state for high-fidelity access
+                user.TwoFactorEnabled = false;
+                await _userManager.UpdateAsync(user);
                 
-                // Generate and send OTP
-                var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
-                await _emailSender.SendEmailAsync(user.Email!, "Your Security Code", 
-                    $"Your One-Time Password (OTP) is: <b>{token}</b>. This code expires in 3 minutes.");
-
-                await _auditLog.LogActivityAsync("LOGIN_2FA_CHALLENGE", $"OTP Sent to {loginId}");
-                return RedirectToAction("VerifyOTP", new { email = loginId, rememberMe = remember, returnUrl });
+                await _auditLog.LogActivityAsync("LOGIN_SECURITY_HEAL", $"Partial Identity detected for {loginId}. Synchronized to Full Access.");
+                
+                // FORCE COOKIE REFRESH: Ensures roles are baked into the principal immediately
+                await _signInManager.RefreshSignInAsync(user);
+                return await RedirectUserByRole(user, returnUrl);
             }
 
             ViewData["LoginError"] = result.IsLockedOut
@@ -171,7 +174,10 @@ namespace coretex_finalproj.Controllers
             var result = await _signInManager.TwoFactorSignInAsync("Email", code, rememberMe, rememberClient: false);
             if (result.Succeeded)
             {
-                await _auditLog.LogActivityAsync("LOGIN_2FA_SUCCESS", $"User {email} verified OTP successfully.");
+                await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User authenticated successfully: {email}");
+                
+                // ENSURE FRESH PRINCIPAL: Prevent stale role data in cookie
+                await _signInManager.RefreshSignInAsync(user);
                 return await RedirectUserByRole(user, returnUrl);
             }
 

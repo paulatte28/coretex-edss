@@ -2,10 +2,9 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<AppUser> UserManager
 @{
-    ViewData["Title"] = "Activity Audit";
+    ViewData["Title"] = "My Operational Audit";
     Layout = "_AdminLayout";
     var currentUser = await UserManager.GetUserAsync(User);
-    var isManager = User.IsInRole("BRANCH_ADMIN");
 }
 
 <style>
@@ -23,19 +22,16 @@
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div>
                 <div class="flex items-center space-x-3 mb-4">
-                    <a href="/Admin" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-all text-white">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
-                    </a>
                     <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 font-black text-[10px] uppercase tracking-widest rounded-full border border-indigo-500/30">Personal Audit Trail</span>
                 </div>
-                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">My <span class="text-indigo-400">Audit Logs</span></h1>
+                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">My <span class="text-indigo-400">Activity Log</span></h1>
                 <p class="text-slate-400 mt-2 text-sm font-medium">
-                    @(isManager || User.IsInRole("FINANCE") ? "Reviewing your personal operational footprint and authenticated command history." : "Global corporate audit trail and system-wide integrity monitoring.")
+                    Reviewing your historical operational footprints within the Coretex core.
                 </p>
             </div>
-            <button onclick="exportCSV()" class="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all flex items-center space-x-3">
+            <button onclick="window.print()" class="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all flex items-center space-x-3">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                <span>Export Audit</span>
+                <span>Export My Audit</span>
             </button>
         </div>
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
@@ -51,26 +47,11 @@
                         Everything
                     </button>
                     <button onclick="filterByType('WORKFORCE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
-                        Staff & Security
+                        Logins & Security
                     </button>
-                    @if (isManager || User.IsInRole("FINANCE"))
-                    {
-                        <button onclick="filterByType('OPERATIONS', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
-                            Management & Operations
-                        </button>
-                    }
-                    @if (!isManager && !User.IsInRole("FINANCE"))
-                    {
-                        <button onclick="filterByType('FINANCE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
-                            Money & Expenses
-                        </button>
-                        <button onclick="filterByType('REVENUE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
-                            Sales & Products
-                        </button>
-                        <button onclick="filterByType('STRATEGIC', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
-                            System & Strategy
-                        </button>
-                    }
+                    <button onclick="filterByType('REVENUE', this)" class="filter-pill px-6 py-2.5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all duration-300">
+                        Sales & Inventory
+                    </button>
                 </div>
 
                 <!-- Search Bar -->
@@ -78,19 +59,21 @@
                     <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" id="log-search" onkeyup="searchLogs()" placeholder="Scan company audit trail..." 
+                    <input type="text" id="log-search" onkeyup="searchLogs()" placeholder="Scan your audit trail..." 
                         class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 outline-none transition-all shadow-inner">
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Table Container -->
+    <div class="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
                     <tr class="border-b border-slate-50">
                         <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Temporal Context</th>
-                        <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Node</th>
+                        <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Action Type</th>
                         <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Activity Details</th>
                         <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Network Context</th>
                     </tr>
@@ -101,38 +84,24 @@
                         var action = log.ActionType ?? "SYSTEM_ACTION";
                         var category = "OTHER";
                         
-                        if (action.Contains("USER") || action.Contains("LOGIN") || action.Contains("LOGOUT")) 
-                        {
-                            // If it's a provisioning action, it's an OPERATION
-                            if (action.Contains("PROVISION")) category = "OPERATIONS";
-                            else category = "WORKFORCE";
-                        }
-                        else if (action.Contains("ADD") || action.Contains("EDIT") || action.Contains("UPDATE") || action.Contains("DELETE") || action.Contains("ARCHIVE")) category = "OPERATIONS";
-                        else if (action.Contains("EXPENSE") || action.Contains("MONTH") || action.Contains("FINANCE")) category = "FINANCE";
-                        else if (action.Contains("SALE") || action.Contains("POS") || action.Contains("TRANSACTION") || action.Contains("PRODUCT") || action.Contains("STOCK")) category = "REVENUE";
-                        else if (action.Contains("KPI") || action.Contains("GOAL") || action.Contains("SYSTEM") || action.Contains("BRANCH") || action.Contains("INFRA")) category = "STRATEGIC";
+                        if (action.Contains("USER") || action.Contains("LOGIN") || action.Contains("LOGOUT")) category = "WORKFORCE";
+                        else if (action.Contains("SALE") || action.Contains("POS") || action.Contains("TRANSACTION") || action.Contains("PRODUCT") || action.Contains("STOCK") || action.Contains("RESTOCK")) category = "REVENUE";
                         
                         var categoryLabel = category switch {
-                            "WORKFORCE" => "Staff & Security",
-                            "OPERATIONS" => "Management & Operations",
-                            "FINANCE" => "Money & Expenses",
-                            "REVENUE" => "Sales & Products",
-                            "STRATEGIC" => "System & Strategy",
-                            _ => "System Activity"
+                            "WORKFORCE" => "Security",
+                            "REVENUE" => "Sales & Inventory",
+                            _ => "General Action"
                         };
                         
                         var color = category switch {
                             "WORKFORCE" => "bg-amber-500",
-                            "OPERATIONS" => "bg-purple-600",
-                            "FINANCE" => "bg-emerald-500",
                             "REVENUE" => "bg-indigo-500",
-                            "STRATEGIC" => "bg-rose-500",
                             _ => "bg-slate-500"
                         };
 
                         <tr class="log-row hover:bg-slate-50/50 transition-all duration-200" 
                             data-category="@category" 
-                            data-search="@(action.ToLower() + " " + (log.Description ?? "").ToLower() + " " + (log.Branch?.Name ?? "global").ToLower())">
+                            data-search="@(action.ToLower() + " " + (log.Description ?? "").ToLower())">
                             <td class="px-10 py-6">
                                 <div class="flex flex-col">
                                     <span class="font-black text-slate-900 text-sm tracking-tight">@log.CreatedAt.ToString("MMM dd, yyyy")</span>
@@ -140,23 +109,20 @@
                                 </div>
                             </td>
                             <td class="px-10 py-6">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">@(log.Branch?.Name ?? "GLOBAL")</span>
-                                </div>
+                                <span class="px-3 py-1 @color text-white font-black text-[9px] uppercase tracking-widest rounded-lg w-fit">
+                                    @action
+                                </span>
                             </td>
                             <td class="px-10 py-6 max-w-md">
                                 <div class="flex flex-col space-y-1">
-                                    <span class="px-3 py-1 @color text-white font-black text-[9px] uppercase tracking-widest rounded-lg w-fit">
-                                        @categoryLabel
-                                    </span>
                                     <p class="text-sm font-medium text-slate-600 line-clamp-2">@log.Description</p>
+                                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Category: @categoryLabel</span>
                                 </div>
                             </td>
                             <td class="px-10 py-6">
                                 <div class="flex flex-col">
-                                    <span class="text-xs font-mono font-bold text-slate-500 tracking-tighter">192.168.1.102</span>
-                                    <span class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mt-1">Davao City, PH</span>
+                                    <span class="text-xs font-mono font-bold text-slate-500 tracking-tighter">@log.IpAddress</span>
+                                    <span class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mt-1">@log.Location</span>
                                 </div>
                             </td>
                         </tr>
@@ -169,11 +135,9 @@
 
 <script>
     function filterByType(type, el) {
-        // Toggle Active Pill
         document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
         el.classList.add('active');
 
-        // Filter Rows
         const rows = document.querySelectorAll('.log-row');
         rows.forEach(row => {
             if (type === 'ALL' || row.dataset.category === type) {
@@ -187,7 +151,8 @@
     function searchLogs() {
         const query = document.getElementById('log-search').value.toLowerCase();
         const activePill = document.querySelector('.filter-pill.active');
-        const activeType = activePill.innerText.trim().toUpperCase() === "EVERYTHING" ? "ALL" : activePill.innerText.trim().toUpperCase();
+        const activeType = activePill.innerText.trim().toUpperCase() === "EVERYTHING" ? "ALL" : 
+                           (activePill.innerText.trim().toUpperCase().includes("SALES") ? "REVENUE" : "WORKFORCE");
         
         const rows = document.querySelectorAll('.log-row');
         rows.forEach(row => {
@@ -200,9 +165,5 @@
                 row.style.display = 'none';
             }
         });
-    }
-
-    function exportCSV() {
-        alert("Preparing Audit Export for Branch Node: @(isManager ? (currentUser?.Branch?.Name ?? "Assigned") : "GLOBAL")\nFormat: CSV (Standard Audit Format)");
     }
 </script>

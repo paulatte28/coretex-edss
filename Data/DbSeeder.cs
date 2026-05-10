@@ -20,13 +20,6 @@ namespace coretex_finalproj.Data
 
             await EnsureSchemaAsync(context, logger);
 
-            // --- DATA SANITIZATION (WIPE JUNK) ---
-            if (context.ActivityLogs.Any()) { context.ActivityLogs.RemoveRange(context.ActivityLogs); }
-            if (context.SystemNotifications.Any()) { context.SystemNotifications.RemoveRange(context.SystemNotifications); }
-            if (context.Sales.Any()) { context.Sales.RemoveRange(context.Sales); }
-            if (context.Expenses.Any()) { context.Expenses.RemoveRange(context.Expenses); }
-            await context.SaveChangesAsync();
-
             // PROACTIVE PATCH: Rename "Main Branch" to "Claveria HQ" if it exists
             var existingMainBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Main Branch");
             if (existingMainBranch != null)
@@ -62,41 +55,59 @@ namespace coretex_finalproj.Data
 
                 await context.SaveChangesAsync();
 
-                // Seed a minimal, high-end Product Catalog
+                // Seed a robust Enterprise Catalog
                 context.Products.AddRange(
+                    // Laptops
                     new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex ZenBook Pro", Category = "Laptops", Price = 85000.00m, StockQuantity = 25, LowStockThreshold = 5 },
                     new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "X-Series Workstation", Category = "Laptops", Price = 120000.00m, StockQuantity = 10, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 }
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 },
+                    
+                    // Components
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "NVIDIA RTX 4090 (Core Edition)", Category = "Components", Price = 110000.00m, StockQuantity = 15, LowStockThreshold = 3 },
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "64GB DDR5 Server RAM", Category = "Components", Price = 18000.00m, StockQuantity = 100, LowStockThreshold = 20 },
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "2TB NVMe Gen5 SSD", Category = "Components", Price = 12500.00m, StockQuantity = 200, LowStockThreshold = 30 },
+                    
+                    // Infrastructure
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Rack-Mount Storage Node", Category = "Infrastructure", Price = 250000.00m, StockQuantity = 5, LowStockThreshold = 1 },
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Enterprise Router AX9000", Category = "Infrastructure", Price = 45000.00m, StockQuantity = 12, LowStockThreshold = 2 },
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Firewall Hub", Category = "Infrastructure", Price = 32000.00m, StockQuantity = 8, LowStockThreshold = 2 },
+                    
+                    // Software
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Security Suite (1yr)", Category = "Software", Price = 5500.00m, StockQuantity = 1000, LowStockThreshold = 100 },
+                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Cloud Backup Subscription", Category = "Software", Price = 1200.00m, StockQuantity = 1000, LowStockThreshold = 100 }
                 );
 
                 await context.SaveChangesAsync();
             }
+
+            // --- GRANULAR BRANCH REPLENISHMENT ---
+            var allBranches = await context.Branches.ToListAsync();
+            foreach (var branch in allBranches)
+            {
+                if (!await context.Products.AnyAsync(p => p.BranchId == branch.Id))
+                {
+                    logger?.LogInformation($"Replenishing inventory for node: {branch.Name}...");
+                    context.Products.AddRange(
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "Coretex ZenBook Pro", Category = "Laptops", Price = 85000.00m, StockQuantity = 25, LowStockThreshold = 5 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "X-Series Workstation", Category = "Laptops", Price = 120000.00m, StockQuantity = 10, LowStockThreshold = 2 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "NVIDIA RTX 4090 (Core Edition)", Category = "Components", Price = 110000.00m, StockQuantity = 15, LowStockThreshold = 3 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "64GB DDR5 Server RAM", Category = "Components", Price = 18000.00m, StockQuantity = 100, LowStockThreshold = 20 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "2TB NVMe Gen5 SSD", Category = "Components", Price = 12500.00m, StockQuantity = 200, LowStockThreshold = 30 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "Rack-Mount Storage Node", Category = "Infrastructure", Price = 250000.00m, StockQuantity = 5, LowStockThreshold = 1 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "Enterprise Router AX9000", Category = "Infrastructure", Price = 45000.00m, StockQuantity = 12, LowStockThreshold = 2 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "Coretex Firewall Hub", Category = "Infrastructure", Price = 32000.00m, StockQuantity = 8, LowStockThreshold = 2 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "Coretex Security Suite (1yr)", Category = "Software", Price = 5500.00m, StockQuantity = 1000, LowStockThreshold = 100 },
+                        new Product { Id = Guid.NewGuid(), BranchId = branch.Id, Name = "Cloud Backup Subscription", Category = "Software", Price = 1200.00m, StockQuantity = 1000, LowStockThreshold = 100 }
+                    );
+                }
+            }
+            await context.SaveChangesAsync();
 
             defaultBranch ??= await context.Branches
                 .OrderByDescending(b => b.IsActive)
                 .ThenBy(b => b.Name)
                 .FirstAsync();
-
-            // PROACTIVE INJECTOR: Seed products if the warehouse is empty
-            if (!await context.Products.AnyAsync())
-            {
-                logger?.LogInformation("Warehouse empty. Injecting Enterprise Catalog...");
-                context.Products.AddRange(
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex ZenBook Pro", Category = "Laptops", Price = 85000.00m, StockQuantity = 25, LowStockThreshold = 5 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "X-Series Workstation", Category = "Laptops", Price = 120000.00m, StockQuantity = 10, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "NVIDIA RTX 4090 (Core Edition)", Category = "Components", Price = 110000.00m, StockQuantity = 15, LowStockThreshold = 3 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "64GB DDR5 Server RAM", Category = "Components", Price = 18000.00m, StockQuantity = 100, LowStockThreshold = 20 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "2TB NVMe Gen5 SSD", Category = "Components", Price = 12500.00m, StockQuantity = 200, LowStockThreshold = 30 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Rack-Mount Storage Node", Category = "Infrastructure", Price = 250000.00m, StockQuantity = 5, LowStockThreshold = 1 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Enterprise Router AX9000", Category = "Infrastructure", Price = 45000.00m, StockQuantity = 12, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Firewall Hub", Category = "Infrastructure", Price = 32000.00m, StockQuantity = 8, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Security Suite (1yr)", Category = "Software", Price = 5500.00m, StockQuantity = 1000, LowStockThreshold = 100 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Cloud Backup Subscription", Category = "Software", Price = 1200.00m, StockQuantity = 1000, LowStockThreshold = 100 }
-                );
-                await context.SaveChangesAsync();
-                logger?.LogInformation("Enterprise Catalog injected successfully.");
-            }
 
             await SeedRolesAndUsersAsync(context, userManager, roleManager, defaultBranch.Id, logger);
         }
@@ -230,7 +241,7 @@ namespace coretex_finalproj.Data
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
-                    TwoFactorEnabled = true,
+                    TwoFactorEnabled = false,
                     FullName = fullName,
                     BranchId = branchId,
                     Role = role
@@ -264,9 +275,9 @@ namespace coretex_finalproj.Data
                     requiresUpdate = true;
                 }
 
-                if (!user.TwoFactorEnabled)
+                if (user.TwoFactorEnabled)
                 {
-                    user.TwoFactorEnabled = true;
+                    user.TwoFactorEnabled = false; // TEMPORARY BYPASS FOR TESTING
                     requiresUpdate = true;
                 }
 

@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace coretex_finalproj.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "CASHIER,ADMIN,CEO,FINANCE,BRANCH_ADMIN")]
     public class ProfileController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -27,12 +27,20 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userId = _userManager.GetUserId(User);
-            var user = await _context.Users
-                .Include(u => u.Branch)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                // STALE SESSION DETECTED: User exists in cookie but not in DB (likely due to Seeder purge)
+                var signInManager = HttpContext.RequestServices.GetRequiredService<SignInManager<AppUser>>();
+                await signInManager.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
 
-            if (user == null) return RedirectToAction("Login", "Home");
+            // Explicitly load branch to avoid EF Core shadowing issues
+            if (user.BranchId.HasValue)
+            {
+                user.Branch = await _context.Branches.FindAsync(user.BranchId.Value);
+            }
 
             ViewBag.RecentActivity = _context.ActivityLogs
                 .Where(a => a.UserId == user.Id)
