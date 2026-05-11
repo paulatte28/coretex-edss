@@ -106,16 +106,58 @@ namespace coretex_finalproj.Services
             return data;
         }
 
-        public async Task<object> GetBranchPerformanceAsync()
+        public async Task<List<object>> GetBranchPerformanceAsync()
         {
-            return await _context.Branches
-                .Where(b => !b.IsArchived)
-                .Select(b => new {
+            var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            var results = new List<object>();
+
+            foreach (var b in branches)
+            {
+                // 1. SUM ALL OFFICIAL SUBMISSIONS
+                var submissionTotals = await _context.BranchSubmissions
+                    .Where(s => s.BranchId == b.Id)
+                    .Select(s => new { s.SalesRevenue, s.Expenses, s.SubmissionYear, s.SubmissionMonth })
+                    .ToListAsync();
+
+                decimal totalRevenue = submissionTotals.Sum(s => s.SalesRevenue);
+                decimal totalExpenses = submissionTotals.Sum(s => s.Expenses);
+
+                // 2. SUM LIVE DATA FOR MONTHS WITHOUT SUBMISSIONS
+                // We'll just look at Sales/Expenses for any date that isn't covered by a submission month.
+                // For simplicity in this demo, we'll sum all Sales and then subtract those that belong to submitted months.
+                var allLiveSales = await _context.Sales.Where(s => s.BranchId == b.Id && !s.IsArchived).ToListAsync();
+                var allLiveExpenses = await _context.Expenses.Where(e => e.BranchId == b.Id && !e.IsArchived).ToListAsync();
+
+                foreach (var s in allLiveSales)
+                {
+                    // If this sale's month isn't in the submissions list, add it to the total
+                    if (!submissionTotals.Any(sub => sub.SubmissionYear == s.Date.Year && sub.SubmissionMonth == s.Date.Month))
+                    {
+                        totalRevenue += s.Amount;
+                    }
+                }
+
+                foreach (var e in allLiveExpenses)
+                {
+                    if (!submissionTotals.Any(sub => sub.SubmissionYear == e.Date.Year && sub.SubmissionMonth == e.Date.Month))
+                    {
+                        totalExpenses += e.Amount;
+                    }
+                }
+
+                var profit = totalRevenue - totalExpenses;
+                var margin = totalRevenue > 0 ? (double)(profit / totalRevenue) * 100 : 0;
+
+                results.Add(new {
                     Name = b.Name,
-                    TotalSales = _context.Sales.Where(s => s.BranchId == b.Id && !s.IsArchived).Sum(s => s.Amount),
-                    TotalExpenses = _context.Expenses.Where(e => e.BranchId == b.Id && !e.IsArchived).Sum(e => e.Amount)
-                })
-                .ToListAsync();
+                    Revenue = totalRevenue,
+                    Expenses = totalExpenses,
+                    Profit = profit,
+                    Margin = margin
+                });
+            }
+
+            return results.OrderByDescending(r => (decimal)((dynamic)r).Revenue).ToList();
         }
 
         public async Task<object> GetExpenseCategoriesAsync(Guid? branchId = null)

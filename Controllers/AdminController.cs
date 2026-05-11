@@ -1059,35 +1059,66 @@ namespace coretex_finalproj.Controllers
             if (result.Succeeded) return Content($"SUCCESS: {manager.Email} is now the official manager login.");
             return Content("Failed to update manager identity.");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ClearDemoData()
+        {
+            // 1. Wipe all historical submissions
+            var submissions = await _context.BranchSubmissions.ToListAsync();
+            _context.BranchSubmissions.RemoveRange(submissions);
+
+            // 2. Wipe all sales records (including the 3M from the snapshot)
+            var sales = await _context.Sales.ToListAsync();
+            _context.Sales.RemoveRange(sales);
+
+            // 3. Wipe all expense records
+            var expenses = await _context.Expenses.ToListAsync();
+            _context.Expenses.RemoveRange(expenses);
+
+            await _context.SaveChangesAsync();
+            
+            await _auditLog.LogActivityAsync("FULL_DATA_WIPE", "All Sales, Expenses, and Submissions were purged to restore a clean production state.");
+            
+            return Content("Success! ALL data (Sales, Expenses, Submissions) has been purged. Your dashboard will now be 100% empty until you record new transactions.");
+        }
+
         [HttpGet]
         public async Task<IActionResult> SeedCharts()
         {
-            var branch = await _context.Branches.FirstOrDefaultAsync(b => !b.IsArchived);
-            if (branch == null) return Content("No active branch found.");
+            var activeBranches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            if (activeBranches.Count == 0) return Content("No active branches found.");
 
-            // Clear old ones first to prevent duplicates
-            var existing = await _context.BranchSubmissions
-                .Where(s => s.BranchId == branch.Id && (s.SubmissionMonth == 3 || s.SubmissionMonth == 4))
-                .ToListAsync();
-            _context.BranchSubmissions.RemoveRange(existing);
+            foreach (var branch in activeBranches)
+            {
+                // Clear old ones first to prevent duplicates
+                var existing = await _context.BranchSubmissions
+                    .Where(s => s.BranchId == branch.Id && (s.SubmissionMonth == 3 || s.SubmissionMonth == 4))
+                    .ToListAsync();
+                _context.BranchSubmissions.RemoveRange(existing);
 
-            // MARCH
-            _context.BranchSubmissions.Add(new BranchSubmission {
-                BranchId = branch.Id, SubmissionYear = 2026, SubmissionMonth = 3,
-                SalesRevenue = 850000, Expenses = 320000, Cogs = 150000, Rent = 50000, Salaries = 100000, Utilities = 20000,
-                Status = "Submitted", SubmittedAt = DateTime.Now.AddMonths(-2)
-            });
+                // Inject varied data for realism
+                decimal revMarch = branch.Name.Contains("HQ") ? 850000 : 620000;
+                decimal revApril = branch.Name.Contains("HQ") ? 920000 : 710000;
+                decimal expMarch = branch.Name.Contains("HQ") ? 320000 : 280000;
+                decimal expApril = branch.Name.Contains("HQ") ? 345000 : 310000;
 
-            // APRIL
-            _context.BranchSubmissions.Add(new BranchSubmission {
-                BranchId = branch.Id, SubmissionYear = 2026, SubmissionMonth = 4,
-                SalesRevenue = 920000, Expenses = 345000, Cogs = 170000, Rent = 50000, Salaries = 105000, Utilities = 20000,
-                Status = "Submitted", SubmittedAt = DateTime.Now.AddMonths(-1)
-            });
+                // MARCH
+                _context.BranchSubmissions.Add(new BranchSubmission {
+                    BranchId = branch.Id, SubmissionYear = 2026, SubmissionMonth = 3,
+                    SalesRevenue = revMarch, Expenses = expMarch, Cogs = revMarch * 0.2m, Rent = 50000, Salaries = 100000, Utilities = 20000,
+                    Status = "Submitted", SubmittedAt = DateTime.Now.AddMonths(-2)
+                });
+
+                // APRIL
+                _context.BranchSubmissions.Add(new BranchSubmission {
+                    BranchId = branch.Id, SubmissionYear = 2026, SubmissionMonth = 4,
+                    SalesRevenue = revApril, Expenses = expApril, Cogs = revApril * 0.22m, Rent = 50000, Salaries = 105000, Utilities = 20000,
+                    Status = "Submitted", SubmittedAt = DateTime.Now.AddMonths(-1)
+                });
+            }
 
             await _context.SaveChangesAsync();
-            return Content("Success! March and April data injected. Refresh your CEO Dashboard to see the trajectory lines.");
+            return Content($"Success! March and April data injected for {activeBranches.Count} branches. Refresh your CEO Dashboard to see the comparative data.");
         }
     }
 }
-

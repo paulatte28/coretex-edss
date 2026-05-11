@@ -24,7 +24,7 @@ namespace coretex_finalproj.Controllers
             // EMERGENCY INJECTION: If no products exist, seed them now for the demo
             if (!await _context.Products.AnyAsync())
             {
-                var branch = await _context.Branches.FirstOrDefaultAsync() ?? new Branch { Name = "Davao HQ", BranchCode = "DHQ-001" };
+                var branch = await _context.Branches.FirstOrDefaultAsync() ?? new Branch { Name = "Main HQ", BranchCode = "MHQ-001" };
                 if (branch.Id == Guid.Empty) {
                     _context.Branches.Add(branch);
                     await _context.SaveChangesAsync();

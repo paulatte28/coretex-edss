@@ -199,45 +199,49 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAnalyticsSeries()
         {
-            // Fetch all confirmed submissions first (Confirmed by FO)
-            var submissions = await _context.BranchSubmissions
-                .Include(s => s.Branch)
-                .OrderBy(s => s.SubmissionYear)
-                .ThenBy(s => s.SubmissionMonth)
-                .ToListAsync();
+            var now = DateTime.Now;
+            var series = new List<object>();
 
-            var series = submissions.GroupBy(s => new { s.SubmissionYear, s.SubmissionMonth })
-                .Select(g => new
-                {
-                    monthKey = $"{g.Key.SubmissionYear}-{g.Key.SubmissionMonth:D2}",
-                    month = new DateTime(g.Key.SubmissionYear, g.Key.SubmissionMonth, 1).ToString("MMM yyyy"),
-                    revenue = g.Sum(x => x.SalesRevenue),
-                    expenses = g.Sum(x => x.Expenses),
-                    netProfit = g.Sum(x => x.SalesRevenue - x.Expenses)
-                })
-                .ToList();
-
-            // If no submissions yet, try to pull raw data from Sales/Expenses tables for current and past month
-            if (series.Count == 0)
+            // FETCH DATA FOR THE LAST 6 MONTHS
+            for (int i = 5; i >= 0; i--)
             {
-                var now = DateTime.Now;
-                for (int i = 5; i >= 0; i--)
+                var d = now.AddMonths(-i);
+                var start = new DateTime(d.Year, d.Month, 1);
+                var end = start.AddMonths(1);
+
+                // 1. Check for official submission
+                var submission = await _context.BranchSubmissions
+                    .Where(s => s.SubmissionYear == d.Year && s.SubmissionMonth == d.Month)
+                    .ToListAsync(); // Summing across all branches for the global chart
+
+                decimal monthlySales = 0;
+                decimal monthlyExpenses = 0;
+
+                if (submission.Any())
                 {
-                    var d = now.AddMonths(-i);
-                    var start = new DateTime(d.Year, d.Month, 1);
-                    var end = start.AddMonths(1);
-
-                    var rev = await _context.Sales.Where(s => s.Date >= start && s.Date < end && !s.IsArchived).SumAsync(s => s.Amount);
-                    var exp = await _context.Expenses.Where(e => e.Date >= start && e.Date < end && !e.IsArchived).SumAsync(e => e.Amount);
-
-                    series.Add(new {
-                        monthKey = $"{d.Year}-{d.Month:D2}",
-                        month = d.ToString("MMM yyyy"),
-                        revenue = rev,
-                        expenses = exp,
-                        netProfit = rev - exp
-                    });
+                    monthlySales = submission.Sum(s => s.SalesRevenue);
+                    monthlyExpenses = submission.Sum(s => s.Expenses);
                 }
+                else
+                {
+                    // 2. Fallback to raw transactional data
+                    monthlySales = await _context.Sales
+                        .Where(s => !s.IsArchived && s.Date >= start && s.Date < end)
+                        .SumAsync(s => s.Amount);
+
+                    monthlyExpenses = await _context.Expenses
+                        .Where(e => !e.IsArchived && e.Date >= start && e.Date < end)
+                        .SumAsync(e => e.Amount);
+                }
+
+                series.Add(new
+                {
+                    monthKey = $"{d.Year}-{d.Month:D2}",
+                    month = d.ToString("MMM yyyy") + (i == 0 && !submission.Any() ? " (LIVE)" : ""),
+                    revenue = monthlySales,
+                    expenses = monthlyExpenses,
+                    netProfit = monthlySales - monthlyExpenses
+                });
             }
 
             return Json(series);

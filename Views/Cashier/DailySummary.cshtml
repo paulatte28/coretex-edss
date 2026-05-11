@@ -106,10 +106,10 @@
 
             currentBranch = branches.find(b => b.id === currentCashier.branchId)
                 || branches[0]
-                || { id: 'branch_default', name: 'Davao Main' };
+                || { id: 'branch_default', name: 'Main Branch' };
 
             document.getElementById('cashier-name').textContent = `Cashier: ${currentCashier.name || 'Demo Cashier'}`;
-            document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Davao Main'}`;
+            document.getElementById('branch-name').textContent = `Branch: ${currentBranch.name || 'Main Branch'}`;
         }
 
         async function renderSummary() {

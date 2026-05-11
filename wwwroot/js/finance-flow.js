@@ -133,7 +133,7 @@
 
         const branch = branches.find(item => item.id === financeOfficer.branchId)
             || branches[0]
-            || { id: 'branch_default', name: 'Davao Main' };
+            || { id: 'branch_default', name: 'Main Branch' };
 
         return {
             financeOfficer: {
@@ -143,7 +143,7 @@
             },
             branch: {
                 id: branch.id || 'branch_default',
-                name: branch.name || 'Davao Main'
+                name: branch.name || 'Main Branch'
             }
         };
     }

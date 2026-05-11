@@ -51,37 +51,62 @@
 @section Scripts {
     <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const ceo = window.CoretexCeo;
             ceo.renderNav('branches-compare', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const rows = ceo.getBranchComparisonRows();
-            ceo.makeChart('chart-branches', {
-                type: 'bar',
-                data: {
-                    labels: rows.map(x => x.branch),
-                    datasets: [{
-                        label: 'Revenue',
-                        data: rows.map(x => x.revenue),
-                        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            try {
+                const response = await fetch('/Ceo/GetBranchPerformance');
+                if (!response.ok) throw new Error('Performance fetch failed');
+                const data = await response.json();
 
-            document.getElementById('branch-table').innerHTML = rows.map(row => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${row.branch}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.revenue)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.expenses)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.profit)}</td>
-                    <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(row.margin)}</td>
-                    <td class="px-6 py-4 text-center text-lg">${row.rank}</td>
-                </tr>
-            `).join('');
+                // Map server data to UI expected format
+                const rows = data.map((item, index) => ({
+                    branch: item.name,
+                    revenue: item.revenue,
+                    expenses: item.expenses,
+                    profit: item.profit,
+                    margin: item.margin,
+                    rank: index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`
+                }));
+
+                ceo.makeChart('chart-branches', {
+                    type: 'bar',
+                    data: {
+                        labels: rows.map(x => x.branch),
+                        datasets: [{
+                            label: 'Revenue',
+                            data: rows.map(x => x.revenue),
+                            backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+                document.getElementById('branch-table').innerHTML = rows.map(row => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${row.branch}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.revenue)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(row.expenses)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right ${row.profit < 0 ? 'text-red-600' : 'text-slate-900'}">${ceo.money(row.profit)}</td>
+                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.pct(row.margin)}</td>
+                        <td class="px-6 py-4 text-center text-lg">${row.rank}</td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error('Real-Time Load Error:', err);
+                document.getElementById('branch-table').innerHTML = `
+                    <tr><td colspan="6" class="px-6 py-12 text-center text-red-500 font-bold">Failed to load real-time branch intelligence.</td></tr>
+                `;
+            }
         });
-    </script>
-}
     </script>
 }

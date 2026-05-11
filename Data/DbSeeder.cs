@@ -25,7 +25,7 @@ namespace coretex_finalproj.Data
             if (existingMainBranch != null)
             {
                 existingMainBranch.Name = "Claveria HQ";
-                existingMainBranch.Address = "Claveria St., Davao City";
+                existingMainBranch.Address = "Claveria St., Corporate Plaza";
                 existingMainBranch.BranchCode = "CHQ-001";
                 await context.SaveChangesAsync();
             }
@@ -44,7 +44,7 @@ namespace coretex_finalproj.Data
                 {
                     Id = Guid.NewGuid(),
                     Name = "Claveria HQ",
-                    Address = "Claveria St., Davao City",
+                    Address = "Claveria St., Corporate Plaza",
                     BranchCode = "CHQ-001",
                     IsActive = true
                 };
