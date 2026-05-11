@@ -165,6 +165,20 @@ namespace coretex_finalproj.Controllers
                 .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived)
                 .SumAsync(e => e.Amount);
 
+            // Calculate Breakdown for the Submission record
+            var cogs = await _context.Expenses
+                .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived && e.Category == "COGS")
+                .SumAsync(e => e.Amount);
+            var rent = await _context.Expenses
+                .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived && e.Category == "Rent")
+                .SumAsync(e => e.Amount);
+            var salaries = await _context.Expenses
+                .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived && e.Category == "Salaries")
+                .SumAsync(e => e.Amount);
+            var utilities = await _context.Expenses
+                .Where(e => e.BranchId == user.BranchId && e.Date >= startDate && e.Date < endDate && !e.IsArchived && e.Category == "Utilities")
+                .SumAsync(e => e.Amount);
+
             var submission = new BranchSubmission
             {
                 BranchId = user.BranchId.Value,
@@ -174,6 +188,10 @@ namespace coretex_finalproj.Controllers
                 SubmittedAt = DateTime.Now,
                 SalesRevenue = totalSales,
                 Expenses = totalExpenses,
+                Cogs = cogs,
+                Rent = rent,
+                Salaries = salaries,
+                Utilities = utilities,
                 Status = "Submitted",
                 Notes = notes ?? ""
             };
@@ -259,6 +277,26 @@ namespace coretex_finalproj.Controllers
                 .ToListAsync();
 
             return Json(history);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ResetSubmissions(int year, int month)
+        {
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null || user.BranchId == null) return BadRequest("Unauthorized.");
+
+            var submissions = await _context.BranchSubmissions
+                .Where(s => s.BranchId == user.BranchId && s.SubmissionYear == year && s.SubmissionMonth == month)
+                .ToListAsync();
+
+            if (submissions.Any())
+            {
+                _context.BranchSubmissions.RemoveRange(submissions);
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("MONTH_RESET", $"CEO/Finance reset the submission for {year}-{month:D2} to allow re-entry.");
+            }
+
+            return Json(new { success = true });
         }
     }
 }

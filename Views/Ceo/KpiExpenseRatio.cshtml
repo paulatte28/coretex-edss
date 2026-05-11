@@ -57,7 +57,7 @@
                 <div class="lg:col-span-2">
                     <p class="text-sm text-slate-400 leading-relaxed mb-6">If the overhead-to-revenue ratio exceeds the safe limit, you can trigger a **Company-Wide Expenditure Audit**. This requires all branch finance officers to submit a digital "Justification Report" for any non-inventory expense exceeding ₱5,000.</p>
                     <div class="flex flex-wrap gap-4">
-                        <button id="btn-cost-audit" onclick="initiateAuditProtocol()" class="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all shadow-xl shadow-white/10">Initiate Overhead Audit</button>
+                        <button id="btn-cost-audit" onclick="initiateAudit()" class="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all shadow-xl shadow-white/10">Initiate Overhead Audit</button>
                         <button class="px-8 py-4 bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest border border-slate-700">Set Ratio Limit</button>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
 
             if (!confirm(msg)) return;
 
-            const btn = document.getElementById('audit-btn');
+            const btn = document.getElementById('btn-cost-audit');
             const originalText = btn.textContent;
             
             btn.disabled = true;
@@ -180,12 +180,17 @@
         // SELF-HEALING STRATEGY MONITOR
         setInterval(() => {
             const isAudit = localStorage.getItem('coretex_overhead_audit') === 'true';
-            // Simulate: If ratio drops below 10%, auto-heal
-            if (isAudit && currentRatio < 10) {
+            
+            // Get live ratio from the snapshot (refetched via element text to be safe if no full refresh)
+            const ratioText = document.getElementById('current-ratio').textContent.replace('%', '');
+            const ratio = parseFloat(ratioText);
+
+            // Autonomous recovery: If ratio drops below 10%, auto-heal
+            if (isAudit && ratio < 10 && ratio > 0) {
                 localStorage.removeItem('coretex_overhead_audit');
-                alert("🚀 AUTONOMOUS RECOVERY: System has detected that Expense Ratio has improved to <10%. The Strategic Audit Protocol has been automatically deactivated.");
+                alert("🚀 AUTONOMOUS RECOVERY: System has detected that Expense Ratio has improved to " + ratio.toFixed(1) + "%. The Strategic Audit Protocol has been automatically deactivated.");
                 window.location.reload();
             }
-        }, 3000);
+        }, 5000);
     </script>
 }

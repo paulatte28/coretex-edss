@@ -71,48 +71,40 @@ namespace coretex_finalproj.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSale([FromBody] Sale sale)
+        public async Task<IActionResult> CreateBulkSale([FromBody] List<Sale> items)
         {
-            if (sale == null) return BadRequest("Invalid sale data.");
+            if (items == null || items.Count == 0) return BadRequest("No items in cart.");
 
             var userName = User.Identity?.Name;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             if (user == null || user.BranchId == null) return BadRequest("User not assigned to a branch.");
 
-            // --- INVENTORY SYNC LOGIC ---
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == sale.ProductName && p.BranchId == user.BranchId);
-            if (product != null)
-            {
-                if (product.StockQuantity < sale.Quantity)
-                {
-                    return Json(new { success = false, message = $"Insufficient stock for {product.Name}. Only {product.StockQuantity} left." });
-                }
-                
-                // DECREMENT STOCK
-                product.StockQuantity -= sale.Quantity;
-                _context.Products.Update(product);
-            }
-
-            // Auto-Generate Order ID (CTX-BRANCH-YYYY-XXXX)
             var branch = await _context.Branches.FindAsync(user.BranchId);
             var branchPrefix = branch?.BranchCode?.Replace("-", "") ?? "NODE";
-            var count = await _context.Sales.CountAsync() + 1;
-            
-            sale.OrderId = $"CTX-{branchPrefix}-{DateTime.Now.Year}-{count:D4}";
-            sale.Date = DateTime.Now;
-            sale.BranchId = user.BranchId.Value;
+            var count = await _context.Sales.Select(s => s.OrderId).Distinct().CountAsync() + 1;
+            var orderId = $"CTX-{branchPrefix}-{DateTime.Now.Year}-{count:D4}";
+            var timestamp = DateTime.Now;
 
-            if (ModelState.IsValid)
+            foreach (var sale in items)
             {
+                // Inventory decrement logic
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == sale.ProductName && p.BranchId == user.BranchId);
+                if (product != null && product.StockQuantity >= sale.Quantity)
+                {
+                    product.StockQuantity -= sale.Quantity;
+                    _context.Products.Update(product);
+                }
+
+                sale.OrderId = orderId;
+                sale.Date = timestamp;
+                sale.BranchId = user.BranchId.Value;
                 _context.Sales.Add(sale);
-                await _context.SaveChangesAsync();
-                
-                await _auditLog.LogActivityAsync("SALE_CREATE", $"Created sale {sale.OrderId} for {sale.Amount:C}. Inventory decremented for {sale.ProductName}.", user.BranchId);
-                
-                return Json(new { success = true, orderId = sale.OrderId, amount = sale.Amount });
             }
 
-            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("SALE_BULK_CREATE", $"Processed checkout {orderId} with {items.Count} items. Total: {items.Sum(i => i.Amount):C}", user.BranchId);
+
+            return Json(new { success = true, orderId = orderId });
         }
 
         public IActionResult DailySummary()

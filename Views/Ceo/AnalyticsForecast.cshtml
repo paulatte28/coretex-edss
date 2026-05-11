@@ -92,11 +92,17 @@
                 const history = monthlyData.map(x => ({ month: x.month, revenue: x.sales }));
                 
                 // Construct 3-month simple projection based on the AI amount
+                // STRATEGIC LIFT: If Marketing Blitz is active, boost forecast by 15%
+                const isBlitzActive = localStorage.getItem('coretex_marketing_blitz') === 'true';
+                const lift = isBlitzActive ? 1.15 : 1.0;
+                const boostedAmt = forecastAmt * lift;
+
+                // Construct 3-month simple projection based on the AI amount
                 const lastMonthStr = history[history.length - 1].month;
                 const forecast = [
-                    { month: "Next Month", projectedRevenue: forecastAmt, confidence: 85 },
-                    { month: "Month +2", projectedRevenue: forecastAmt * 1.05, confidence: 70 },
-                    { month: "Month +3", projectedRevenue: forecastAmt * 1.10, confidence: 55 }
+                    { month: "Next Month", projectedRevenue: boostedAmt, confidence: 85 },
+                    { month: "Month +2", projectedRevenue: boostedAmt * 1.05, confidence: 70 },
+                    { month: "Month +3", projectedRevenue: boostedAmt * 1.10, confidence: 55 }
                 ];
 
                 const labels = history.map(h => h.month).concat(forecast.map(f => f.month));
@@ -118,16 +124,20 @@
                                 data: historicalValues,
                                 borderColor: 'rgba(59,130,246,1)',
                                 backgroundColor: 'rgba(59,130,246,0.15)',
-                                tension: 0.35,
-                                fill: true
+                                tension: 0.3,
+                                borderWidth: 4,
+                                fill: true,
+                                spanGaps: true
                             },
                             {
                                 label: 'Projected Revenue',
                                 data: projectedValues,
                                 borderColor: 'rgba(16,185,129,1)',
                                 borderDash: [6, 6],
-                                tension: 0.35,
-                                fill: false
+                                tension: 0.3,
+                                borderWidth: 4,
+                                fill: false,
+                                spanGaps: true
                             }
                         ]
                     },
@@ -198,12 +208,13 @@
         // SELF-HEALING STRATEGY MONITOR
         setInterval(() => {
             const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
-            // Simulate: If forecast goes above 1M, success reached, auto-heal
-            if (isBlitz && forecastAmt > 1000000) {
+            // SUCCESS THRESHOLD: If forecast goes above 1M, target reached, auto-heal
+            // This prevents over-spending on marketing once the branch is healthy
+            if (isBlitz && (forecastAmt * 1.15) > 1000000) {
                 localStorage.removeItem('coretex_marketing_blitz');
-                alert("🚀 AUTONOMOUS RECOVERY: System has detected that Projected Revenue has reached success targets (>₱1.0M). The Strategic Marketing Blitz has been automatically deactivated to preserve budget.");
+                alert("🚀 AUTONOMOUS STRATEGY RECOVERY\n\nSystem has detected that Projected Revenue targets have been exceeded (>₱1.0M).\n\nThe Strategic Marketing Blitz has been automatically deactivated to preserve operational budget.");
                 window.location.reload();
             }
-        }, 3000);
+        }, 5000);
     </script>
 }

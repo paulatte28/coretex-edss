@@ -412,6 +412,17 @@
 
         const normalized = normalizeExpensePayload(category, payload || {});
 
+        // AUDIT ENFORCEMENT (Strategic Guardrail)
+        const isAuditActive = localStorage.getItem('coretex_overhead_audit') === 'true';
+        if (isAuditActive && normalized.amountPHP > 5000) {
+            const justification = prompt("⚠️ STRATEGIC AUDIT ACTIVE\nExpenses over ₱5,000 require an Executive Justification during an active audit. Please state the purpose of this expenditure:");
+            if (!justification || justification.trim().length < 5) {
+                throw new Error("Submission Rejected: A valid justification is required to bypass the cost-cutting protocol.");
+            }
+            normalized.notes = `[AUDIT JUSTIFIED: ${justification.trim()}] ${normalized.notes || ''}`;
+            normalized.description = `[AUDIT] ${normalized.description || ''}`;
+        }
+
         // CALL BACKEND
         try {
             const response = await fetch('/Finance/CreateExpense', {

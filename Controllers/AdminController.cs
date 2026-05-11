@@ -1059,6 +1059,35 @@ namespace coretex_finalproj.Controllers
             if (result.Succeeded) return Content($"SUCCESS: {manager.Email} is now the official manager login.");
             return Content("Failed to update manager identity.");
         }
+        [HttpGet]
+        public async Task<IActionResult> SeedCharts()
+        {
+            var branch = await _context.Branches.FirstOrDefaultAsync(b => !b.IsArchived);
+            if (branch == null) return Content("No active branch found.");
+
+            // Clear old ones first to prevent duplicates
+            var existing = await _context.BranchSubmissions
+                .Where(s => s.BranchId == branch.Id && (s.SubmissionMonth == 3 || s.SubmissionMonth == 4))
+                .ToListAsync();
+            _context.BranchSubmissions.RemoveRange(existing);
+
+            // MARCH
+            _context.BranchSubmissions.Add(new BranchSubmission {
+                BranchId = branch.Id, SubmissionYear = 2026, SubmissionMonth = 3,
+                SalesRevenue = 850000, Expenses = 320000, Cogs = 150000, Rent = 50000, Salaries = 100000, Utilities = 20000,
+                Status = "Submitted", SubmittedAt = DateTime.Now.AddMonths(-2)
+            });
+
+            // APRIL
+            _context.BranchSubmissions.Add(new BranchSubmission {
+                BranchId = branch.Id, SubmissionYear = 2026, SubmissionMonth = 4,
+                SalesRevenue = 920000, Expenses = 345000, Cogs = 170000, Rent = 50000, Salaries = 105000, Utilities = 20000,
+                Status = "Submitted", SubmittedAt = DateTime.Now.AddMonths(-1)
+            });
+
+            await _context.SaveChangesAsync();
+            return Content("Success! March and April data injected. Refresh your CEO Dashboard to see the trajectory lines.");
+        }
     }
 }
 

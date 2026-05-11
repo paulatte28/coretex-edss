@@ -2,6 +2,7 @@
     'use strict';
 
     const KEYS = {
+        thresholds: 'coretex_kpi_thresholds',
         thresholdAlerts: 'coretex_threshold_alerts',
         activities: 'coretex_activities',
         reports: 'coretex_ceo_reports',
@@ -11,6 +12,34 @@
         submissions: 'coretex_submissions',
         expenses: 'coretex_finance_expenses'
     };
+
+    function readObject(key) {
+        try {
+            const value = JSON.parse(localStorage.getItem(key) || '{}');
+            return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+        } catch (_error) {
+            return {};
+        }
+    }
+
+    function writeObject(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function initializeDefaults() {
+        const thresholds = readObject(KEYS.thresholds);
+        const hasData = Object.keys(thresholds).length > 0;
+
+        if (!hasData) {
+            const defaults = {
+                minProfitMargin: 20.0,
+                maxExpenseRatio: 35.0,
+                minMonthlyProfit: 50000.0
+            };
+            writeObject(KEYS.thresholds, defaults);
+            console.log("Coretex: Industry Standard KPI Defaults Initialized.");
+        }
+    }
 
     const NEWS_FALLBACK = {
         business: [
@@ -52,6 +81,7 @@
 
     async function initialize() {
         try {
+            initializeDefaults();
             const response = await fetch('/Ceo/GetAnalyticsSeries');
             if (!response.ok) throw new Error('Analytics fetch failed');
             cachedSeries = await response.json();

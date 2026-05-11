@@ -110,17 +110,40 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> ExportReportCsv()
         {
-            var data = await _analytics.GetDashboardSnapshotAsync();
-            var csv = "Metric,Value\n" +
-                      $"Total Revenue,{data.TotalRevenue}\n" +
-                      $"Total Expenses,{data.TotalExpenses}\n" +
-                      $"Net Profit,{data.NetProfit}\n" +
-                      $"Risk Level,{data.RiskLevel}\n" +
-                      $"Generated At,{DateTime.Now}";
+            var globalData = await _analytics.GetDashboardSnapshotAsync();
+            var branchPerformance = await _context.Branches
+                .Where(b => !b.IsArchived)
+                .Select(b => new {
+                    Name = b.Name,
+                    Revenue = _context.Sales.Where(s => s.BranchId == b.Id && !s.IsArchived).Sum(s => s.Amount),
+                    Expenses = _context.Expenses.Where(e => e.BranchId == b.Id && !e.IsArchived).Sum(e => e.Amount)
+                })
+                .ToListAsync();
 
-            var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
-            await _auditLog.LogActivityAsync("REPORT_EXPORT", "Exported executive health dashboard to CSV");
-            return File(bytes, "text/csv", $"CoretexReport_{DateTime.Now:yyyyMMdd}.csv");
+            var sortedBranches = branchPerformance
+                .OrderByDescending(b => b.Revenue - b.Expenses)
+                .ToList();
+
+            var csv = new System.Text.StringBuilder();
+            csv.AppendLine("CORETEX EXECUTIVE BRANCH PERFORMANCE REPORT");
+            csv.AppendLine($"Generated At,{DateTime.Now:f}");
+            csv.AppendLine($"Global Risk Level,{globalData.RiskLevel}");
+            csv.AppendLine();
+            csv.AppendLine("Rank,Branch Name,Revenue (PHP),Expenses (PHP),Net Profit (PHP)");
+
+            for (int i = 0; i < sortedBranches.Count; i++)
+            {
+                var b = sortedBranches[i];
+                var profit = b.Revenue - b.Expenses;
+                csv.AppendLine($"{i + 1},{b.Name},{b.Revenue:F2},{b.Expenses:F2},{profit:F2}");
+            }
+
+            csv.AppendLine();
+            csv.AppendLine($"TOTAL,,{globalData.TotalRevenue:F2},{globalData.TotalExpenses:F2},{globalData.NetProfit:F2}");
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(csv.ToString());
+            await _auditLog.LogActivityAsync("REPORT_EXPORT", "Exported professional branch performance report to CSV");
+            return File(bytes, "text/csv", $"Coretex_BranchRanking_{DateTime.Now:yyyyMMdd}.csv");
         }
     }
 }

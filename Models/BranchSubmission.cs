@@ -30,6 +30,12 @@ namespace coretex_finalproj.Models
         [Range(0, 999999999)]
         public decimal Expenses { get; set; }
 
+        // Itemized Breakdown for EDSS Analytics
+        public decimal Cogs { get; set; }
+        public decimal Rent { get; set; }
+        public decimal Salaries { get; set; }
+        public decimal Utilities { get; set; }
+
         [Required]
         [StringLength(20)]
         public string Status { get; set; } = "Pending";

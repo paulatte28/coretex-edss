@@ -50,9 +50,12 @@
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Profit Floor</p>
             <p id="summary-monthly-profit" class="text-2xl font-black text-slate-900">--</p>
         </div>
-        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Alert Level</p>
-            <p id="summary-risk-level" class="text-2xl font-black text-slate-900">--</p>
+        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Alert Level</p>
+                <p id="summary-risk-level" class="text-2xl font-black text-slate-900">--</p>
+            </div>
+            <button onclick="resetToStandards()" class="mt-4 text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline text-left">Reset to Industry Standards</button>
         </div>
     </div>
 
@@ -211,20 +214,32 @@
         function loadThresholds() {
             const saved = JSON.parse(localStorage.getItem('coretex_kpi_thresholds') || '{}');
             
-            if (saved.minProfitMargin !== undefined) {
-                document.getElementById('min-profit-margin').value = saved.minProfitMargin;
-            }
-            if (saved.maxExpenseRatio !== undefined) {
-                document.getElementById('max-expense-ratio').value = saved.maxExpenseRatio;
-            }
-            if (saved.minMonthlyProfit !== undefined) {
-                document.getElementById('min-monthly-profit').value = formatNumber(saved.minMonthlyProfit);
-            }
-            if (saved.riskAlertLevel) {
-                document.getElementById('risk-alert-level').value = saved.riskAlertLevel;
-            }
+            // Professional Defaults if empty or extreme
+            const minProfit = (saved.minProfitMargin === undefined) ? 20.0 : saved.minProfitMargin;
+            const maxExpense = (saved.maxExpenseRatio === undefined) ? 35.0 : saved.maxExpenseRatio;
+            const profitFloor = (saved.minMonthlyProfit === undefined) ? 50000 : saved.minMonthlyProfit;
+            const alertLevel = saved.riskAlertLevel || 'yellow';
+
+            document.getElementById('min-profit-margin').value = minProfit;
+            document.getElementById('max-expense-ratio').value = maxExpense;
+            document.getElementById('min-monthly-profit').value = formatNumber(profitFloor);
+            document.getElementById('risk-alert-level').value = alertLevel;
             
             updateSummary();
+        }
+
+        function resetToStandards() {
+            if (!confirm("Reset all thresholds to Professional Industry Standards (20% Margin, 35% Expense)?")) return;
+            
+            const defaults = {
+                minProfitMargin: 20.0,
+                maxExpenseRatio: 35.0,
+                minMonthlyProfit: 50000.0,
+                riskAlertLevel: 'yellow'
+            };
+            localStorage.setItem('coretex_kpi_thresholds', JSON.stringify(defaults));
+            loadThresholds();
+            showToast('Reset to Professional Standards. Don\'t forget to click "Commit Thresholds" to save.');
         }
 
         // Format currency input

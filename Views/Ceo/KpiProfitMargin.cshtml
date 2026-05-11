@@ -133,6 +133,8 @@
 @section Scripts {
     <script src="~/js/ceo-flow.js" asp-append-version="true"></script>
     <script>
+        let currentMargin = 0; // GLOBAL TRACKER FOR AUTO-HEAL
+
         document.addEventListener('DOMContentLoaded', function () {
             const ceo = window.CoretexCeo;
             ceo.renderNav('profit-margin', 'ceo-nav');
@@ -143,14 +145,20 @@
             const threshold = @(ViewBag.Threshold ?? 15);
 
             if (monthlyData && monthlyData.length > 0) {
+                // Find the latest entry (usually the last one or the one marked LIVE)
                 const latest = monthlyData[monthlyData.length - 1];
-                const profit = latest.sales - latest.expenses;
-                const margin = latest.sales > 0 ? (profit / latest.sales * 100) : 0;
                 
-                document.getElementById('current-margin').textContent = ceo.pct(margin);
+                // Robust data extraction (supports both sales/Sales and expenses/Expenses)
+                const liveSales = Number(latest.sales ?? latest.Sales ?? 0);
+                const liveExpenses = Number(latest.expenses ?? latest.Expenses ?? 0);
+                const liveProfit = liveSales - liveExpenses;
+                
+                currentMargin = liveSales > 0 ? (liveProfit / liveSales * 100) : 0;
+                
+                document.getElementById('current-margin').textContent = ceo.money(liveSales) === ceo.money(0) ? "0.0%" : ceo.pct(currentMargin);
                 document.getElementById('threshold-text').textContent = `Threshold: ${Number(threshold).toFixed(1)}%`;
 
-                const above = margin >= threshold;
+                const above = currentMargin >= threshold;
                 document.getElementById('margin-status').textContent = above ? '🟢 Above Threshold' : '🔴 Below Threshold';
                 document.getElementById('margin-status').className = `text-2xl font-black mt-2 ${above ? 'text-emerald-700' : 'text-red-700'}`;
 

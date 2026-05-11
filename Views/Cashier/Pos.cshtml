@@ -133,6 +133,7 @@
 
                 <div class="flex-grow overflow-y-auto pr-4 custom-scrollbar pos-grid-bg rounded-[2rem] p-6 border border-slate-50">
                     <div class="mb-6 relative">
+                        <div id="strategy-signal-container" class="hidden mb-4"></div>
                         <input type="text" id="pos-search" onkeyup="filterProducts()" placeholder="Search Inventory (e.g. ZenBook, RTX, ERP...)" class="w-full py-4 pl-12 pr-4 bg-white border border-slate-200 rounded-2xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none shadow-sm">
                         <svg class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
@@ -506,31 +507,6 @@
             renderCart();
         }
 
-        async function postToDb(item) {
-            const isEnforced = localStorage.getItem('coretex_pricing_floor') === 'true';
-            let finalAmount = item.qty * item.price;
-            if (isEnforced) finalAmount += (finalAmount * 0.05);
-
-            const response = await fetch('/Cashier/CreateSale', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    productName: item.name, 
-                    quantity: item.qty, 
-                    unitPrice: item.price, 
-                    amount: finalAmount,
-                    customerName: "Executive Demo Walk-in" 
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.text();
-                throw new Error(errorData || "Server rejected the commitment.");
-            }
-
-            return await response.json();
-        }
-
         async function processCheckout() {
             const btn = document.getElementById('checkout-btn');
             btn.disabled = true;
@@ -538,15 +514,38 @@
             showStep('Establishing SQL Handshake...', 0);
             
             try {
-                let orderId = "";
-                for (const item of cart) {
-                    const res = await postToDb(item);
-                    orderId = res.orderId;
-                }
+                const isEnforced = localStorage.getItem('coretex_pricing_floor') === 'true';
                 
-                document.getElementById('success-order-id').textContent = orderId;
-                showStep('Committing Secure Record...', 1000);
-                setTimeout(() => finalizeSuccess(), 2000);
+                // Map the cart to the Sale model format expected by the server
+                const payload = cart.map(item => {
+                    let finalAmount = item.qty * item.price;
+                    if (isEnforced) finalAmount += (finalAmount * 0.05);
+                    
+                    return {
+                        productName: item.name,
+                        quantity: item.qty,
+                        unitPrice: item.price,
+                        amount: finalAmount,
+                        customerName: "Executive Demo Walk-in"
+                    };
+                });
+
+                const response = await fetch('/Cashier/CreateBulkSale', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("Server rejected the commitment.");
+                
+                const res = await response.json();
+                if (res.success) {
+                    document.getElementById('success-order-id').textContent = res.orderId;
+                    showStep('Committing Secure Record...', 1000);
+                    setTimeout(() => finalizeSuccess(), 2000);
+                } else {
+                    throw new Error(res.message || "Bulk save failed.");
+                }
             } catch (err) {
                 showPremiumModal("COMMIT FAILURE", "DATABASE ERROR", "The secure channel was interrupted: " + err.message, 'error');
                 btn.disabled = false;
