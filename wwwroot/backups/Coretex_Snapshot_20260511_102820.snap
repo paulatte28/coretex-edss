@@ -1,0 +1,2055 @@
+{
+  "Branches": [
+    {
+      "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Name": "Sandawa",
+      "Address": "Sandawa, Davao City",
+      "IsActive": true,
+      "BranchCode": "SDW-010",
+      "IsArchived": false
+    },
+    {
+      "Id": "3a3d7eed-58ba-4dc9-90d0-b3cd2db5a5d9",
+      "Name": "Claveria HQ",
+      "Address": "Claveria St., Davao City",
+      "IsActive": true,
+      "BranchCode": "CHQ-001",
+      "IsArchived": true
+    }
+  ],
+  "Sales": [
+    {
+      "Id": "fad09980-7a4b-46e3-ade1-8e52a7a5e02c",
+      "OrderId": "CTX-2026-0001",
+      "CustomerName": "Executive Demo Walk-in",
+      "Amount": 6300.00,
+      "ProductName": "Cloud Backup Subscription",
+      "Quantity": 5,
+      "UnitPrice": 1200.00,
+      "Status": "Completed",
+      "Date": "2026-05-10T21:39:37.5516854",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      },
+      "IsArchived": false
+    }
+  ],
+  "Expenses": [],
+  "Users": [
+    {
+      "Id": "1de00738-5d57-40e4-92ec-faa32c24932b",
+      "UserName": "cashier.claveriahq@coretex.com",
+      "Email": "cashier.claveriahq@coretex.com",
+      "FullName": "Claveria HQ Cashier",
+      "BranchId": "3a3d7eed-58ba-4dc9-90d0-b3cd2db5a5d9",
+      "Role": "CASHIER"
+    },
+    {
+      "Id": "3232b3fd-6b0f-4ff3-a507-73c0fb51246d",
+      "UserName": "ceo@coretex.com",
+      "Email": "ceo@coretex.com",
+      "FullName": "Chief Executive Officer",
+      "BranchId": null,
+      "Role": "CEO"
+    },
+    {
+      "Id": "358bf43e-9354-4e78-ae4f-b18a8b4685d7",
+      "UserName": "manager.claveriahq@coretex.com",
+      "Email": "manager.claveriahq@coretex.com",
+      "FullName": "Claveria HQ Manager",
+      "BranchId": "3a3d7eed-58ba-4dc9-90d0-b3cd2db5a5d9",
+      "Role": "BRANCH_ADMIN"
+    },
+    {
+      "Id": "50b387e8-70a2-4d1a-adc1-d1cb86614bdf",
+      "UserName": "finance.claveriahq@coretex.com",
+      "Email": "finance.claveriahq@coretex.com",
+      "FullName": "Claveria HQ Finance",
+      "BranchId": "3a3d7eed-58ba-4dc9-90d0-b3cd2db5a5d9",
+      "Role": "FINANCE"
+    },
+    {
+      "Id": "8f0cac04-5da2-44d6-ac70-cfe8d6d790a4",
+      "UserName": "manager.sandawa@coretex.com",
+      "Email": "manager.sandawa@coretex.com",
+      "FullName": "Sandawa Manager",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Role": "BRANCH_ADMIN"
+    },
+    {
+      "Id": "a027d8a8-cd79-484f-b500-dcdb93ab83d8",
+      "UserName": "finance.sandawa@coretex.com",
+      "Email": "finance.sandawa@coretex.com",
+      "FullName": "Sandawa Finance",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Role": "FINANCE"
+    },
+    {
+      "Id": "a880a75d-c3ef-4d04-8500-78a1a33ec4e8",
+      "UserName": "cashier.sandawa@coretex.com",
+      "Email": "cashier.sandawa@coretex.com",
+      "FullName": "Sandawa Cashier",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Role": "CASHIER"
+    },
+    {
+      "Id": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "Email": "admin@coretex.com",
+      "FullName": "System Administrator",
+      "BranchId": null,
+      "Role": "ADMIN"
+    }
+  ],
+  "ActivityLogs": [
+    {
+      "Id": "d000a0e8-ef2e-49a9-9c1c-0cc4ec73f5db",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_ARCHIVE",
+      "Description": "Archived personnel access for manager.claveriahq@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:52:45.6156621",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "018ca134-eaad-4e73-bb39-c83b7cf724da",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "STAFF_RESTORE",
+      "Description": "Restored staff account: Sandawa Manager",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:52:35.3885738",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "5eba4969-1d21-4265-9b96-f6beab581a32",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_ARCHIVE",
+      "Description": "Archived personnel access for manager.sandawa@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:52:26.7751047",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "e95a6b07-a2c4-4386-b03c-ad231e7d3fc7",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_TERMINATE",
+      "Description": "Terminated access for manager.claveriahq@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:47:53.650612",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "56767d85-b677-46d4-8629-bec71ff5ac7a",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_TERMINATE",
+      "Description": "Terminated access for finance.claveriahq@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:47:40.3106534",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "54ca7ecc-2ab8-4613-8f68-e7c39880c400",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_TERMINATE",
+      "Description": "Terminated access for cashier.claveriahq@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:47:28.6927453",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "ffb0b144-6de8-413c-8c25-499f34eafb7a",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:47:09.9159078",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "b320fd96-99af-46ee-aa5d-1b27748e11a8",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:47:06.0966795",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "6419bd51-bb33-4c14-aba7-1b9940cc27cf",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:46:31.3388193",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "a792f94a-eba6-4c82-9d37-c608e3484a73",
+      "UserId": "129752b0-b353-4ca1-bfaf-d612b740ae6e",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:46:26.7807925",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "07b910f8-c2c6-4d05-8363-535f043fa9b7",
+      "UserId": "129752b0-b353-4ca1-bfaf-d612b740ae6e",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:46:12.172323",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "382633d6-c34b-454a-913e-74b4dbba4b6a",
+      "UserId": "38d17a21-02ed-4f83-85f4-fcf33471cb0e",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:46:06.2418944",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "4f0590aa-8611-4417-9a8f-b597f177e21d",
+      "UserId": "38d17a21-02ed-4f83-85f4-fcf33471cb0e",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:37:33.6763224",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "1844d917-8163-4807-8027-96773a9ea65a",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:37:25.9976829",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "697d2dfa-d033-41d6-b33c-2215c05ee105",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:36:43.773684",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "0f69bf69-5fbc-4656-ab5b-c2fc07640bb8",
+      "UserId": "38d17a21-02ed-4f83-85f4-fcf33471cb0e",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:36:37.509775",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "164e7dc0-0616-4849-9219-44109df1cff1",
+      "UserId": "38d17a21-02ed-4f83-85f4-fcf33471cb0e",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:35:49.4202879",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "329ba049-cfee-48d9-857d-3124f875fa82",
+      "UserId": "00ff5e07-336a-4f24-854d-7e3801992cc5",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:35:40.6240651",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "55ea0665-c357-4ae1-933a-1b7601e7b704",
+      "UserId": "00ff5e07-336a-4f24-854d-7e3801992cc5",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:35:04.7960806",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "d42f860c-1bce-4ef7-b643-209a6434b9f9",
+      "UserId": "66b477c5-5119-486a-932b-a397da6234e5",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:34:58.8230345",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "4f3a45d3-73a1-47e0-8405-d3faccf515b4",
+      "UserId": "66b477c5-5119-486a-932b-a397da6234e5",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:32:49.2050434",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "feecff90-414a-491c-b958-06d0d1a3c368",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:32:40.7469636",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "b10151fa-71b0-4795-baab-0db4ec65e959",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_ARCHIVE",
+      "Description": "Archived branch: Claveria HQ",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:17:08.9128366",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "0d49b706-e4f1-49e6-a1d0-132411875884",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_RESTORE",
+      "Description": "Restored branch: Claveria HQ",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:17:02.4572489",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "dd62be05-6317-45d2-ab52-7b4bd4f1d795",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "SYSTEM_BACKUP",
+      "Description": "Created portable system snapshot: Coretex_Snapshot_20260511_091652.snap",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:16:53.5871783",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "6662e970-e94d-4b0f-9f42-f625917928ad",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T01:16:42.1742611",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "c7929852-2b81-4795-8737-d20d14a13633",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "SYSTEM_BACKUP",
+      "Description": "Created portable system snapshot: Coretex_Snapshot_20260511_082826.snap",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T00:28:27.2316743",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "9ecc3a25-3697-4a0b-8948-8f77f426b3d0",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-11T00:19:24.842301",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "16ccdc0b-360c-46c2-925e-8e53d41bf8ed",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_STATUS_TOGGLE",
+      "Description": "Toggled status for branch Sandawa to Active",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:10:36.1791761",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "833adc55-e1ad-48d1-a1f5-92147b94ea27",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_RESTORE",
+      "Description": "Restored branch: Sandawa",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:10:31.7679517",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "d2ab5dff-dc68-403d-9935-aa307a2caec7",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_RESTORE",
+      "Description": "Restored branch: Sandawa",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:10:31.4661895",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "f274be75-4857-4b04-b2ea-944290b57c74",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_ARCHIVE",
+      "Description": "Archived branch: Sandawa",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:10:25.3111503",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "f03a8ca5-7616-424f-bbc7-d0b784e12e28",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "BRANCH_STATUS_TOGGLE",
+      "Description": "Toggled status for branch Sandawa to Inactive",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:10:20.187174",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "158e45b8-1b22-4a23-8761-cf776057b512",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "SECURITY_VIOLATION",
+      "Description": "Admin admin@coretex.com attempted to modify CEO ceo@coretex.com. Action Blocked.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:03:48.5461028",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "60920961-ab50-4a39-b3f9-b851de551c3b",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "SECURITY_VIOLATION",
+      "Description": "Admin admin@coretex.com attempted to modify CEO ceo@coretex.com. Action Blocked.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:03:12.0981641",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "1698dfc0-c928-4a43-8380-033320245d8e",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "SECURITY_VIOLATION",
+      "Description": "Admin admin@coretex.com attempted to modify CEO ceo@coretex.com. Action Blocked.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:03:03.1924443",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "0eae3e8f-27d8-4b72-9c4a-68797d98cdce",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T20:02:44.3026155",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "048b343c-672d-4c36-8549-f4fd4efc7c1c",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_TERMINATE",
+      "Description": "Terminated access for manager.claveriahq@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T19:41:09.487052",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "66cbc9c6-75b8-4cd6-ae3a-615abcbe243e",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "USER_TERMINATE",
+      "Description": "Terminated access for cashier.claveriahq@coretex.com.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T19:40:44.8925804",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "697c9c80-9250-4515-b55a-7e3d7e5d40f2",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T19:28:06.2254837",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "fa48ecfb-f6ee-4a2c-8f89-6e6f35a3b069",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T16:22:33.9818238",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "65cffc3c-3182-4e2b-b8a0-ee067a3d561b",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:26:31.4997461",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "33b41b13-eb27-4aca-8fdc-196abe47ea0f",
+      "UserId": "a5e1e221-7ddd-4cc6-9db3-a4034474d737",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:26:04.7998406",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "60f79b9e-2bb1-4be2-ae93-4208bcb7d492",
+      "UserId": "a5e1e221-7ddd-4cc6-9db3-a4034474d737",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:24:34.8597917",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "6e83d8e5-ef17-4b82-b78d-10ecf6f2580c",
+      "UserId": "b76a2132-74b2-4784-b18d-7f2519d7d574",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:19:14.5033026",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "d91f6237-b3df-4e69-8ac6-7fe8406db01a",
+      "UserId": "863a35dd-cdb9-4351-83f0-ff2380c5a232",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:14:17.4619993",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "f18ce673-0f6a-4661-8688-c105d664a9c4",
+      "UserId": "6649fff0-970d-4b50-ae39-fb538669376b",
+      "UserName": "finance.sandawa@coretex.com",
+      "UserRole": "FINANCE",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User finance.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:10:01.2149665",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "21e79601-ed82-4de5-9883-eca1ad699d97",
+      "UserId": null,
+      "UserName": "Anonymous",
+      "UserRole": "Member",
+      "ActionType": "LOGIN_FAILURE",
+      "Description": "Failed login attempt for finance.sandawa@coretex.com",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:09:40.4007857",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "9b2a7f1d-536f-4b3f-bf5a-9706a64c27c4",
+      "UserId": "e68b423b-1031-4a8f-bc7b-68b26a666876",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:09:21.9774302",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "16eb1c0d-7dd0-466e-ac98-2e64875e0cc5",
+      "UserId": "e68b423b-1031-4a8f-bc7b-68b26a666876",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:08:14.1393555",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "001b06c5-fdee-484f-b766-f303373d6f8a",
+      "UserId": "428a3b1e-3638-4834-a9e4-d10dde2909ab",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:08:07.0234239",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "97ff77a2-a3f6-4851-af7c-f27d4012de52",
+      "UserId": "428a3b1e-3638-4834-a9e4-d10dde2909ab",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:07:57.7846114",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "4fe7a138-0b2f-4601-9e1d-3c25ab513ab9",
+      "UserId": "6b721d1c-ac9d-482d-a6a9-705776cf55f5",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:07:50.5721834",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "87eb75dd-2ce8-48be-be14-9a766578cb4f",
+      "UserId": "6b721d1c-ac9d-482d-a6a9-705776cf55f5",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:07:18.641077",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "75dc0594-1616-40ae-b305-324b7805de9c",
+      "UserId": "6b721d1c-ac9d-482d-a6a9-705776cf55f5",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:07:08.2940479",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "548ba4bb-bd49-49b2-8c38-a31e8e32123f",
+      "UserId": "6b721d1c-ac9d-482d-a6a9-705776cf55f5",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:06:57.7215661",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "7b79f872-2a7d-4c00-a159-829bd0ebe381",
+      "UserId": "69f0251e-d61e-477f-a547-8b91880b7769",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:06:43.5330656",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "f5e7fbec-b3e5-482f-b038-f9b027548c54",
+      "UserId": "69f0251e-d61e-477f-a547-8b91880b7769",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "USER_PROVISION",
+      "Description": "Provisioned cashier1.sandawa@coretex.com with auto-gen password.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:06:02.1384579",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "6ba62fa1-fdce-4243-8df7-f686b8ceff84",
+      "UserId": "69f0251e-d61e-477f-a547-8b91880b7769",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:04:39.8672084",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "ceab5884-91f3-4392-afff-baaf738a80b7",
+      "UserId": "6562227e-5d5e-4c41-b863-753615f04d42",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:04:35.354128",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "94927d70-09f6-49a4-bdf1-42fecd1d792e",
+      "UserId": "6562227e-5d5e-4c41-b863-753615f04d42",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:01:19.9333888",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "97be3057-82b9-41b9-b697-573e62a69df9",
+      "UserId": "f61415d5-83a4-4d74-bfa8-f0701ec46d8a",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T15:01:16.4202758",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "43925502-f5d8-4f17-b2d0-e4d3d593123c",
+      "UserId": "f61415d5-83a4-4d74-bfa8-f0701ec46d8a",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:54:36.6848641",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "d8c37982-b4b1-46af-a18e-06f0f0270820",
+      "UserId": "f5d2e4ba-ce01-4d43-8eee-17c7afc27ae4",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:54:30.4646248",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "d8f4afad-61e0-424f-853a-690b06cbfa53",
+      "UserId": "f5d2e4ba-ce01-4d43-8eee-17c7afc27ae4",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:49:53.8784896",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "b6f51373-1f0f-46c5-8ae2-7e5dc52d2278",
+      "UserId": "4953dd4f-bf29-4c54-87dd-22090db892f9",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:49:46.3349623",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "10695c67-170d-411a-bd20-d15e46178eb6",
+      "UserId": "4953dd4f-bf29-4c54-87dd-22090db892f9",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:49:36.2066469",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "ae31078f-30ad-4602-980b-244adbaa3dcf",
+      "UserId": "4953dd4f-bf29-4c54-87dd-22090db892f9",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:49:27.4643023",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "e2d9e992-399d-48c8-ad4f-3dda0a489baa",
+      "UserId": "4953dd4f-bf29-4c54-87dd-22090db892f9",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:49:14.0782607",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "4d3478d5-f4fd-43cb-93d1-31b796ccebd0",
+      "UserId": "4953dd4f-bf29-4c54-87dd-22090db892f9",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:49:07.0329461",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "617f7f5c-e32b-4096-a772-2330d9e43a67",
+      "UserId": "4953dd4f-bf29-4c54-87dd-22090db892f9",
+      "UserName": "manager.sandawa@coretex.com",
+      "UserRole": "BRANCH_ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User manager.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:43:48.1552355",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "afd5052b-1635-41b8-a765-b658c4b26343",
+      "UserId": "f5d2e4ba-ce01-4d43-8eee-17c7afc27ae4",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:43:41.973422",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "02ba5a55-ccec-4ead-8dfc-909e3ab0632e",
+      "UserId": "f5d2e4ba-ce01-4d43-8eee-17c7afc27ae4",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:42:29.5222754",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "ec41ba87-5212-4f8f-a3e9-838075c87ceb",
+      "UserId": "8acbdc28-5630-49ce-88b4-f5798f655480",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:39:59.2588442",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "5022886f-eccb-4207-8d75-ee2004a89cdf",
+      "UserId": "8acbdc28-5630-49ce-88b4-f5798f655480",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:39:49.6967991",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "412f5abd-ab4f-40db-96c1-b22fd76051cd",
+      "UserId": "eeb4d86c-50b3-4204-a7b0-befa4f7ff5d3",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:33:40.8788864",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "6bd59e4e-21f1-44b4-8f80-a49f0be81e42",
+      "UserId": "eeb4d86c-50b3-4204-a7b0-befa4f7ff5d3",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:29:27.2207038",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "1058dc98-1357-49be-a729-05be2e330da5",
+      "UserId": "eeb4d86c-50b3-4204-a7b0-befa4f7ff5d3",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:28:29.8010505",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "5564820e-432b-44ea-9330-dbec81ae5aa7",
+      "UserId": "c8ab4588-09b0-416f-84e8-93e8291f8da7",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:11:52.0649968",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "530eb947-0daf-4361-ba16-d783d5854558",
+      "UserId": "c8ab4588-09b0-416f-84e8-93e8291f8da7",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:08:59.5412623",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "40edaa63-74c8-4abe-90ff-fdb38f0cffd1",
+      "UserId": "c8ab4588-09b0-416f-84e8-93e8291f8da7",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:04:45.6626745",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "c3d9e2ad-0fce-4d19-ab1b-590969505ae5",
+      "UserId": "c8ab4588-09b0-416f-84e8-93e8291f8da7",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:04:31.0281078",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "41b597a2-4694-4242-bcb6-2f21e832f2ef",
+      "UserId": "c8ab4588-09b0-416f-84e8-93e8291f8da7",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:03:24.5658421",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "0f2fd09a-09d7-4467-a2c2-4d0b2f5becf1",
+      "UserId": "c8ab4588-09b0-416f-84e8-93e8291f8da7",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User cashier.sandawa@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:03:04.768279",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "968afeb0-ccef-40b8-9b66-0e48028adf82",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:02:51.2962202",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "e7715852-66d6-478d-9ce9-1a9580f3fb1b",
+      "UserId": "e549ebbe-c14d-482d-a77c-cd7279560e70",
+      "UserName": "admin@coretex.com",
+      "UserRole": "ADMIN",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User admin@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:02:34.7428543",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "90c9ca49-4da5-41db-b071-f2c3369e20cb",
+      "UserId": "3232b3fd-6b0f-4ff3-a507-73c0fb51246d",
+      "UserName": "ceo@coretex.com",
+      "UserRole": "CEO",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:02:29.0817248",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "8b2f4064-a856-4a8e-b86d-954c304d6b12",
+      "UserId": "3232b3fd-6b0f-4ff3-a507-73c0fb51246d",
+      "UserName": "ceo@coretex.com",
+      "UserRole": "CEO",
+      "ActionType": "LOGIN_SUCCESS",
+      "Description": "User ceo@coretex.com logged in successfully.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:01:50.0925163",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "46f2a4bd-fb7d-495c-856d-6d956170d74d",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "LOGOUT",
+      "Description": "User logged out.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T14:01:44.9029791",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "77edb678-8473-42cd-b87d-24abe9a54439",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:58:48.2030041",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "6ba47b43-076b-4295-b77c-1c1973c3c2a0",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:57:58.9576493",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "3d0a0474-5694-4c67-b307-02da188db512",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:51:22.6590488",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "e697b8cf-eba0-4486-b09e-e7c5cb07fb62",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:51:21.39937",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "5e0f3de6-3366-4518-9923-3b347d0fbdcd",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:49:31.699372",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "071ef0cd-8e13-4585-862f-73be9d86ae6d",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "INVENTORY_AUDIT",
+      "Description": "Cashier cashier.sandawa@coretex.com performed a stock health surveillance check.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:49:27.4379157",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    },
+    {
+      "Id": "884e4ac5-698c-4fcc-aee0-38171ee90d30",
+      "UserId": "4b0ae0b0-f536-4a0e-9478-2c3727e4abc6",
+      "UserName": "cashier.sandawa@coretex.com",
+      "UserRole": "CASHIER",
+      "ActionType": "SALE_CREATE",
+      "Description": "Created sale CTX-2026-0001 for \u20B16,300.00. Inventory decremented for Cloud Backup Subscription.",
+      "IpAddress": "::1",
+      "Location": "Davao, Philippines",
+      "CreatedAt": "2026-05-10T13:39:38.870877",
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    }
+  ],
+  "GoalTargets": [],
+  "KpiThresholds": [
+    {
+      "Id": "0b178804-6c48-4db6-8404-54873eca4670",
+      "MinProfitMargin": 100.00,
+      "MaxExpenseRatio": 10.00,
+      "MinMonthlyProfit": 100.00,
+      "RiskAlertLevel": "red",
+      "UpdatedAt": "2026-05-10T07:20:51.0503103",
+      "IsActive": true,
+      "BranchId": "4d404cf0-79bb-470e-bb45-21df90291606",
+      "Branch": {
+        "Id": "4d404cf0-79bb-470e-bb45-21df90291606",
+        "Name": "Sandawa",
+        "Address": "Sandawa, Davao City",
+        "IsActive": true,
+        "BranchCode": "SDW-010",
+        "IsArchived": false
+      }
+    }
+  ],
+  "Timestamp": "2026-05-11T10:28:20.3610575+08:00",
+  "SystemVersion": "2.1.0"
+}

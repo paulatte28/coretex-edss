@@ -46,8 +46,8 @@
                     <p class="text-sm text-slate-500 mt-1">Turn on to activate automated report delivery</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="enable-reports" class="sr-only peer">
-                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-rose-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-600"></div>
+                    <input type="checkbox" id="enable-reports" class="sr-only peer" @( ((IEnumerable<AppUser>)ViewBag.CeoUsers).Any() ? "" : "disabled" )>
+                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-rose-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-600 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
                 </label>
             </div>
 
@@ -198,14 +198,18 @@
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+        // --- LIVE DATA INJECTION ---
+        const ceos = @Html.Raw(Json.Serialize(((IEnumerable<AppUser>)ViewBag.CeoUsers).Select(u => new { u.FullName, u.Email })));
+        const branches = @Html.Raw(Json.Serialize(ViewBag.Branches));
+        const currentSchedule = @Html.Raw(Json.Serialize(Model.CurrentSchedule));
+
         // Load saved schedule
         function loadSchedule() {
-            const saved = JSON.parse(localStorage.getItem('coretex_report_schedule') || '{}');
-            const users = JSON.parse(localStorage.getItem('coretex_users') || '[]');
-            
-            // Populate CEO recipients
-            const ceos = users.filter(u => u.role === 'CEO' && u.status === 'Active');
             const container = document.getElementById('recipients-container');
+            const enableToggle = document.getElementById('enable-reports');
+            
+            // Check if we have an existing schedule in DB, otherwise check localStorage (legacy support)
+            const saved = currentSchedule || JSON.parse(localStorage.getItem('coretex_report_schedule') || '{}');
             
             if (ceos.length === 0) {
                 container.innerHTML = `
@@ -214,12 +218,14 @@
                         <p class="text-xs mt-1">Add a CEO user in User Management first</p>
                     </div>
                 `;
+                enableToggle.disabled = true;
+                enableToggle.title = "Add a CEO user to enable automated reports";
             } else {
                 container.innerHTML = ceos.map(ceo => `
                     <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
-                        <input type="checkbox" name="recipients" value="${ceo.email}" class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500" ${saved.recipients?.includes(ceo.email) ? 'checked' : ''}>
+                        <input type="checkbox" name="recipients" value="${ceo.email}" class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500" ${ (saved.recipients || saved.Recipients)?.includes(ceo.email) ? 'checked' : ''}>
                         <div class="ml-3">
-                            <p class="font-bold text-slate-900 text-sm">${ceo.name}</p>
+                            <p class="font-bold text-slate-900 text-sm">${ceo.fullName}</p>
                             <p class="text-xs text-slate-500">${ceo.email}</p>
                         </div>
                     </label>
@@ -227,25 +233,27 @@
             }
             
             // Load saved values
-            if (saved.enabled !== undefined) {
-                document.getElementById('enable-reports').checked = saved.enabled;
+            if (saved.isEnabled !== undefined || saved.enabled !== undefined) {
+                enableToggle.checked = saved.isEnabled ?? saved.enabled;
                 toggleScheduleFields();
             }
-            if (saved.frequency) {
-                document.getElementById('frequency').value = saved.frequency;
+            if (saved.frequency || saved.Frequency) {
+                document.getElementById('frequency').value = (saved.frequency || saved.Frequency).toLowerCase();
                 toggleDayOfWeek();
             }
-            if (saved.dayOfWeek !== undefined) {
-                document.getElementById('day-of-week').value = saved.dayOfWeek;
+            if (saved.dayOfWeek !== undefined || saved.DayOfWeek !== undefined) {
+                document.getElementById('day-of-week').value = saved.dayOfWeek ?? saved.DayOfWeek ?? 1;
             }
-            if (saved.time) {
-                document.getElementById('report-time').value = saved.time;
+            if (saved.time || saved.ScheduledTime) {
+                // ScheduledTime might be a TimeSpan string like "08:00:00"
+                const rawTime = saved.time || saved.ScheduledTime;
+                document.getElementById('report-time').value = rawTime.length > 5 ? rawTime.substring(0, 5) : rawTime;
             }
-            if (saved.reportTypes) {
-                document.getElementById('report-executive').checked = saved.reportTypes.includes('executive');
-                document.getElementById('report-branch').checked = saved.reportTypes.includes('branch');
-                document.getElementById('report-kpi').checked = saved.reportTypes.includes('kpi');
-            }
+            
+            const types = saved.reportTypes || saved.ReportTypes || "";
+            document.getElementById('report-executive').checked = types.toLowerCase().includes('executive');
+            document.getElementById('report-branch').checked = types.toLowerCase().includes('branch');
+            document.getElementById('report-kpi').checked = types.toLowerCase().includes('kpi');
             
             updatePreview();
         }
@@ -317,32 +325,53 @@
         }
 
         // Save schedule
-        document.getElementById('schedule-form').addEventListener('submit', function(e) {
+        document.getElementById('schedule-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const recipients = Array.from(document.querySelectorAll('input[name="recipients"]:checked')).map(cb => cb.value);
-            const reportTypes = [];
-            if (document.getElementById('report-executive').checked) reportTypes.push('executive');
-            if (document.getElementById('report-branch').checked) reportTypes.push('branch');
-            if (document.getElementById('report-kpi').checked) reportTypes.push('kpi');
-            
-            const schedule = {
-                enabled: document.getElementById('enable-reports').checked,
-                frequency: document.getElementById('frequency').value,
-                dayOfWeek: parseInt(document.getElementById('day-of-week').value),
-                time: document.getElementById('report-time').value,
-                recipients: recipients,
-                reportTypes: reportTypes,
-                updatedAt: new Date().toISOString()
-            };
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...</span>';
 
-            localStorage.setItem('coretex_report_schedule', JSON.stringify(schedule));
+            const recipients = Array.from(document.querySelectorAll('input[name="recipients"]:checked')).map(cb => cb.value).join(',');
+            const reportTypes = [];
+            if (document.getElementById('report-executive').checked) reportTypes.push('Executive');
+            if (document.getElementById('report-branch').checked) reportTypes.push('Branch');
+            if (document.getElementById('report-kpi').checked) reportTypes.push('KPI');
             
-            // Log activity
-            logActivity('Schedule Updated', 'Report schedule configuration updated', 'schedule');
-            
-            // Show success toast
-            showToast('Schedule saved successfully!');
+            const formData = new URLSearchParams();
+            formData.append('enabled', document.getElementById('enable-reports').checked);
+            formData.append('frequency', document.getElementById('frequency').value);
+            formData.append('dayOfWeek', document.getElementById('day-of-week').value);
+            formData.append('time', document.getElementById('report-time').value);
+            formData.append('recipients', recipients);
+            formData.append('reportTypes', reportTypes.join(','));
+
+            try {
+                const response = await fetch('/Admin/SaveReportSchedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message);
+                    localStorage.removeItem('coretex_report_schedule'); // Clean up old storage
+                    // Log activity locally for instant feedback
+                    logActivity('Schedule Updated', 'Report schedule configuration saved to database', 'schedule');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+                alert('Failed to save schedule. Check console for details.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         });
 
         function showToast(message) {
@@ -424,259 +453,5 @@
             loadSchedule();
             renderReportsHistory();
         });
-    </script>
-}
-            const select = document.getElementById('schedule-branch');
-            
-            if (scope === 'specific') {
-                container.classList.remove('hidden');
-                select.required = true;
-                populateBranches();
-            } else {
-                container.classList.add('hidden');
-                select.required = false;
-                select.value = '';
-            }
-        }
-
-        function populateBranches() {
-            const select = document.getElementById('schedule-branch');
-            select.innerHTML = '<option value="">Select Branch</option>';
-            
-            branches.filter(b => b.status === 'active').forEach(branch => {
-                select.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
-            });
-        }
-
-        function getScheduleDescription(schedule) {
-            let desc = '';
-            
-            switch(schedule.frequency) {
-                case 'daily':
-                    desc = `Daily at ${schedule.time}`;
-                    break;
-                case 'weekly':
-                    desc = `Every ${dayLabels[schedule.dayOfWeek]} at ${schedule.time}`;
-                    break;
-                case 'monthly':
-                    const dateStr = schedule.dateOfMonth === 'last' ? 'last day' : `${schedule.dateOfMonth}th`;
-                    desc = `Monthly on the ${dateStr} at ${schedule.time}`;
-                    break;
-            }
-            
-            return desc;
-        }
-
-        function renderSchedules() {
-            const container = document.getElementById('schedule-list');
-            const emptyState = document.getElementById('empty-state');
-            const frequencyFilter = document.getElementById('filter-frequency').value;
-
-            let filteredSchedules = schedules.filter(s => {
-                return !frequencyFilter || s.frequency === frequencyFilter;
-            });
-
-            updateStats();
-
-            if (filteredSchedules.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            container.innerHTML = filteredSchedules.map(schedule => {
-                const branch = schedule.branchId ? branches.find(b => b.id === schedule.branchId) : null;
-                const recipientCount = schedule.recipients.split('\n').filter(r => r.trim()).length;
-
-                return `
-                    <div class="p-6 hover:bg-slate-50 transition-colors">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 ${schedule.status === 'active' ? 'bg-rose-100' : 'bg-slate-100'} rounded-xl flex items-center justify-center">
-                                    <svg class="w-6 h-6 ${schedule.status === 'active' ? 'text-rose-600' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                </div>
-                                <div>
-                                    <div class="flex items-center space-x-2">
-                                        <h4 class="font-bold text-slate-900">${schedule.name}</h4>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${schedule.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${schedule.status}</span>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-rose-100 text-rose-700">${frequencyLabels[schedule.frequency]}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-3 mt-1">
-                                        <span class="text-sm text-slate-600">${reportTypeLabels[schedule.type]}</span>
-                                        ${branch ? `<span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">${branch.name}</span>` : '<span class="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">All Branches</span>'}
-                                    </div>
-                                    <div class="flex items-center space-x-3 mt-2 text-xs text-slate-400">
-                                        <span class="flex items-center space-x-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            <span>${getScheduleDescription(schedule)}</span>
-                                        </span>
-                                        <span class="flex items-center space-x-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                            <span>${recipientCount} recipient${recipientCount !== 1 ? 's' : ''}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="toggleScheduleStatus('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-amber-100 hover:text-amber-600 transition-colors" title="${schedule.status === 'active' ? 'Pause' : 'Activate'}">
-                                    ${schedule.status === 'active' 
-                                        ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-                                        : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-                                    }
-                                </button>
-                                <button onclick="editSchedule('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-rose-100 hover:text-rose-600 transition-colors" title="Edit">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                </button>
-                                <button onclick="deleteSchedule('${schedule.id}')" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors" title="Delete">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function toggleScheduleStatus(id) {
-            const schedule = schedules.find(s => s.id === id);
-            if (schedule) {
-                schedule.status = schedule.status === 'active' ? 'paused' : 'active';
-                schedule.updatedAt = new Date().toISOString();
-                localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
-                renderSchedules();
-                logActivity('Schedule Updated', `${schedule.status === 'active' ? 'Activated' : 'Paused'}: ${schedule.name}`, 'schedule');
-            }
-        }
-
-        function openScheduleModal(scheduleId = null) {
-            const modal = document.getElementById('schedule-modal');
-            const title = document.getElementById('modal-title');
-            const form = document.getElementById('schedule-form');
-            
-            form.reset();
-            document.getElementById('schedule-id').value = '';
-            document.getElementById('branch-select-container').classList.add('hidden');
-            toggleFrequencyOptions();
-
-            if (scheduleId) {
-                const schedule = schedules.find(s => s.id === scheduleId);
-                if (schedule) {
-                    title.textContent = 'Edit Schedule';
-                    document.getElementById('schedule-id').value = schedule.id;
-                    document.getElementById('schedule-name').value = schedule.name;
-                    document.getElementById('schedule-type').value = schedule.type;
-                    document.getElementById('schedule-frequency').value = schedule.frequency;
-                    document.getElementById('schedule-time').value = schedule.time;
-                    document.getElementById('schedule-scope').value = schedule.branchId ? 'specific' : 'all';
-                    document.getElementById('schedule-recipients').value = schedule.recipients;
-                    document.getElementById('schedule-status').value = schedule.status;
-                    
-                    toggleFrequencyOptions();
-                    
-                    if (schedule.frequency === 'weekly') {
-                        document.getElementById('schedule-day').value = schedule.dayOfWeek;
-                    } else if (schedule.frequency === 'monthly') {
-                        document.getElementById('schedule-date').value = schedule.dateOfMonth;
-                    }
-                    
-                    if (schedule.branchId) {
-                        document.getElementById('branch-select-container').classList.remove('hidden');
-                        populateBranches();
-                        document.getElementById('schedule-branch').value = schedule.branchId;
-                    }
-                }
-            } else {
-                title.textContent = 'Add Report Schedule';
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeScheduleModal() {
-            document.getElementById('schedule-modal').classList.add('hidden');
-        }
-
-        function editSchedule(id) {
-            openScheduleModal(id);
-        }
-
-        function deleteSchedule(id) {
-            document.getElementById('delete-schedule-id').value = id;
-            document.getElementById('delete-modal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-        }
-
-        function confirmDelete() {
-            const id = document.getElementById('delete-schedule-id').value;
-            const schedule = schedules.find(s => s.id === id);
-            schedules = schedules.filter(s => s.id !== id);
-            localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
-            closeDeleteModal();
-            renderSchedules();
-            logActivity('Schedule Deleted', `Removed schedule: ${schedule?.name}`, 'schedule');
-        }
-
-        function logActivity(action, description, type) {
-            let activities = JSON.parse(localStorage.getItem('coretex_activities') || '[]');
-            activities.unshift({
-                id: Date.now(),
-                action,
-                description,
-                type,
-                timestamp: new Date().toISOString(),
-                user: 'System Administrator'
-            });
-            activities = activities.slice(0, 100);
-            localStorage.setItem('coretex_activities', JSON.stringify(activities));
-        }
-
-        document.getElementById('schedule-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const id = document.getElementById('schedule-id').value;
-            const frequency = document.getElementById('schedule-frequency').value;
-            const scope = document.getElementById('schedule-scope').value;
-            
-            // Validate branch for specific scope
-            if (scope === 'specific' && !document.getElementById('schedule-branch').value) {
-                alert('Please select a branch.');
-                return;
-            }
-
-            const scheduleData = {
-                id: id || 'schedule_' + Date.now(),
-                name: document.getElementById('schedule-name').value,
-                type: document.getElementById('schedule-type').value,
-                frequency: frequency,
-                time: document.getElementById('schedule-time').value,
-                dayOfWeek: frequency === 'weekly' ? parseInt(document.getElementById('schedule-day').value) : null,
-                dateOfMonth: frequency === 'monthly' ? document.getElementById('schedule-date').value : null,
-                branchId: scope === 'specific' ? document.getElementById('schedule-branch').value : null,
-                recipients: document.getElementById('schedule-recipients').value,
-                status: document.getElementById('schedule-status').value,
-                createdAt: id ? schedules.find(s => s.id === id)?.createdAt : new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            if (id) {
-                const index = schedules.findIndex(s => s.id === id);
-                schedules[index] = scheduleData;
-                logActivity('Schedule Updated', `Updated schedule: ${scheduleData.name}`, 'schedule');
-            } else {
-                schedules.push(scheduleData);
-                logActivity('Schedule Created', `Added schedule: ${scheduleData.name}`, 'schedule');
-            }
-
-            localStorage.setItem('coretex_schedules', JSON.stringify(schedules));
-            closeScheduleModal();
-            renderSchedules();
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', renderSchedules);
     </script>
 }

@@ -16,13 +16,15 @@ namespace coretex_finalproj.Controllers
         ApplicationDbContext context,
         UserManager<AppUser> userManager,
         AuditLoggingService auditLog,
-        IEmailSender emailSender) : Controller
+        IEmailSender emailSender,
+        IWebHostEnvironment webHostEnvironment) : Controller
     {
         private readonly AnalyticsService _analytics = analytics;
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<AppUser> _userManager = userManager;
         private readonly AuditLoggingService _auditLog = auditLog;
         private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender = emailSender;
+        private readonly IWebHostEnvironment _env = webHostEnvironment;
 
         // Admin Dashboard / Overview
         public async Task<IActionResult> Index()
@@ -150,7 +152,8 @@ namespace coretex_finalproj.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> BranchManagement()
         {
-            var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            // Load both active and archived branches for integrated management
+            var branches = await _context.Branches.ToListAsync();
             return View(branches);
         }
 
@@ -200,8 +203,16 @@ namespace coretex_finalproj.Controllers
             if (branch != null)
             {
                 branch.IsArchived = true;
+                
+                // ATOMIC DEACTIVATION of all staff in this branch
+                var branchStaff = await _context.Users.Where(u => u.BranchId == id).ToListAsync();
+                foreach (var s in branchStaff)
+                {
+                    s.IsActive = false;
+                }
+
                 await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("BRANCH_ARCHIVE", $"Archived branch: {branch.Name}");
+                await _auditLog.LogActivityAsync("BRANCH_ARCHIVE", $"Archived branch: {branch.Name}. {branchStaff.Count} staff members deactivated.");
             }
             return RedirectToAction(nameof(BranchManagement));
         }
@@ -230,6 +241,7 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> UserManagement()
         {
             var currentUser = await _userManager.GetUserAsync(User);
+            // Load both active and inactive users for integrated management
             IQueryable<AppUser> query = _userManager.Users.Include(u => u.Branch);
 
             if (currentUser?.BranchId != null)
@@ -243,6 +255,18 @@ namespace coretex_finalproj.Controllers
                 // Global Admin view
                 ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
             }
+
+            // GLOBAL AUDIT: Detect filled roles per branch for dynamic UI locking
+            var branchOccupancy = await _context.Users
+                .Where(u => u.BranchId != null && (u.Role == "BRANCH_ADMIN" || u.Role == "FINANCE"))
+                .GroupBy(u => u.BranchId)
+                .Select(g => new { 
+                    BranchId = g.Key, 
+                    Roles = g.Select(u => u.Role).ToList() 
+                })
+                .ToDictionaryAsync(x => x.BranchId.Value, x => x.Roles);
+            
+            ViewBag.BranchOccupancy = branchOccupancy;
 
             var users = await query.ToListAsync();
             return View(users);
@@ -331,6 +355,16 @@ namespace coretex_finalproj.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isTargetCeo = await _userManager.IsInRoleAsync(user, "CEO");
+
+            if (isTargetCeo && !User.IsInRole("CEO"))
+            {
+                await _auditLog.LogActivityAsync("SECURITY_VIOLATION", $"Admin {currentUser?.Email} attempted to modify CEO {user.Email}. Action Blocked.");
+                TempData["Error"] = "SECURITY VIOLATION: You do not have the authority to modify the CEO's security profile.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
             var oldRole = user.Role;
             var oldStatus = user.IsActive;
 
@@ -341,25 +375,11 @@ namespace coretex_finalproj.Controllers
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                // LOGGING: Check if this was a sensitive change
-                if (oldRole != user.Role)
-                {
-                    await _auditLog.LogActivityAsync("SECURITY_PROMOTION", $"CRITICAL: {user.Email} promoted/reassigned from {oldRole} to {user.Role} by Manager.");
-                }
-                
-                if (oldStatus != user.IsActive)
-                {
-                    await _auditLog.LogActivityAsync("USER_STATUS_CHANGE", $"User {user.Email} access {(user.IsActive ? "Enabled" : "Disabled")} by Manager.");
-                }
-
+                if (oldRole != user.Role) await _auditLog.LogActivityAsync("SECURITY_PROMOTION", $"CRITICAL: {user.Email} role changed from {oldRole} to {user.Role}.");
+                if (oldStatus != user.IsActive) await _auditLog.LogActivityAsync("USER_STATUS_CHANGE", $"User {user.Email} access {(user.IsActive ? "Enabled" : "Disabled")}.");
                 await _auditLog.LogActivityAsync("USER_UPDATE", $"Personnel record updated: {user.Email}");
                 TempData["Message"] = "Personnel records updated successfully.";
             }
-            else
-            {
-                TempData["Error"] = "Update failed: " + string.Join(", ", result.Errors.Select(e => e.Description));
-            }
-
             return RedirectToAction(nameof(UserManagement));
         }
 
@@ -396,11 +416,14 @@ namespace coretex_finalproj.Controllers
                 return RedirectToAction(nameof(UserManagement));
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            // --- SOFT DELETE (ARCHIVING) ---
+            user.IsActive = false;
+            var result = await _userManager.UpdateAsync(user);
+            
             if (result.Succeeded)
             {
-                await _auditLog.LogActivityAsync("USER_TERMINATE", $"Terminated access for {user.Email}.");
-                TempData["Message"] = "Personnel access revoked successfully.";
+                await _auditLog.LogActivityAsync("USER_ARCHIVE", $"Archived personnel access for {user.Email}.");
+                TempData["Message"] = "Personnel access revoked and archived successfully.";
             }
             else
             {
@@ -415,19 +438,21 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> ResetUserPassword(string userId, string newPassword)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
+            if (user == null) return NotFound();
+
+            var isTargetCeo = await _userManager.IsInRoleAsync(user, "CEO");
+            if (isTargetCeo && !User.IsInRole("CEO"))
             {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
-                if (result.Succeeded)
-                {
-                    await _auditLog.LogActivityAsync("USER_PASSWORD_RESET", $"Successfully reset security credentials for: {user.Email}");
-                    TempData["Message"] = $"Password for {user.Email} has been reset successfully.";
-                }
-                else
-                {
-                    TempData["Error"] = "PASSWORD REJECTED: " + string.Join(" ", result.Errors.Select(e => e.Description));
-                }
+                TempData["Error"] = "SECURITY VIOLATION: Password reset for CEO is restricted.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (result.Succeeded)
+            {
+                await _auditLog.LogActivityAsync("USER_PASSWORD_RESET", $"Security credentials reset for: {user.Email}");
+                TempData["Message"] = $"Password for {user.Email} has been reset.";
             }
             return RedirectToAction(nameof(UserManagement));
         }
@@ -437,13 +462,18 @@ namespace coretex_finalproj.Controllers
         public async Task<IActionResult> ToggleUserStatus(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
+            if (user == null) return NotFound();
+
+            var isTargetCeo = await _userManager.IsInRoleAsync(user, "CEO");
+            if (isTargetCeo && !User.IsInRole("CEO"))
             {
-                user.IsActive = !user.IsActive;
-                await _userManager.UpdateAsync(user);
-                await _auditLog.LogActivityAsync("USER_STATUS_TOGGLE", $"Admin manually {(user.IsActive ? "Activated" : "Deactivated")} account: {user.Email}");
-                TempData["Message"] = $"User {user.Email} is now {(user.IsActive ? "ACTIVE" : "INACTIVE")}.";
+                TempData["Error"] = "SECURITY VIOLATION: You cannot deactivate the CEO account.";
+                return RedirectToAction(nameof(UserManagement));
             }
+
+            user.IsActive = !user.IsActive;
+            await _userManager.UpdateAsync(user);
+            await _auditLog.LogActivityAsync("USER_STATUS_TOGGLE", $"Account {(user.IsActive ? "Activated" : "Deactivated")}: {user.Email}");
             return RedirectToAction(nameof(UserManagement));
         }
 
@@ -552,14 +582,48 @@ namespace coretex_finalproj.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ReportSchedule()
         {
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived && b.IsActive).ToListAsync();
+            ViewBag.CeoUsers = await _userManager.GetUsersInRoleAsync("CEO");
+            
             var summary = new BusinessSummaryViewModel
             {
                 TotalRevenue = await _context.Sales.Where(s => !s.IsArchived).SumAsync(s => s.Amount),
                 TotalExpenses = await _context.Expenses.Where(e => !e.IsArchived).SumAsync(e => e.Amount),
-                ActiveBranches = await _context.Branches.Where(b => !b.IsArchived).CountAsync()
+                ActiveBranches = await _context.Branches.Where(b => !b.IsArchived).CountAsync(),
+                CurrentSchedule = await _context.ReportSchedules.FirstOrDefaultAsync()
             };
             summary.NetProfit = summary.TotalRevenue - summary.TotalExpenses;
             return View(summary);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> SaveReportSchedule(bool enabled, string frequency, int? dayOfWeek, string time, string recipients, string reportTypes)
+        {
+            var hqBranch = await _context.Branches.FirstOrDefaultAsync(b => b.BranchCode == "CORETEX-HQ") 
+                           ?? await _context.Branches.FirstOrDefaultAsync();
+
+            if (hqBranch == null) return BadRequest("No branches found to associate schedule.");
+
+            var schedule = await _context.ReportSchedules.FirstOrDefaultAsync() ?? new ReportSchedule { BranchId = hqBranch.Id };
+            
+            schedule.IsEnabled = enabled;
+            schedule.Frequency = frequency;
+            schedule.DayOfWeek = dayOfWeek;
+            schedule.ScheduledTime = TimeSpan.Parse(time);
+            schedule.Recipients = recipients;
+            schedule.ReportTypes = reportTypes;
+            schedule.UpdatedAt = DateTime.UtcNow;
+
+            if (_context.Entry(schedule).State == EntityState.Detached)
+            {
+                _context.ReportSchedules.Add(schedule);
+            }
+
+            await _context.SaveChangesAsync();
+            await _auditLog.LogActivityAsync("REPORT_SCHEDULE_UPDATED", $"Auto-reports {(enabled ? "Enabled" : "Disabled")}. Frequency: {frequency}");
+
+            return Json(new { success = true, message = "Schedule saved successfully!" });
         }
         public async Task<IActionResult> ActivityLog()
         {
@@ -582,6 +646,12 @@ namespace coretex_finalproj.Controllers
             else if (currentUser?.BranchId != null && !User.IsInRole("CEO") && !User.IsInRole("ADMIN"))
             {
                 query = query.Where(l => l.BranchId == currentUser.BranchId);
+            }
+
+            // FOR GLOBAL OVERSIGHT: Provide branch list for filtering
+            if (User.IsInRole("ADMIN") || User.IsInRole("CEO"))
+            {
+                ViewBag.Branches = await _context.Branches.Where(b => b.IsActive).ToListAsync();
             }
 
             var logs = await query
@@ -698,13 +768,203 @@ namespace coretex_finalproj.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Archives()
         {
+            var backupsDir = Path.Combine(_env.WebRootPath, "backups");
+            if (!Directory.Exists(backupsDir)) Directory.CreateDirectory(backupsDir);
+
+            var backupFiles = new DirectoryInfo(backupsDir)
+                .GetFiles("*.snap")
+                .OrderByDescending(f => f.CreationTime)
+                .Select(f => new BackupFile
+                {
+                    FileName = f.Name,
+                    SizeBytes = f.Length,
+                    CreatedAt = f.CreationTime
+                }).ToList();
+
             var model = new ArchivesViewModel
             {
                 ArchivedBranches = await _context.Branches.Where(b => b.IsArchived).ToListAsync(),
-                ArchivedSales = await _context.Sales.Include(s => s.Branch).Where(s => s.IsArchived).ToListAsync(),
-                ArchivedExpenses = await _context.Expenses.Include(e => e.Branch).Where(e => e.IsArchived).ToListAsync()
+                ArchivedStaff = await _userManager.Users.Where(u => !u.IsActive).ToListAsync(),
+                SystemBackups = backupFiles
             };
             return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GenerateSnapshot()
+        {
+            try
+            {
+                var snapshot = new
+                {
+                    Branches = await _context.Branches.ToListAsync(),
+                    Sales = await _context.Sales.ToListAsync(),
+                    Expenses = await _context.Expenses.ToListAsync(),
+                    Users = await _context.Users.Select(u => new { u.Id, u.UserName, u.Email, u.FullName, u.BranchId, u.Role }).ToListAsync(),
+                    ActivityLogs = await _context.ActivityLogs.OrderByDescending(l => l.CreatedAt).Take(500).ToListAsync(),
+                    GoalTargets = await _context.GoalTargets.ToListAsync(),
+                    KpiThresholds = await _context.KpiThresholds.ToListAsync(),
+                    Timestamp = DateTime.Now,
+                    SystemVersion = "2.1.0"
+                };
+
+                string fileName = $"Coretex_Snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.snap";
+                string json = System.Text.Json.JsonSerializer.Serialize(snapshot, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                
+                await _auditLog.LogActivityAsync("SYSTEM_SNAPSHOT_GEN", $"Generated portable system snapshot: {fileName}");
+                
+                return File(System.Text.Encoding.UTF8.GetBytes(json), "application/octet-stream", fileName);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Snapshot generation failed: {ex.Message}";
+                return RedirectToAction(nameof(Archives));
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> UploadAndRestore(IFormFile snapshotFile)
+        {
+            if (snapshotFile == null || snapshotFile.Length == 0)
+            {
+                TempData["Error"] = "No snapshot file selected.";
+                return RedirectToAction(nameof(Archives));
+            }
+
+            try
+            {
+                using var reader = new StreamReader(snapshotFile.OpenReadStream());
+                string json = await reader.ReadToEndAsync();
+                var data = System.Text.Json.JsonSerializer.Deserialize<SnapshotData>(json);
+
+                if (data == null)
+                {
+                    TempData["Error"] = "Invalid snapshot format.";
+                    return RedirectToAction(nameof(Archives));
+                }
+
+                // --- CAUTION: DESTRUCTIVE OPERATION ---
+                _context.Sales.RemoveRange(_context.Sales);
+                _context.Expenses.RemoveRange(_context.Expenses);
+                _context.GoalTargets.RemoveRange(_context.GoalTargets);
+                _context.KpiThresholds.RemoveRange(_context.KpiThresholds);
+                _context.ActivityLogs.RemoveRange(_context.ActivityLogs);
+                _context.Branches.RemoveRange(_context.Branches);
+                
+                await _context.SaveChangesAsync();
+
+                // Re-insert data
+                if (data.Branches != null) _context.Branches.AddRange(data.Branches);
+                if (data.Sales != null) _context.Sales.AddRange(data.Sales);
+                if (data.Expenses != null) _context.Expenses.AddRange(data.Expenses);
+                if (data.GoalTargets != null) _context.GoalTargets.AddRange(data.GoalTargets);
+                if (data.KpiThresholds != null) _context.KpiThresholds.AddRange(data.KpiThresholds);
+                if (data.ActivityLogs != null) _context.ActivityLogs.AddRange(data.ActivityLogs);
+                
+                // Handle Personnel Restoration (Selective to avoid self-lockout)
+                if (data.Users != null)
+                {
+                    var currentUserId = _userManager.GetUserId(User);
+                    foreach (var u in data.Users)
+                    {
+                        if (u.Id == currentUserId) continue; // Safety skip
+                        
+                        var existingUser = await _userManager.FindByIdAsync(u.Id);
+                        if (existingUser == null)
+                        {
+                            var newUser = new AppUser
+                            {
+                                Id = u.Id,
+                                UserName = u.UserName ?? "User_" + Guid.NewGuid().ToString().Substring(0,8),
+                                Email = u.Email ?? "no-email@coretex.com",
+                                FullName = u.FullName ?? "System User",
+                                BranchId = u.BranchId,
+                                Role = u.Role ?? "CASHIER",
+                                IsActive = false 
+                            };
+                            await _userManager.CreateAsync(newUser, "TempPass123!");
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("SYSTEM_RESTORE_UPLOAD", $"Full system recovery completed via file upload: {snapshotFile.FileName}");
+
+                TempData["Message"] = "System successfully rebuilt! Database and Personnel recovered.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Restoration failed: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Archives));
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> RestoreSnapshot(string fileName)
+        {
+            try
+            {
+                var filePath = Path.Combine(_env.WebRootPath, "backups", fileName);
+                if (!System.IO.File.Exists(filePath)) return NotFound();
+
+                string json = await System.IO.File.ReadAllTextAsync(filePath);
+                var data = System.Text.Json.JsonSerializer.Deserialize<SnapshotData>(json);
+
+                if (data == null) return BadRequest("Invalid snapshot file.");
+
+                // --- CAUTION: DESTRUCTIVE OPERATION ---
+                // Clear existing data in correct order (Children first)
+                _context.Sales.RemoveRange(_context.Sales);
+                _context.Expenses.RemoveRange(_context.Expenses);
+                _context.GoalTargets.RemoveRange(_context.GoalTargets);
+                _context.KpiThresholds.RemoveRange(_context.KpiThresholds);
+                _context.ActivityLogs.RemoveRange(_context.ActivityLogs);
+                // Note: We don't wipe Users for safety (to avoid locking yourself out)
+                _context.Branches.RemoveRange(_context.Branches);
+                await _context.SaveChangesAsync();
+
+                // Re-insert data preserving IDs for relationship integrity
+                if (data.Branches != null) _context.Branches.AddRange(data.Branches);
+                if (data.Sales != null) _context.Sales.AddRange(data.Sales);
+                if (data.Expenses != null) _context.Expenses.AddRange(data.Expenses);
+                if (data.GoalTargets != null) _context.GoalTargets.AddRange(data.GoalTargets);
+                if (data.KpiThresholds != null) _context.KpiThresholds.AddRange(data.KpiThresholds);
+                if (data.ActivityLogs != null) _context.ActivityLogs.AddRange(data.ActivityLogs);
+                
+                await _context.SaveChangesAsync();
+                await _auditLog.LogActivityAsync("SYSTEM_RESTORE", $"Full system recovery completed from snapshot: {fileName}");
+
+                TempData["Message"] = "System restored successfully! All data, relationships, and states have been recovered.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Restore failed: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Archives));
+        }
+
+        private class SnapshotData
+        {
+            public List<Branch>? Branches { get; set; }
+            public List<Sale>? Sales { get; set; }
+            public List<Expense>? Expenses { get; set; }
+            public List<GoalTarget>? GoalTargets { get; set; }
+            public List<KpiThreshold>? KpiThresholds { get; set; }
+            public List<ActivityLogEntry>? ActivityLogs { get; set; }
+            public List<UserSnapshot>? Users { get; set; }
+        }
+
+        public class UserSnapshot
+        {
+            public string Id { get; set; } = string.Empty;
+            public string? UserName { get; set; }
+            public string? Email { get; set; }
+            public string? FullName { get; set; }
+            public Guid? BranchId { get; set; }
+            public string? Role { get; set; }
         }
 
         [HttpPost]
@@ -726,31 +986,15 @@ namespace coretex_finalproj.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> UnarchiveSale(Guid id)
+        public async Task<IActionResult> UnarchiveStaff(string id)
         {
-            var sale = await _context.Sales.FindAsync(id);
-            if (sale != null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
             {
-                sale.IsArchived = false;
-                await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("SALE_RESTORE", $"Restored transaction: #{sale.OrderId}");
-                TempData["Message"] = $"Transaction #{sale.OrderId} has been restored.";
-            }
-            return RedirectToAction(nameof(Archives));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> UnarchiveExpense(Guid id)
-        {
-            var expense = await _context.Expenses.FindAsync(id);
-            if (expense != null)
-            {
-                expense.IsArchived = false;
-                await _context.SaveChangesAsync();
-                await _auditLog.LogActivityAsync("EXPENSE_RESTORE", $"Restored expense: {expense.Description}");
-                TempData["Message"] = $"Expense '{expense.Description}' has been restored.";
+                user.IsActive = true;
+                await _userManager.UpdateAsync(user);
+                await _auditLog.LogActivityAsync("STAFF_RESTORE", $"Restored staff account: {user.FullName}");
+                TempData["Message"] = $"Staff member '{user.FullName}' has been restored to active status.";
             }
             return RedirectToAction(nameof(Archives));
         }

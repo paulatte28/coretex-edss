@@ -209,7 +209,7 @@
 
                     <a href="/Admin/ActivityLog" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ActivityLog" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ActivityLog" ? "scale-[1.02]" : "")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
-                        <span class="font-semibold tracking-tight text-sm">My Audit Logs</span>
+                        <span class="font-semibold tracking-tight text-sm">@(User.IsInRole("ADMIN") || User.IsInRole("CEO") ? "Activity Audit Logs" : "My Audit Logs")</span>
                     </a>
 
                     @if (User.IsInRole("ADMIN") || User.IsInRole("CEO")) {

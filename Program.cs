@@ -114,7 +114,13 @@ app.UseDeveloperExceptionPage();
 app.UseMigrationsEndPoint();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+provider.Mappings[".snap"] = "application/json";
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider
+});
 
 app.UseRouting();
 app.UseAuthentication();

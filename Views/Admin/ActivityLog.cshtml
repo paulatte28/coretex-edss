@@ -26,17 +26,37 @@
                     <a href="/Admin" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-all text-white">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
                     </a>
-                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 font-black text-[10px] uppercase tracking-widest rounded-full border border-indigo-500/30">Personal Audit Trail</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 font-black text-[10px] uppercase tracking-widest rounded-full border border-indigo-500/30">
+                        @(User.IsInRole("ADMIN") || User.IsInRole("CEO") ? "Global Corporate Trail" : "Personal Audit Trail")
+                    </span>
                 </div>
-                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">My <span class="text-indigo-400">Audit Logs</span></h1>
+                <h1 class="text-4xl font-black text-white tracking-tighter uppercase">
+                    @(User.IsInRole("ADMIN") || User.IsInRole("CEO") ? "Activity" : "My") <span class="text-indigo-400">Audit Logs</span>
+                </h1>
                 <p class="text-slate-400 mt-2 text-sm font-medium">
-                    @(isManager || User.IsInRole("FINANCE") ? "Reviewing your personal operational footprint and authenticated command history." : "Global corporate audit trail and system-wide integrity monitoring.")
+                    @(User.IsInRole("ADMIN") || User.IsInRole("CEO") ? "Global corporate audit trail and system-wide integrity monitoring." : "Reviewing your personal operational footprint and authenticated command history.")
                 </p>
             </div>
-            <button onclick="exportCSV()" class="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all flex items-center space-x-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                <span>Export Audit</span>
-            </button>
+            
+            <div class="flex items-center gap-4">
+                @if (User.IsInRole("ADMIN") || User.IsInRole("CEO"))
+                {
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Filter by Branch</label>
+                        <select onchange="filterByBranch(this.value)" class="bg-white/10 border border-white/10 text-white text-xs font-bold rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all min-w-[200px]">
+                            <option value="ALL" class="bg-slate-900">All Branches</option>
+                            @foreach (var branch in ViewBag.Branches as List<Branch>)
+                            {
+                                <option value="@branch.Name.ToUpper()" class="bg-slate-900">@branch.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+                <button onclick="exportCSV()" class="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all flex items-center space-x-3 mt-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Export Audit</span>
+                </button>
+            </div>
         </div>
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
     </div>
@@ -101,15 +121,15 @@
                         <th class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Network Context</th>
                     </tr>
                 </thead>
-                <tbody id="logs-tbody" class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-100" id="log-body">
                     @foreach (var log in Model)
                     {
                         var action = log.ActionType ?? "SYSTEM_ACTION";
                         var category = "OTHER";
+                        var branchName = log.Branch?.Name?.ToUpper() ?? "SYSTEM";
                         
                         if (action.Contains("USER") || action.Contains("LOGIN") || action.Contains("LOGOUT")) 
                         {
-                            // If it's a provisioning action, it's an OPERATION
                             if (action.Contains("PROVISION")) category = "OPERATIONS";
                             else category = "WORKFORCE";
                         }
@@ -136,8 +156,9 @@
                             _ => "bg-slate-500"
                         };
 
-                        <tr class="log-row hover:bg-slate-50/50 transition-all duration-200" 
+                        <tr class="log-row hover:bg-slate-50/80 transition-colors" 
                             data-category="@category" 
+                            data-branch="@branchName"
                             data-search="@(action.ToLower() + " " + (log.Description ?? "").ToLower() + " " + (log.Branch?.Name ?? "global").ToLower())">
                             <td class="px-10 py-6">
                                 <div class="flex flex-col">
@@ -174,26 +195,59 @@
 </div>
 
 <script>
-    function filterByType(type, el) {
-        // Toggle Active Pill
-        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
+        function filterByBranch(branch) {
+            const rows = document.querySelectorAll('.log-row');
+            const currentType = document.querySelector('.filter-pill.active').textContent.trim().toUpperCase();
+            
+            rows.forEach(row => {
+                const rowBranch = row.getAttribute('data-branch');
+                const rowType = row.getAttribute('data-category');
+                
+                const branchMatch = (branch === 'ALL' || rowBranch === branch);
+                const typeMatch = (currentType === 'EVERYTHING' || rowType === currentType || (currentType === 'STAFF & SECURITY' && rowType === 'WORKFORCE') || (currentType === 'MANAGEMENT & OPERATIONS' && rowType === 'OPERATIONS') || (currentType === 'MONEY & EXPENSES' && rowType === 'FINANCE') || (currentType === 'SALES & PRODUCTS' && rowType === 'REVENUE') || (currentType === 'SYSTEM & STRATEGY' && rowType === 'STRATEGIC'));
+                
+                if (branchMatch && typeMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
 
-        // Filter Rows
-        const rows = document.querySelectorAll('.log-row');
-        rows.forEach(row => {
-            if (type === 'ALL' || row.dataset.category === type) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
+        function filterByType(type, el) {
+            document.querySelectorAll('.filter-pill').forEach(p => {
+                p.classList.remove('active', 'bg-slate-900', 'text-white');
+                p.classList.add('text-slate-500');
+            });
+            el.classList.add('active', 'bg-slate-900', 'text-white');
+            el.classList.remove('text-slate-500');
+
+            const branchSelect = document.querySelector('select[onchange^="filterByBranch"]');
+            const branch = branchSelect ? branchSelect.value : 'ALL';
+            
+            const rows = document.querySelectorAll('.log-row');
+            rows.forEach(row => {
+                const rowType = row.getAttribute('data-category');
+                const rowBranch = row.getAttribute('data-branch');
+                
+                const typeMatch = (type === 'ALL' || rowType === type);
+                const branchMatch = (branch === 'ALL' || rowBranch === branch);
+
+                if (typeMatch && branchMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
 
     function searchLogs() {
         const query = document.getElementById('log-search').value.toLowerCase();
         const activePill = document.querySelector('.filter-pill.active');
         const activeType = activePill.innerText.trim().toUpperCase() === "EVERYTHING" ? "ALL" : activePill.innerText.trim().toUpperCase();
+        
+        const branchSelect = document.querySelector('select[onchange^="filterByBranch"]');
+        const activeBranch = branchSelect ? branchSelect.value : 'ALL';
         
         const rows = document.querySelectorAll('.log-row');
         rows.forEach(row => {

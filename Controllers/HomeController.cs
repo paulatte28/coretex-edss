@@ -4,6 +4,7 @@ using coretex_finalproj.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace coretex_finalproj.Controllers
 {
@@ -86,13 +87,28 @@ namespace coretex_finalproj.Controllers
                 return View();
             }
 
-            var user = await _userManager.FindByEmailAsync(loginId)
-                ?? await _userManager.FindByNameAsync(loginId);
+            var user = await _userManager.Users.Include(u => u.Branch)
+                .FirstOrDefaultAsync(u => u.Email == loginId || u.UserName == loginId);
 
             if (user == null)
             {
                 ViewData["LoginError"] = "Incorrect email or password.";
                 return View();
+            }
+
+            // --- SECURITY ENFORCEMENT: Branch Node Integrity ---
+            if (user.BranchId != null)
+            {
+                var isElevated = await _userManager.IsInRoleAsync(user, "ADMIN") || await _userManager.IsInRoleAsync(user, "CEO");
+                if (!isElevated)
+                {
+                    if (user.Branch == null || !user.Branch.IsActive || user.Branch.IsArchived)
+                    {
+                        await _auditLog.LogActivityAsync("LOGIN_BLOCKED", $"User {loginId} blocked: Branch {user.Branch?.Name ?? "Unknown"} is Offline/Archived.");
+                        ViewData["LoginError"] = "ACCESS DENIED: Your assigned operational node is currently in Maintenance Mode or has been Archived.";
+                        return View();
+                    }
+                }
             }
 
             var result = await _signInManager.PasswordSignInAsync(user, password, remember, lockoutOnFailure: true);

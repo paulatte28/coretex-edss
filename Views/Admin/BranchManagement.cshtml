@@ -39,7 +39,7 @@
         </h3>
         
         <div class="branch-card relative bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-200 group overflow-hidden cursor-pointer" 
-             onclick="openEditModal('HQ', 'Main Branch / HQ', 'CORETEX-HQ', 'Company Headquarters')">
+             onclick="openEditModal('HQ', 'Coretex Executive Plaza', 'CORETEX-HQ', 'Company Headquarters')">
             <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
             <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div class="flex items-center gap-6">
@@ -51,7 +51,7 @@
                             <span class="px-3 py-1 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full">Global Headquarters</span>
                             <div class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
                         </div>
-                        <h4 class="text-3xl font-black tracking-tight mb-1">Main Branch / HQ</h4>
+                        <h4 class="text-3xl font-black tracking-tight mb-1">Coretex Executive Plaza</h4>
                         <p class="text-slate-400 font-bold flex items-center gap-2">
                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                              Davao City, PH (Global Operations)
@@ -66,15 +66,21 @@
         </div>
     </div>
 
-    <!-- Active Branches Grid -->
-    <div class="space-y-6">
+    <!-- Tabs -->
+    <div class="flex border-b border-slate-200 gap-8 mb-8">
+        <button onclick="switchTab('operational')" id="tab-operational" class="pb-4 px-2 text-xs font-black uppercase tracking-widest border-b-2 border-indigo-600 text-indigo-600 transition-all">Operational (@Model.Count(b => !b.IsArchived))</button>
+        <button onclick="switchTab('archived')" id="tab-archived" class="pb-4 px-2 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">Archived (@Model.Count(b => b.IsArchived))</button>
+    </div>
+
+    <!-- Operational Branches Grid -->
+    <div id="section-operational" class="tab-section space-y-6">
         <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
             <span>Satellite Locations</span>
             <div class="h-px flex-1 bg-slate-100"></div>
         </h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="branchGrid">
-            @foreach (var branch in Model)
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach (var branch in Model.Where(b => !b.IsArchived))
             {
                 <div class="branch-card relative bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group overflow-hidden @(branch.IsActive ? "" : "opacity-75 grayscale-[0.5]")">
                     <div class="flex items-start justify-between mb-8">
@@ -120,12 +126,56 @@
             }
         </div>
     </div>
+
+    <!-- Archived Branches Grid -->
+    <div id="section-archived" class="tab-section hidden space-y-6">
+        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
+            <span>Decommissioned Nodes</span>
+            <div class="h-px flex-1 bg-slate-100"></div>
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @if (!Model.Any(b => b.IsArchived))
+            {
+                <div class="col-span-full py-20 text-center">
+                    <p class="text-slate-300 font-black text-xs uppercase tracking-[0.3em]">No archived locations found</p>
+                </div>
+            }
+            @foreach (var branch in Model.Where(b => b.IsArchived))
+            {
+                <div class="branch-card relative bg-slate-50/50 rounded-[2.5rem] p-8 border border-dashed border-slate-200 group overflow-hidden">
+                    <div class="flex items-start justify-between mb-8">
+                        <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center font-black text-xl">
+                            @branch.BranchCode.Substring(0, Math.Min(2, branch.BranchCode.Length)).ToUpper()
+                        </div>
+                        
+                        <form asp-action="UnarchiveBranch" asp-route-id="@branch.Id" method="post" class="relative z-20">
+                            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white text-[10px] font-black rounded-xl hover:bg-indigo-700 hover:scale-110 transition-all uppercase tracking-widest shadow-lg shadow-indigo-100">
+                                Restore Node
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest rounded-md">Archived</span>
+                        </div>
+                        <h4 class="text-2xl font-black text-slate-400 tracking-tight">@branch.Name</h4>
+                        <p class="text-sm text-slate-300 font-bold">@branch.Address</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 </div>
 
 <!-- Add Modal -->
 <div id="add-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
-    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-2xl transform transition-all duration-500 scale-95 opacity-0" id="add-modal-card">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-2xl transform transition-all duration-500 scale-95 opacity-0 relative" id="add-modal-card">
+        <button onclick="closeAddModal()" class="absolute top-10 right-10 text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
         <h3 class="text-3xl font-black text-slate-900 mb-2">New Branch</h3>
         <p class="text-sm text-slate-500 mb-8 font-bold">Register a new physical location</p>
         <form asp-action="CreateBranch" method="post" class="space-y-5">
@@ -151,7 +201,10 @@
 
 <!-- Edit Modal -->
 <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 transition-all duration-500">
-    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-2xl transform transition-all duration-500 scale-95 opacity-0" id="edit-modal-card">
+    <div class="bg-white rounded-[3.5rem] p-12 w-full max-w-md shadow-2xl transform transition-all duration-500 scale-95 opacity-0 relative" id="edit-modal-card">
+        <button onclick="closeEditModal()" class="absolute top-10 right-10 text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
         <h3 class="text-3xl font-black text-slate-900 mb-2">Edit Branch</h3>
         <p id="edit-branch-display" class="text-sm text-indigo-600 mb-8 font-black uppercase tracking-widest"></p>
         <form asp-action="UpdateBranch" method="post" class="space-y-5">
@@ -178,17 +231,31 @@
 
 @section Scripts {
     <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            
+            document.querySelectorAll('button[id^="tab-"]').forEach(b => {
+                b.classList.remove('border-indigo-600', 'text-indigo-600');
+                b.classList.add('border-transparent', 'text-slate-400');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tab);
+            activeTab.classList.remove('border-transparent', 'text-slate-400');
+            activeTab.classList.add('border-indigo-600', 'text-indigo-600');
+        }
+
         function searchBranches() {
             let input = document.getElementById('branchSearch').value.toLowerCase();
-            let cards = document.getElementsByClassName('branch-card');
+            // Only search within the currently visible tab section
+            let activeSection = document.querySelector('.tab-section:not(.hidden)');
+            if (!activeSection) return;
+            
+            let cards = activeSection.getElementsByClassName('branch-card');
             
             for (let card of cards) {
                 let text = card.innerText.toLowerCase();
-                if (text.includes(input)) {
-                    card.style.display = "";
-                } else {
-                    card.style.display = "none";
-                }
+                card.style.display = text.includes(input) ? "" : "none";
             }
         }
 
