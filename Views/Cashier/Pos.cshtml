@@ -515,17 +515,29 @@
             
             try {
                 const isEnforced = localStorage.getItem('coretex_pricing_floor') === 'true';
+                const isBlitz = localStorage.getItem('coretex_marketing_blitz') === 'true';
                 
                 // Map the cart to the Sale model format expected by the server
                 const payload = cart.map(item => {
-                    let finalAmount = item.qty * item.price;
-                    if (isEnforced) finalAmount += (finalAmount * 0.05);
+                    let lineTotal = item.qty * item.price;
+                    let strats = [];
+                    
+                    // Apply Strategic Governance adjustments
+                    if (isEnforced) {
+                        lineTotal += (lineTotal * 0.05);
+                        strats.push("Margin Protection (CEO)");
+                    }
+                    if (isBlitz) {
+                        lineTotal -= (lineTotal * 0.10);
+                        strats.push("Marketing Rebate (CEO)");
+                    }
                     
                     return {
                         productName: item.name,
                         quantity: item.qty,
                         unitPrice: item.price,
-                        amount: finalAmount,
+                        amount: lineTotal,
+                        strategyApplied: strats.length > 0 ? strats.join(", ") : "Standard Operations",
                         customerName: "Executive Demo Walk-in"
                     };
                 });

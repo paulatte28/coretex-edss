@@ -126,15 +126,12 @@ namespace coretex_finalproj.Controllers
 
             if (result.RequiresTwoFactor)
             {
-                // SECURITY HEALING: Automatically synchronize identity state for high-fidelity access
-                user.TwoFactorEnabled = false;
-                await _userManager.UpdateAsync(user);
+                var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                await _emailSender.SendEmailAsync(user.Email!, "Your Security Code", 
+                    $"Your One-Time Password (OTP) is: <b>{token}</b>. This code will expire shortly.");
                 
-                await _auditLog.LogActivityAsync("LOGIN_SECURITY_HEAL", $"Partial Identity detected for {loginId}. Synchronized to Full Access.");
-                
-                // FORCE COOKIE REFRESH: Ensures roles are baked into the principal immediately
-                await _signInManager.RefreshSignInAsync(user);
-                return await RedirectUserByRole(user, returnUrl);
+                await _auditLog.LogActivityAsync("LOGIN_2FA_REQUIRED", $"2FA challenge issued for {loginId}.");
+                return RedirectToAction("VerifyOTP", new { email = user.Email, rememberMe = remember, returnUrl });
             }
 
             ViewData["LoginError"] = result.IsLockedOut

@@ -102,7 +102,8 @@ namespace coretex_finalproj.Controllers
             }
 
             await _context.SaveChangesAsync();
-            await _auditLog.LogActivityAsync("SALE_BULK_CREATE", $"Processed checkout {orderId} with {items.Count} items. Total: {items.Sum(i => i.Amount):C}", user.BranchId);
+            var appliedStrat = items.FirstOrDefault(i => !string.IsNullOrEmpty(i.StrategyApplied))?.StrategyApplied ?? "Standard Operations";
+            await _auditLog.LogActivityAsync("SALE_BULK_CREATE", $"Processed checkout {orderId} ({appliedStrat}) with {items.Count} items. Total: {items.Sum(i => i.Amount):C}", user.BranchId);
 
             return Json(new { success = true, orderId = orderId });
         }

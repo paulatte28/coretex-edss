@@ -631,7 +631,10 @@
     }
 
     function timeAgo(iso) {
-        const ms = Date.now() - new Date(iso).getTime();
+        if (!iso) return 'just now';
+        // Ensure UTC interpretation
+        const dateStr = (iso.endsWith('Z') || iso.includes('+')) ? iso : iso + 'Z';
+        const ms = Date.now() - new Date(dateStr).getTime();
         const mins = Math.floor(ms / 60000);
         const hours = Math.floor(ms / 3600000);
         const days = Math.floor(ms / 86400000);

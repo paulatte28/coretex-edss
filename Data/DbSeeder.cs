@@ -230,7 +230,7 @@ namespace coretex_finalproj.Data
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
-                    TwoFactorEnabled = false,
+                    TwoFactorEnabled = true,
                     FullName = fullName,
                     BranchId = branchId,
                     Role = role
@@ -264,9 +264,9 @@ namespace coretex_finalproj.Data
                     requiresUpdate = true;
                 }
 
-                if (user.TwoFactorEnabled)
+                if (!user.TwoFactorEnabled)
                 {
-                    user.TwoFactorEnabled = false; // TEMPORARY BYPASS FOR TESTING
+                    user.TwoFactorEnabled = true; 
                     requiresUpdate = true;
                 }
 

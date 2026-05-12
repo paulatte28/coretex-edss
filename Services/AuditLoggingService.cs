@@ -64,7 +64,7 @@ namespace coretex_finalproj.Services
                 IpAddress = ipAddress,
                 Location = $"{geo.City}, {geo.CountryName}",
                 BranchId = branchId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.ActivityLogs.Add(log);

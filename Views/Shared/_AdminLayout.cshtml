@@ -431,9 +431,13 @@
         }
 
         function formatTime(dateStr) {
-            const date = new Date(dateStr);
+            if (!dateStr) return 'Just now';
+            // Ensure UTC interpretation for relative time accuracy
+            const normalizedStr = (dateStr.endsWith('Z') || dateStr.includes('+')) ? dateStr : dateStr + 'Z';
+            const date = new Date(normalizedStr);
             const now = new Date();
             const diffMins = Math.floor((now - date) / 60000);
+            
             if (diffMins < 1) return 'Just now';
             if (diffMins < 60) return `${diffMins}m ago`;
             if (diffMins < 1440) return `${Math.floor(diffMins/60)}h ago`;

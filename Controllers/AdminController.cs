@@ -730,7 +730,7 @@ namespace coretex_finalproj.Controllers
                         Type = "KPI",
                         Severity = "red",
                         BranchId = bId,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = DateTime.UtcNow
                     });
                     anyAlertTriggered = true;
                 }
@@ -869,7 +869,7 @@ namespace coretex_finalproj.Controllers
                     ActivityLogs = await _context.ActivityLogs.OrderByDescending(l => l.CreatedAt).Take(500).ToListAsync(),
                     GoalTargets = await _context.GoalTargets.ToListAsync(),
                     KpiThresholds = await _context.KpiThresholds.ToListAsync(),
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     SystemVersion = "2.1.0"
                 };
 

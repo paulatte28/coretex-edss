@@ -20,7 +20,18 @@ namespace coretex_finalproj.Services
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             var sendGridKey = _config["SendGrid:ApiKey"];
-            var fromEmail = _config["SendGrid:FromEmail"] ?? _config["Email:From"] ?? "security@coretex.com";
+            var sendGridFrom = _config["SendGrid:FromEmail"];
+            var smtpFrom = _config["Email:From"] ?? _config["Email:User"];
+            
+            // --- TEST REDIRECT LOGIC (Applies globally for demo) ---
+            // Reroute @coretex.com emails to the developer's real email for testing
+            var realRedirectEmail = _config["Email:User"] ?? _config["SendGrid:FromEmail"];
+
+            if (email.EndsWith("@coretex.com") && !string.IsNullOrEmpty(realRedirectEmail))
+            {
+                _logger.LogWarning("TEST REDIRECT: Intercepted email for {FakeEmail}. Rerouting to {RealEmail} for demo.", email, realRedirectEmail);
+                email = realRedirectEmail; 
+            }
 
             // --- SENDGRID PATH (Primary) ---
             if (!string.IsNullOrEmpty(sendGridKey) && !sendGridKey.Contains("YOUR_"))
@@ -28,7 +39,7 @@ namespace coretex_finalproj.Services
                 try
                 {
                     var client = new SendGrid.SendGridClient(sendGridKey);
-                    var from = new SendGrid.Helpers.Mail.EmailAddress(fromEmail, "Coretex Executive Security");
+                    var from = new SendGrid.Helpers.Mail.EmailAddress(sendGridFrom ?? smtpFrom ?? "security@coretex.com", "Coretex Executive Security");
                     var to = new SendGrid.Helpers.Mail.EmailAddress(email);
                     var msg = SendGrid.Helpers.Mail.MailHelper.CreateSingleEmail(from, to, subject, "", htmlMessage);
                     var response = await client.SendEmailAsync(msg);
@@ -72,18 +83,9 @@ namespace coretex_finalproj.Services
 
             try 
             {
-                // --- DEVELOPER TESTING OVERRIDE ---
-                // If the recipient is a "fake" system account, redirect it to your official UM email for demo
-                var realRedirectEmail = _config["SendGrid:FromEmail"] ?? _config["Email:User"];
-
-                if (email.EndsWith("@coretex.com") && !string.IsNullOrEmpty(realRedirectEmail))
-                {
-                    _logger.LogWarning("TEST REDIRECT: Intercepted email for {FakeEmail}. Rerouting to {RealEmail} for demo.", email, realRedirectEmail);
-                    email = realRedirectEmail; 
-                }
-
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Coretex Security", fromEmail));
+                // IMPORTANT: For Gmail SMTP, the 'From' address must match the authenticated account
+                message.From.Add(new MailboxAddress("Coretex Security", smtpFrom ?? smtpUser));
                 message.To.Add(new MailboxAddress("", email));
                 message.Subject = subject;
                 message.Body = new TextPart(TextFormat.Html) { Text = htmlMessage };

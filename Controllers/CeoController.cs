@@ -268,7 +268,7 @@ namespace coretex_finalproj.Controllers
             var user = await _userManager.FindByNameAsync(userName);
             
             report.GeneratedById = user?.Id;
-            report.GeneratedAt = DateTime.Now;
+            report.GeneratedAt = DateTime.UtcNow;
 
             _context.GeneratedReports.Add(report);
             
