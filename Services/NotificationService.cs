@@ -21,6 +21,23 @@ namespace coretex_finalproj.Services
             _context = context;
         }
 
+        public async Task CreateNotificationAsync(Guid branchId, string title, string message, string type)
+        {
+            var notification = new Models.SystemNotification
+            {
+                Title = title,
+                Message = message,
+                Type = type.ToUpper(),
+                Severity = type.ToLower() == "alert" ? "yellow" : "blue",
+                BranchId = branchId,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            _context.SystemNotifications.Add(notification);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<bool> SendExecutiveAlertEmailAsync(string toEmail, string alertTitle, string detail, string severity = "red", Guid? branchId = null)
         {
             // Persist to Database

@@ -44,7 +44,7 @@ namespace coretex_finalproj.Data
     
             builder.Entity<Product>()
                 .Property(p => p.Price)
-                 .HasPrecision(14, 2);
+                 .HasPrecision(10, 2);
 
             builder.Entity<Expense>()
                 .HasOne(e => e.Branch)
@@ -54,7 +54,7 @@ namespace coretex_finalproj.Data
 
             builder.Entity<Expense>()
                 .Property(e => e.Amount)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<Sale>()
                 .HasOne(s => s.Branch)
@@ -64,11 +64,11 @@ namespace coretex_finalproj.Data
 
             builder.Entity<Sale>()
                 .Property(s => s.Amount)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<Sale>()
                 .Property(s => s.UnitPrice)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<KpiThreshold>()
                 .Property(t => t.MinProfitMargin)
@@ -80,11 +80,11 @@ namespace coretex_finalproj.Data
 
             builder.Entity<KpiThreshold>()
                 .Property(t => t.MinMonthlyProfit)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<GoalTarget>()
                 .Property(g => g.TargetValue)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<KpiThreshold>()
                 .HasOne(t => t.Branch)
@@ -133,15 +133,15 @@ namespace coretex_finalproj.Data
 
             builder.Entity<BranchSubmission>()
                 .Property(s => s.SalesRevenue)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<BranchSubmission>()
                 .Property(s => s.Expenses)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<BranchGoal>()
                 .Property(g => g.TargetRevenue)
-                .HasPrecision(14, 2);
+                .HasPrecision(10, 2);
 
             builder.Entity<GeneratedReport>()
                 .HasOne(r => r.Branch)
@@ -156,11 +156,11 @@ namespace coretex_finalproj.Data
                 .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<DailySummary>()
-                .Property(d => d.TotalRevenue).HasPrecision(14, 2);
+                .Property(d => d.TotalRevenue).HasPrecision(10, 2);
             builder.Entity<DailySummary>()
-                .Property(d => d.TotalExpenses).HasPrecision(14, 2);
+                .Property(d => d.TotalExpenses).HasPrecision(10, 2);
             builder.Entity<DailySummary>()
-                .Property(d => d.NetProfit).HasPrecision(14, 2);
+                .Property(d => d.NetProfit).HasPrecision(10, 2);
         }
     }
 }

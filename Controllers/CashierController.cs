@@ -112,26 +112,58 @@ namespace coretex_finalproj.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Transactions(string search)
+        public async Task<IActionResult> Transactions(string search, int? month, int? year, int page = 1)
         {
             var userName = User.Identity?.Name;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
 
             var query = _context.Sales.Include(s => s.Branch).AsQueryable();
 
-            // SECURITY ISOLATION: Branch staff can only see their own branch transactions
             if (user?.BranchId != null && !User.IsInRole("ADMIN"))
             {
                 query = query.Where(s => s.BranchId == user.BranchId);
             }
+
+            var targetMonth = month ?? DateTime.Now.Month;
+            var targetYear = year ?? DateTime.Now.Year;
+            query = query.Where(s => s.Date.Month == targetMonth && s.Date.Year == targetYear);
 
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(s => s.OrderId.Contains(search) || s.CustomerName.Contains(search));
             }
 
+            // --- ADVANCED ORDER-BASED PAGINATION ---
+            // Group by OrderId to count distinct orders, not individual items
+            var distinctOrderQuery = query.GroupBy(s => s.OrderId).Select(g => new { 
+                OrderId = g.Key, 
+                LatestDate = g.Max(s => s.Date) 
+            });
+
+            int pageSize = 10;
+            int totalOrders = await distinctOrderQuery.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
+            page = page < 1 ? 1 : page;
+
+            var orderIdsForPage = await distinctOrderQuery
+                .OrderByDescending(x => x.LatestDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => x.OrderId)
+                .ToListAsync();
+
+            var sales = await query
+                .Where(s => orderIdsForPage.Contains(s.OrderId))
+                .OrderByDescending(s => s.Date)
+                .ToListAsync();
+
             ViewBag.SearchTerm = search;
-            var sales = await query.OrderByDescending(s => s.Date).ToListAsync();
+            ViewBag.CurrentMonth = targetMonth;
+            ViewBag.CurrentYear = targetYear;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            await _auditLog.LogActivityAsync("TRANSACTION_LEDGER_VIEW", $"User reviewed the transaction repository for {targetMonth}/{targetYear}. (Page {page})", user?.BranchId);
             return View(sales);
         }
         [HttpGet]

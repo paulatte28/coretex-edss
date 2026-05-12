@@ -19,11 +19,38 @@ namespace coretex_finalproj.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            var sendGridKey = _config["SendGrid:ApiKey"];
+            var fromEmail = _config["SendGrid:FromEmail"] ?? _config["Email:From"] ?? "security@coretex.com";
+
+            // --- SENDGRID PATH (Primary) ---
+            if (!string.IsNullOrEmpty(sendGridKey) && !sendGridKey.Contains("YOUR_"))
+            {
+                try
+                {
+                    var client = new SendGrid.SendGridClient(sendGridKey);
+                    var from = new SendGrid.Helpers.Mail.EmailAddress(fromEmail, "Coretex Executive Security");
+                    var to = new SendGrid.Helpers.Mail.EmailAddress(email);
+                    var msg = SendGrid.Helpers.Mail.MailHelper.CreateSingleEmail(from, to, subject, "", htmlMessage);
+                    var response = await client.SendEmailAsync(msg);
+                    
+                    if (response.IsSuccessStatusCode)
+                    {
+                        _logger.LogInformation("Real-time email sent successfully to {Email} via SendGrid", email);
+                        return;
+                    }
+                    _logger.LogWarning("SendGrid failed with status {Status}. Falling back to SMTP.", response.StatusCode);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "SendGrid Exception. Falling back to SMTP.");
+                }
+            }
+
+            // --- SMTP FALLBACK PATH ---
             var smtpHost = _config["Email:Host"];
             var smtpPort = _config.GetValue<int>("Email:Port", 465);
             var smtpUser = _config["Email:User"];
             var smtpPass = _config["Email:Password"];
-            var fromEmail = _config["Email:From"] ?? "security@coretex.com";
 
             // Check for placeholders to allow Mock Mode
             if (string.IsNullOrEmpty(smtpHost) || 
@@ -37,7 +64,7 @@ namespace coretex_finalproj.Services
                     "==============================================\n" +
                     "TO: {Email}\n" +
                     "SUBJECT: {Subject}\n" +
-                    "OTP CODE: {Message}\n" +
+                    "CONTENT: {Message}\n" +
                     "==============================================", 
                     email, subject, htmlMessage);
                 return;
@@ -46,14 +73,15 @@ namespace coretex_finalproj.Services
             try 
             {
                 // --- DEVELOPER TESTING OVERRIDE ---
-                // If the recipient is a "fake" system account, redirect it to your real Gmail
-                if (email.EndsWith("@coretex.com") && !string.IsNullOrEmpty(smtpUser))
+                // If the recipient is a "fake" system account, redirect it to your official UM email for demo
+                var realRedirectEmail = _config["SendGrid:FromEmail"] ?? _config["Email:User"];
+
+                if (email.EndsWith("@coretex.com") && !string.IsNullOrEmpty(realRedirectEmail))
                 {
-                    _logger.LogWarning("TEST REDIRECT: Intercepted email for {FakeEmail}. Rerouting to {RealEmail} for demo.", email, smtpUser);
-                    email = smtpUser; // Reroute to your real inbox
+                    _logger.LogWarning("TEST REDIRECT: Intercepted email for {FakeEmail}. Rerouting to {RealEmail} for demo.", email, realRedirectEmail);
+                    email = realRedirectEmail; 
                 }
 
-                // Force use of modern TLS protocols for security
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Coretex Security", fromEmail));
                 message.To.Add(new MailboxAddress("", email));
@@ -61,9 +89,6 @@ namespace coretex_finalproj.Services
                 message.Body = new TextPart(TextFormat.Html) { Text = htmlMessage };
 
                 using var client = new SmtpClient();
-                
-                // For Port 465, we use SslOnConnect
-                // For Port 587, we would use StartTls
                 var secureSocketOptions = smtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
 
                 await client.ConnectAsync(smtpHost, smtpPort, secureSocketOptions);
@@ -71,7 +96,7 @@ namespace coretex_finalproj.Services
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
 
-                _logger.LogInformation("Real-time email sent successfully to {Email} via MailKit", email);
+                _logger.LogInformation("Email sent successfully to {Email} via MailKit Fallback", email);
             }
             catch (Exception ex)
             {

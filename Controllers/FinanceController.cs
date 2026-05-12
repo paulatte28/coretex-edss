@@ -40,6 +40,7 @@ namespace coretex_finalproj.Controllers
             }
 
             var expenses = await query.OrderByDescending(e => e.Date).Take(10).ToListAsync();
+            await _auditLog.LogActivityAsync("FINANCE_DASHBOARD_VIEW", "User accessed the financial command center.", user?.BranchId);
             return View(expenses);
         }
 

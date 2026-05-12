@@ -14,10 +14,41 @@
                 </div>
                 <h1 class="text-4xl font-black text-white tracking-tighter uppercase">Transaction <span class="text-indigo-400">Ledger</span></h1>
                 <p class="text-slate-400 mt-2 text-sm font-medium">Reviewing the absolute audit trail of branch-level retail operations.</p>
+                
+                <!-- Advanced Filter Engine -->
+                <div class="mt-8 flex flex-wrap items-center gap-4">
+                    <form method="get" class="flex flex-wrap items-center gap-4 bg-white/5 p-2 rounded-[2rem] border border-white/10 backdrop-blur-md">
+                        <div class="relative group">
+                            <input type="text" name="search" value="@ViewBag.SearchTerm" placeholder="Order ID / Customer..." 
+                                   class="bg-white/10 border-none rounded-2xl py-2 pl-10 pr-4 text-xs text-white focus:ring-2 focus:ring-indigo-500/50 transition-all w-48 placeholder:text-slate-500" />
+                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                        
+                        <select name="month" class="bg-white/10 border-none rounded-xl py-2 px-4 text-xs text-white focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer">
+                            @for(int i=1; i<=12; i++) {
+                                <option value="@i" selected="@(ViewBag.CurrentMonth == i)" class="text-slate-900">@System.Globalization.DateTimeFormatInfo.CurrentInfo.GetMonthName(i)</option>
+                            }
+                        </select>
+
+                        <select name="year" class="bg-white/10 border-none rounded-xl py-2 px-4 text-xs text-white focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer">
+                            @for(int y=DateTime.Now.Year; y>=DateTime.Now.Year-1; y--) {
+                                <option value="@y" selected="@(ViewBag.CurrentYear == y)" class="text-slate-900">@y</option>
+                            }
+                        </select>
+
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                            Synchronize Filter
+                        </button>
+                        
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || ViewBag.CurrentMonth != DateTime.Now.Month) {
+                            <a href="/Cashier/Transactions" class="text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-widest px-2">Reset</a>
+                        }
+                    </form>
+                </div>
             </div>
             <div class="flex items-center space-x-4">
                 <div class="text-right hidden md:block">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Volume</p>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Temporal Volume (@System.Globalization.DateTimeFormatInfo.CurrentInfo.GetMonthName(ViewBag.CurrentMonth ?? DateTime.Now.Month))</p>
                     <p class="text-2xl font-black text-white tracking-tighter">₱@Model.Sum(x => (decimal)x.Amount).ToString("N0")</p>
                 </div>
                 <div class="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10 backdrop-blur-md">
@@ -26,12 +57,11 @@
             </div>
         </div>
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
-    </div>
-
-    <!-- Hifi Table Container -->
+    </div>    <!-- Hifi Table Container -->
     <div class="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden animate-slide-in" style="animation-delay: 0.1s">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
+                <!-- Table contents same as before -->
                 <thead>
                     <tr class="border-b border-slate-50">
                         <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Temporal Context</th>
@@ -93,6 +123,41 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <div class="px-10 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Showing Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+                </p>
+                <div class="flex items-center space-x-2">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <a href="@Url.Action("Transactions", new { search = ViewBag.SearchTerm, month = ViewBag.CurrentMonth, year = ViewBag.CurrentYear, page = ViewBag.CurrentPage - 1 })" 
+                           class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
+                            Previous
+                        </a>
+                    }
+                    
+                    @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                    {
+                        <a href="@Url.Action("Transactions", new { search = ViewBag.SearchTerm, month = ViewBag.CurrentMonth, year = ViewBag.CurrentYear, page = i })" 
+                           class="w-10 h-10 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-all @(ViewBag.CurrentPage == i ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50")">
+                            @i
+                        </a>
+                    }
+
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <a href="@Url.Action("Transactions", new { search = ViewBag.SearchTerm, month = ViewBag.CurrentMonth, year = ViewBag.CurrentYear, page = ViewBag.CurrentPage + 1 })" 
+                           class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
+                            Next
+                        </a>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </div>
 

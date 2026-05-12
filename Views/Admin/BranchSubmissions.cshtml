@@ -141,9 +141,9 @@
     </div>
 </div>
 
-<!-- Send Reminder Modal -->
-<div id="reminder-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-4">
+<!-- Send Reminder Modal (Executive Edition) -->
+<div id="reminder-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop-premium animate-in fade-in duration-300">
+    <div class="glass-card w-full max-w-lg mx-4 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <h3 class="text-xl font-black text-slate-900">Send Reminder</h3>
             <button onclick="closeReminderModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
@@ -180,8 +180,9 @@ System Administrator</textarea>
             </div>
             
             <input type="hidden" id="reminder-branch-id">
+            @Html.AntiForgeryToken()
             <div class="flex items-center space-x-4 mt-6">
-                <button onclick="confirmSendReminder()" class="flex-1 px-6 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors flex items-center justify-center space-x-2">
+                <button onclick="confirmSendReminder(event)" class="flex-1 px-6 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     <span>Send Reminder</span>
                 </button>
@@ -203,17 +204,66 @@ System Administrator</textarea>
     <script>
         function openReminderModal(branchId) {
             document.getElementById('reminder-branch-id').value = branchId;
-            document.getElementById('reminder-modal').classList.replace('hidden', 'flex');
+            const modal = document.getElementById('reminder-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeReminderModal() {
-            document.getElementById('reminder-modal').classList.replace('flex', 'hidden');
+            const modal = document.getElementById('reminder-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
         }
 
-        function confirmSendReminder() {
-            // In a real system, this would call an API to send an email
-            showToast('Strategic Alert sent to Branch Manager.');
-            closeReminderModal();
+        function confirmSendReminder(e) {
+            const btn = e.currentTarget;
+            const originalText = btn.innerHTML;
+            
+            const branchId = document.getElementById('reminder-branch-id').value;
+            const message = document.getElementById('reminder-message').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            if (!branchId) {
+                alert('ERROR: Node ID missing.');
+                return;
+            }
+
+            // Visual Loading State
+            btn.disabled = true;
+            btn.innerHTML = '<span>DISPATCHING...</span>';
+
+            const formData = new URLSearchParams();
+            formData.append('branchId', branchId);
+            formData.append('message', message);
+            formData.append('__RequestVerificationToken', token);
+
+            fetch('/Admin/SendReminder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            })
+            .then(async response => {
+                if (response.ok) {
+                    showToast('✅ Tactical Alert Dispatched Successfully!');
+                    setTimeout(() => {
+                        closeReminderModal();
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }, 1000);
+                } else {
+                    const text = await response.text();
+                    alert('SERVER ERROR: ' + response.status + ' - ' + text);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                alert('NETWORK ERROR: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
         }
 
         function showToast(msg) {

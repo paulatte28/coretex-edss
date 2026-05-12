@@ -23,7 +23,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<NotificationService>();
-builder.Services.AddScoped<CurrencyService>();
+
 builder.Services.AddScoped<GeolocationService>();
 builder.Services.AddScoped<AuditLoggingService>();
 builder.Services.AddScoped<AnalyticsService>();
