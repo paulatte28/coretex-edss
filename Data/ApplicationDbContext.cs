@@ -139,6 +139,11 @@ namespace coretex_finalproj.Data
                 .Property(s => s.Expenses)
                 .HasPrecision(10, 2);
 
+            builder.Entity<BranchSubmission>().Property(s => s.Cogs).HasPrecision(10, 2);
+            builder.Entity<BranchSubmission>().Property(s => s.Rent).HasPrecision(10, 2);
+            builder.Entity<BranchSubmission>().Property(s => s.Salaries).HasPrecision(10, 2);
+            builder.Entity<BranchSubmission>().Property(s => s.Utilities).HasPrecision(10, 2);
+
             builder.Entity<BranchGoal>()
                 .Property(g => g.TargetRevenue)
                 .HasPrecision(10, 2);
