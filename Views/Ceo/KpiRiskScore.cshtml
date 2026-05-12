@@ -4,21 +4,68 @@
 }
 
 <div class="space-y-8">
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Risk Score</h2>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Current score, contributing factors, and historical trend</p>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Intelligence: Risk Score</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">Current score, contributing factors, and historical trend</p>
             </div>
-            <div class="relative">
-                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
-                    Alerts
-                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
-                </button>
-                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            
+            <div class="flex flex-wrap items-center gap-4">
+                <form id="filter-form" method="get" action="/ceo/kpi/risk-score" class="flex items-center gap-3">
+                    <!-- BRANCH FILTER -->
+                    <div class="relative">
+                        <select name="branchId" onchange="submitFilters()" class="appearance-none bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl py-3 pl-5 pr-10 focus:ring-4 focus:ring-indigo-500/20 cursor-pointer transition-all">
+                            <option value="">Global Network (HQ)</option>
+                            @foreach(var b in (List<coretex_finalproj.Models.Branch>)ViewBag.Branches)
+                            {
+                                <option value="@b.Id" selected="@(ViewBag.SelectedBranchId == b.Id)">@b.Name</option>
+                            }
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- PERIOD FILTER -->
+                    <div class="relative">
+                        <select name="period" onchange="submitFilters()" class="appearance-none bg-white text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200 rounded-xl py-3 pl-5 pr-10 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer transition-all">
+                            <option value="all" selected="@(ViewBag.SelectedMonth == null)">Overall Archive</option>
+                            @{
+                                var now = DateTime.Now;
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    var d = now.AddMonths(-i);
+                                    var val = $"{d.Month}-{d.Year}";
+                                    var label = d.ToString("MMMM yyyy");
+                                    if (i == 0) label += " (LIVE)";
+                                    <option value="@val" selected="@(ViewBag.SelectedMonth == d.Month && ViewBag.SelectedYear == d.Year)">@label</option>
+                                }
+                            }
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                    </div>
+                </form>
+
+                <script>
+                    function submitFilters() {
+                        const form = document.getElementById('filter-form');
+                        const period = form.period.value;
+                        const branchId = form.branchId.value;
+                        
+                        let url = `/ceo/kpi/risk-score?branchId=${branchId}`;
+                        if (period !== 'all') {
+                            const [m, y] = period.split('-');
+                            url += `&month=${m}&year=${y}`;
+                        }
+                        window.location.href = url;
+                    }
+                </script>
             </div>
         </div>
-        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+        <div id="ceo-nav" class="mt-8 flex flex-wrap gap-2"></div>
     </div>
 
     <div id="risk-card" class="bg-emerald-50 border border-emerald-200 rounded-3xl p-8">
@@ -77,72 +124,79 @@
             ceo.renderNav('risk-score', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const risk = ceo.getRiskSummary();
-            document.getElementById('risk-main').textContent = `${risk.icon} ${risk.code}`;
-            document.getElementById('risk-sub').textContent = risk.detail;
+            const selectedBranchId = '@(ViewBag.SelectedBranchId ?? "")';
+            const selectedMonth = '@(ViewBag.SelectedMonth ?? "")';
+            const selectedYear = '@(ViewBag.SelectedYear ?? "")';
 
-            const card = document.getElementById('risk-card');
-            if (risk.code === 'RED') {
-                card.className = 'bg-red-50 border border-red-200 rounded-3xl p-8';
-                document.getElementById('risk-main').className = 'text-5xl font-black text-red-700';
-                document.getElementById('risk-sub').className = 'text-sm font-bold text-red-700 mt-2';
-            } else if (risk.code === 'YELLOW') {
-                card.className = 'bg-amber-50 border border-amber-200 rounded-3xl p-8';
-                document.getElementById('risk-main').className = 'text-5xl font-black text-amber-700';
-                document.getElementById('risk-sub').className = 'text-sm font-bold text-amber-700 mt-2';
-            }
+            ceo.initialize(selectedBranchId, selectedMonth, selectedYear).then(() => {
+                const risk = ceo.getRiskSummary();
+                document.getElementById('risk-main').textContent = `${risk.icon} ${risk.code}`;
+                document.getElementById('risk-sub').textContent = risk.detail;
 
-            const factors = [
-                '✅ Profit Margin above threshold',
-                '✅ Expense Ratio within limit',
-                '⚠️ Branch 2 showing declining sales'
-            ];
-            document.getElementById('factor-list').innerHTML = factors.map(f => `<p class="text-sm text-slate-700">${f}</p>`).join('');
+                const card = document.getElementById('risk-card');
+                if (risk.code === 'RED') {
+                    card.className = 'bg-red-50 border border-red-200 rounded-3xl p-8';
+                    document.getElementById('risk-main').className = 'text-5xl font-black text-red-700';
+                    document.getElementById('risk-sub').className = 'text-sm font-bold text-red-700 mt-2';
+                } else if (risk.code === 'YELLOW') {
+                    card.className = 'bg-amber-50 border border-amber-200 rounded-3xl p-8';
+                    document.getElementById('risk-main').className = 'text-5xl font-black text-amber-700';
+                    document.getElementById('risk-sub').className = 'text-sm font-bold text-amber-700 mt-2';
+                }
 
-            const trend = ceo.getExpenseRatioTrend();
-            const scoreValues = trend.map(item => {
-                if (item.ratio > 75) return 3;
-                if (item.ratio > 65) return 2;
-                return 1;
-            });
+                const factors = [
+                    '✅ Profit Margin above threshold',
+                    '✅ Expense Ratio within limit',
+                    '⚠️ Branch performance tracking'
+                ];
+                document.getElementById('factor-list').innerHTML = factors.map(f => `<p class="text-sm text-slate-700">${f}</p>`).join('');
 
-            ceo.makeChart('chart-risk', {
-                type: 'line',
-                data: {
-                    labels: trend.map(x => x.month),
-                    datasets: [{
-                        label: 'Risk Score (1=Green,2=Yellow,3=Red)',
-                        data: scoreValues,
-                        borderColor: 'rgba(59,130,246,1)',
-                        backgroundColor: 'rgba(59,130,246,0.15)',
-                        fill: true,
-                        tension: 0.35
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            min: 1,
-                            max: 3,
-                            ticks: {
-                                stepSize: 1,
-                                callback: value => value === 1 ? 'Green' : value === 2 ? 'Yellow' : 'Red'
+                const trend = ceo.getExpenseRatioTrend();
+                const scoreValues = trend.map(item => {
+                    if (item.ratio > 75) return 3;
+                    if (item.ratio > 65) return 2;
+                    return 1;
+                });
+
+                ceo.makeChart('chart-risk', {
+                    type: 'line',
+                    data: {
+                        labels: trend.map(x => x.month),
+                        datasets: [{
+                            label: 'Risk Score (1=Green,2=Yellow,3=Red)',
+                            data: scoreValues,
+                            borderColor: 'rgba(59,130,246,1)',
+                            backgroundColor: 'rgba(59,130,246,0.15)',
+                            fill: true,
+                            tension: 0.35
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                min: 1,
+                                max: 3,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: value => value === 1 ? 'Green' : value === 2 ? 'Yellow' : 'Red'
+                                }
                             }
                         }
                     }
-                }
+                });
+                
+                // SELF-HEALING STRATEGY MONITOR
+                setInterval(() => {
+                    const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
+                    if (isFreeze && risk.code === 'GREEN') {
+                        localStorage.removeItem('coretex_capital_freeze');
+                        alert("🚀 AUTONOMOUS RECOVERY: System has detected that Risk Score has returned to GREEN levels. The Capital Freeze has been automatically deactivated to restore full procurement authority.");
+                        window.location.reload();
+                    }
+                }, 3000);
             });
-            // SELF-HEALING STRATEGY MONITOR
-            setInterval(() => {
-                const isFreeze = localStorage.getItem('coretex_capital_freeze') === 'true';
-                if (isFreeze && risk.code === 'GREEN') {
-                    localStorage.removeItem('coretex_capital_freeze');
-                    alert("🚀 AUTONOMOUS RECOVERY: System has detected that Risk Score has returned to GREEN levels. The Capital Freeze has been automatically deactivated to restore full procurement authority.");
-                    window.location.reload();
-                }
-            }, 3000);
         });
 
         async function executeCapitalFreeze() {

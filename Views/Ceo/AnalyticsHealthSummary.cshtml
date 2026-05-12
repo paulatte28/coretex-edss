@@ -6,8 +6,67 @@
 <div class="space-y-8">
     <!-- SIMPLE HEADER -->
     <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Business Health Summary</h1>
-        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">Executive narrative and key performance indicators</p>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Business Health Summary</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">Executive narrative and key performance indicators</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-4">
+                <form id="filter-form" method="get" action="/ceo/analytics/health-summary" class="flex items-center gap-3">
+                    <div class="relative">
+                        <select name="branchId" onchange="submitFilters()" class="appearance-none bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl py-3 pl-5 pr-10 focus:ring-4 focus:ring-indigo-500/20 cursor-pointer transition-all">
+                            <option value="">Global Network (HQ)</option>
+                            @foreach(var b in (List<coretex_finalproj.Models.Branch>)ViewBag.Branches)
+                            {
+                                <option value="@b.Id" selected="@(ViewBag.SelectedBranchId == b.Id)">@b.Name</option>
+                            }
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </div>
+
+
+                    <!-- PERIOD FILTER -->
+                    <div class="relative">
+                        <select name="period" onchange="submitFilters()" class="appearance-none bg-white text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200 rounded-xl py-3 pl-5 pr-10 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer transition-all">
+                            <option value="all" selected="@(ViewBag.SelectedMonth == null)">Overall Archive</option>
+                            @{
+                                var now = DateTime.Now;
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    var d = now.AddMonths(-i);
+                                    var val = $"{d.Month}-{d.Year}";
+                                    var label = d.ToString("MMMM yyyy");
+                                    if (i == 0) label += " (LIVE)";
+                                    <option value="@val" selected="@(ViewBag.SelectedMonth == d.Month && ViewBag.SelectedYear == d.Year)">@label</option>
+                                }
+                            }
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+                <script>
+                    function submitFilters() {
+                        const form = document.getElementById('filter-form');
+                        const period = form.period.value;
+                        const branchId = form.branchId.value;
+                        
+                        let url = `/ceo/analytics/health-summary?branchId=${branchId}`;
+                        if (period !== 'all') {
+                            const [m, y] = period.split('-');
+                            url += `&month=${m}&year=${y}`;
+                        }
+                        window.location.href = url;
+                    }
+                </script>
+            </div>
+        </div>
         <div id="ceo-nav" class="mt-8 flex flex-wrap gap-2"></div>
     </div>
 
@@ -46,7 +105,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ceo = window.CoretexCeo;
-            ceo.initialize().then(() => {
+            const selectedBranchId = '@(ViewBag.SelectedBranchId ?? "")';
+            const selectedMonth = '@(ViewBag.SelectedMonth ?? "")';
+            const selectedYear = '@(ViewBag.SelectedYear ?? "")';
+
+            ceo.initialize(selectedBranchId, selectedMonth, selectedYear).then(() => {
                 ceo.renderNav('health-summary', 'ceo-nav');
 
                 const kpi = ceo.getKpiSnapshot();

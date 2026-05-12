@@ -30,17 +30,20 @@ namespace coretex_finalproj.Controllers
             return RedirectToAction(nameof(Dashboard));
         }
 
-        public async Task<IActionResult> Dashboard(Guid? branchId)
+        public async Task<IActionResult> Dashboard(Guid? branchId, int? month, int? year)
         {
             var user = await _userManager.GetUserAsync(User);
             ViewBag.UserEmail = user?.Email ?? "";
             
             ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+
             ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
-            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
+            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync(month, year);
             ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
-            ViewBag.Snapshot = await _analytics.GetDashboardSnapshotAsync(branchId);
+            ViewBag.Snapshot = await _analytics.GetDashboardSnapshotAsync(branchId, month, year);
             return View();
         }
 
@@ -91,74 +94,120 @@ namespace coretex_finalproj.Controllers
             return Json(new { success = true });
         }
 
-        public async Task<IActionResult> KpiProfitMargin()
+        public async Task<IActionResult> KpiProfitMargin(Guid? branchId, int? month, int? year)
         {
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
-            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
+            ViewBag.BranchData = await _analytics.GetBranchPerformanceAsync(month, year);
             
-            // Get HQ threshold or first active
             var threshold = await _context.KpiThresholds.FirstOrDefaultAsync(t => t.IsActive);
             ViewBag.Threshold = threshold?.MinProfitMargin ?? 15m;
 
             return View();
         }
 
-        public async Task<IActionResult> KpiExpenseRatio()
+        public async Task<IActionResult> KpiExpenseRatio(Guid? branchId, int? month, int? year)
         {
-            ViewBag.Snapshot = await _analytics.GetDashboardSnapshotAsync();
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
-            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            ViewBag.Snapshot = await _analytics.GetDashboardSnapshotAsync(branchId, month, year);
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
             return View();
         }
 
-        public async Task<IActionResult> AnalyticsForecast()
+        public async Task<IActionResult> AnalyticsForecast(Guid? branchId, int? month, int? year)
         {
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
-            ViewBag.ForecastAmount = await _analytics.GetSalesForecastAsync(null);
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
+            ViewBag.ForecastAmount = await _analytics.GetSalesForecastAsync(branchId);
             return View();
         }
 
-        public async Task<IActionResult> AnalyticsExpenseTrend()
+        public async Task<IActionResult> AnalyticsExpenseTrend(Guid? branchId, int? month, int? year)
         {
-            var data = await _analytics.GetExpenseCategoriesAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            var data = await _analytics.GetExpenseCategoriesAsync(branchId);
             return View(data);
         }
 
-        public async Task<IActionResult> KpiRiskScore()
+        public async Task<IActionResult> KpiRiskScore(Guid? branchId, int? month, int? year)
         {
-            var snapshot = await _analytics.GetDashboardSnapshotAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            var snapshot = await _analytics.GetDashboardSnapshotAsync(branchId, month, year);
             return View(snapshot);
         }
 
-        public async Task<IActionResult> AnalyticsHealthSummary()
+        public async Task<IActionResult> AnalyticsHealthSummary(Guid? branchId, int? month, int? year)
         {
-            var snapshot = await _analytics.GetDashboardSnapshotAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            var snapshot = await _analytics.GetDashboardSnapshotAsync(branchId, month, year);
             return View(snapshot);
         }
 
-        public async Task<IActionResult> BranchesCompare()
+        public async Task<IActionResult> BranchesCompare(Guid? branchId, int? month, int? year)
         {
-            var data = await _analytics.GetBranchPerformanceAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            var data = await _analytics.GetBranchPerformanceAsync(month, year);
             return View(data);
         }
 
-        public async Task<IActionResult> AnalyticsMom()
+        public async Task<IActionResult> AnalyticsMom(Guid? branchId, int? month, int? year)
         {
-            var data = await _analytics.GetMonthlyProfitLossAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            var data = await _analytics.GetMonthlyProfitLossAsync(branchId);
             return View(data);
         }
 
-        public async Task<IActionResult> Charts()
+        public async Task<IActionResult> Charts(Guid? branchId, int? month, int? year)
         {
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
-            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync();
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId, month, year);
+            ViewBag.ExpenseData = await _analytics.GetExpenseCategoriesAsync(branchId);
             return View();
         }
 
-        public async Task<IActionResult> AnalyticsPredictive()
+        public async Task<IActionResult> AnalyticsPredictive(Guid? branchId)
         {
-            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync();
-            ViewBag.ForecastAmount = await _analytics.GetSalesForecastAsync(null);
+            ViewBag.SelectedBranchId = branchId;
+            ViewBag.Branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
+            ViewBag.MonthlyData = await _analytics.GetMonthlyProfitLossAsync(branchId);
+            ViewBag.ForecastAmount = await _analytics.GetSalesForecastAsync(branchId);
             return View();
         }
 
@@ -197,60 +246,15 @@ namespace coretex_finalproj.Controllers
             return View(summary);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAnalyticsSeries()
+        public async Task<IActionResult> GetAnalyticsSeries(Guid? branchId, int? month, int? year)
         {
-            var now = DateTime.Now;
-            var series = new List<object>();
-
-            // FETCH DATA FOR THE LAST 6 MONTHS
-            for (int i = 5; i >= 0; i--)
-            {
-                var d = now.AddMonths(-i);
-                var start = new DateTime(d.Year, d.Month, 1);
-                var end = start.AddMonths(1);
-
-                // 1. Check for official submission
-                var submission = await _context.BranchSubmissions
-                    .Where(s => s.SubmissionYear == d.Year && s.SubmissionMonth == d.Month)
-                    .ToListAsync(); // Summing across all branches for the global chart
-
-                decimal monthlySales = 0;
-                decimal monthlyExpenses = 0;
-
-                if (submission.Any())
-                {
-                    monthlySales = submission.Sum(s => s.SalesRevenue);
-                    monthlyExpenses = submission.Sum(s => s.Expenses);
-                }
-                else
-                {
-                    // 2. Fallback to raw transactional data
-                    monthlySales = await _context.Sales
-                        .Where(s => !s.IsArchived && s.Date >= start && s.Date < end)
-                        .SumAsync(s => s.Amount);
-
-                    monthlyExpenses = await _context.Expenses
-                        .Where(e => !e.IsArchived && e.Date >= start && e.Date < end)
-                        .SumAsync(e => e.Amount);
-                }
-
-                series.Add(new
-                {
-                    monthKey = $"{d.Year}-{d.Month:D2}",
-                    month = d.ToString("MMM yyyy") + (i == 0 && !submission.Any() ? " (LIVE)" : ""),
-                    revenue = monthlySales,
-                    expenses = monthlyExpenses,
-                    netProfit = monthlySales - monthlyExpenses
-                });
-            }
-
-            return Json(series);
+            return Json(await _analytics.GetMonthlyProfitLossAsync(branchId, month, year));
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBranchPerformance()
+        public async Task<IActionResult> GetBranchPerformance(int? month, int? year)
         {
-            var performance = await _analytics.GetBranchPerformanceAsync();
+            var performance = await _analytics.GetBranchPerformanceAsync(month, year);
             return Json(performance);
         }
         [HttpPost]

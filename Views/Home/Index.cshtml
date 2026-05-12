@@ -107,6 +107,7 @@
                     else if (User.IsInRole("FINANCE")) dashboardUrl = "/finance/dashboard";
                     else if (User.IsInRole("CASHIER")) dashboardUrl = "/cashier/pos";
                     else if (User.IsInRole("CEO")) dashboardUrl = "/ceo/dashboard";
+                    else dashboardUrl = "/Home/Login";
 
                     <a href="@dashboardUrl" class="group px-8 py-4 bg-white text-slate-900 font-bold rounded-xl hover:bg-white/90 transition-all shadow-2xl shadow-white/20 flex items-center gap-3">
                         <span>Go to Dashboard</span>

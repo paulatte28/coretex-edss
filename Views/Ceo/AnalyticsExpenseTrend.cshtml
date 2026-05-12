@@ -4,21 +4,68 @@
 }
 
 <div class="space-y-8">
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight">View Expense Trend</h2>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Stacked monthly category trend and category-wise month comparison</p>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Intelligence: Expense Trend</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">Stacked monthly category trend and category-wise month comparison</p>
             </div>
-            <div class="relative">
-                <button id="notif-btn" class="relative px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors font-bold text-xs">
-                    Alerts
-                    <span id="notif-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">0</span>
-                </button>
-                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl p-3 z-20"></div>
+            
+            <div class="flex flex-wrap items-center gap-4">
+                <form id="filter-form" method="get" action="/ceo/analytics/expense-trend" class="flex items-center gap-3">
+                    <!-- BRANCH FILTER -->
+                    <div class="relative">
+                        <select name="branchId" onchange="submitFilters()" class="appearance-none bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl py-3 pl-5 pr-10 focus:ring-4 focus:ring-indigo-500/20 cursor-pointer transition-all">
+                            <option value="">Global Network (HQ)</option>
+                            @foreach(var b in (List<coretex_finalproj.Models.Branch>)ViewBag.Branches)
+                            {
+                                <option value="@b.Id" selected="@(ViewBag.SelectedBranchId == b.Id)">@b.Name</option>
+                            }
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- PERIOD FILTER -->
+                    <div class="relative">
+                        <select name="period" onchange="submitFilters()" class="appearance-none bg-white text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200 rounded-xl py-3 pl-5 pr-10 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer transition-all">
+                            <option value="all" selected="@(ViewBag.SelectedMonth == null)">Overall Archive</option>
+                            @{
+                                var now = DateTime.Now;
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    var d = now.AddMonths(-i);
+                                    var val = $"{d.Month}-{d.Year}";
+                                    var label = d.ToString("MMMM yyyy");
+                                    if (i == 0) label += " (LIVE)";
+                                    <option value="@val" selected="@(ViewBag.SelectedMonth == d.Month && ViewBag.SelectedYear == d.Year)">@label</option>
+                                }
+                            }
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                    </div>
+                </form>
+
+                <script>
+                    function submitFilters() {
+                        const form = document.getElementById('filter-form');
+                        const period = form.period.value;
+                        const branchId = form.branchId.value;
+                        
+                        let url = `/ceo/analytics/expense-trend?branchId=${branchId}`;
+                        if (period !== 'all') {
+                            const [m, y] = period.split('-');
+                            url += `&month=${m}&year=${y}`;
+                        }
+                        window.location.href = url;
+                    }
+                </script>
             </div>
         </div>
-        <div id="ceo-nav" class="mt-5 flex flex-wrap gap-2"></div>
+        <div id="ceo-nav" class="mt-8 flex flex-wrap gap-2"></div>
     </div>
 
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
@@ -54,53 +101,64 @@
             ceo.renderNav('expense-trend', 'ceo-nav');
             ceo.mountNotifications('notif-btn', 'notif-badge', 'notif-dropdown');
 
-            const series = ceo.getMonthSeries();
-            ceo.makeChart('chart-expense-trend', {
-                type: 'bar',
-                data: {
-                    labels: series.map(x => x.month),
-                    datasets: [
-                        { label: 'COGS', data: series.map(x => x.cogs), backgroundColor: '#f97316' },
-                        { label: 'Rent', data: series.map(x => x.rent), backgroundColor: '#3b82f6' },
-                        { label: 'Salaries', data: series.map(x => x.salaries), backgroundColor: '#10b981' },
-                        { label: 'Utilities', data: series.map(x => x.utilities), backgroundColor: '#8b5cf6' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
-                    }
+            const selectedBranchId = '@(ViewBag.SelectedBranchId ?? "")';
+            const selectedMonth = '@(ViewBag.SelectedMonth ?? "")';
+            const selectedYear = '@(ViewBag.SelectedYear ?? "")';
+
+            ceo.initialize(selectedBranchId, selectedMonth, selectedYear).then(() => {
+                const series = ceo.getMonthSeries();
+                
+                if (series && series.length > 0) {
+                    ceo.makeChart('chart-expense-trend', {
+                        type: 'bar',
+                        data: {
+                            labels: series.map(x => x.month),
+                            datasets: [
+                                { label: 'COGS', data: series.map(x => x.cogs), backgroundColor: '#f97316' },
+                                { label: 'Rent', data: series.map(x => x.rent), backgroundColor: '#3b82f6' },
+                                { label: 'Salaries', data: series.map(x => x.salaries), backgroundColor: '#10b981' },
+                                { label: 'Utilities', data: series.map(x => x.utilities), backgroundColor: '#8b5cf6' }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { stacked: true },
+                                y: { stacked: true }
+                            }
+                        }
+                    });
+
+                    const current = series[series.length - 1];
+                    const last = series.length > 1 ? series[series.length - 2] : current;
+
+                    const rows = [
+                        ['COGS', current.cogs, last.cogs],
+                        ['Rent', current.rent, last.rent],
+                        ['Salaries', current.salaries, last.salaries],
+                        ['Utilities', current.utilities, last.utilities]
+                    ];
+
+                    document.getElementById('comparison-table').innerHTML = rows.map(([category, nowValue, lastValue]) => {
+                        const change = nowValue - lastValue;
+                        const sign = change >= 0 ? '↑' : '↓';
+                        const color = change >= 0 ? 'text-amber-600' : 'text-emerald-600';
+                        const percent = lastValue > 0 ? ((change / lastValue) * 100).toFixed(1) : '0.0';
+
+                        return `
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 text-sm font-semibold text-slate-900">${category}</td>
+                                <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(nowValue)}</td>
+                                <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(lastValue)}</td>
+                                <td class="px-6 py-4 text-sm font-black text-right ${color}">${sign} ${percent}%</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    document.getElementById('comparison-table').innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">No historical expense data available for comparison.</td></tr>';
                 }
             });
-
-            const current = series[series.length - 1];
-            const last = series[series.length - 2];
-
-            const rows = [
-                ['COGS', current.cogs, last.cogs],
-                ['Rent', current.rent, last.rent],
-                ['Salaries', current.salaries, last.salaries],
-                ['Utilities', current.utilities, last.utilities]
-            ];
-
-            document.getElementById('comparison-table').innerHTML = rows.map(([category, nowValue, lastValue]) => {
-                const change = nowValue - lastValue;
-                const sign = change >= 0 ? '↑' : '↓';
-                const color = change >= 0 ? 'text-amber-600' : 'text-emerald-600';
-                const percent = lastValue > 0 ? ((change / lastValue) * 100).toFixed(1) : '0.0';
-
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${category}</td>
-                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(nowValue)}</td>
-                        <td class="px-6 py-4 text-sm font-black text-slate-900 text-right">${ceo.money(lastValue)}</td>
-                        <td class="px-6 py-4 text-sm font-black text-right ${color}">${sign} ${percent}%</td>
-                    </tr>
-                `;
-            }).join('');
         });
     </script>
 }

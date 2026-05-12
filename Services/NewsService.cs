@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Text.Json;
@@ -41,13 +42,17 @@ namespace coretex_finalproj.Services
                 case "business":
                     query = "corporate+strategy+startup+finance";
                     break;
+                case "pricing":
+                    query = "electronics+prices+inflation+market+forecast";
+                    break;
                 default:
-                    query = "business+market+news";
+                    query = "tech+business+market+trends";
                     break;
             }
 
             // Using "everything" but with a filter to keep it relevant to business/tech
-            string url = $"https://newsapi.org/v2/everything?q={query}&language=en&pageSize=10&sortBy=publishedAt&apiKey={_apiKey}";
+            // Increase to 20 results for a fuller feed
+            string url = $"https://newsapi.org/v2/everything?q={query}&language=en&pageSize=20&sortBy=relevancy&apiKey={_apiKey}";
 
             try
             {
@@ -60,7 +65,7 @@ namespace coretex_finalproj.Services
                 // Log failure status if needed
                 return null;
             }
-            catch
+            catch (Exception)
             {
                 return null;
             }

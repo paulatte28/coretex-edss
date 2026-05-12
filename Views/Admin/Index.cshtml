@@ -94,21 +94,21 @@
             </div>
         </div>
 
-        <!-- KPI Goals -->
-        <div onclick="location.href='/Admin/KPIThresholds'" class="group bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <!-- Audit Logs Quick Link -->
+        <div onclick="location.href='/Admin/ActivityLog'" class="group bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 transition-colors duration-300">
-                    <svg class="w-6 h-6 text-emerald-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 transition-colors duration-300">
+                    <svg class="w-6 h-6 text-indigo-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/></svg>
                 </div>
-                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Performance</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compliance</div>
             </div>
             <div class="flex items-baseline space-x-2">
-                <span class="text-4xl font-black text-slate-900">@ViewBag.KPIThresholdsCount</span>
-                <span class="text-sm font-bold text-emerald-500">Targets</span>
+                <span class="text-4xl font-black text-slate-900">Live</span>
+                <span class="text-sm font-bold text-indigo-500">Audit</span>
             </div>
             <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-400 uppercase">@(isManager ? "Strategic Safety Limits" : "Adjust Goals")</span>
-                <a href="/Admin/KPIThresholds" class="text-emerald-600 hover:translate-x-1 transition-transform">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Monitor Activity</span>
+                <a href="/Admin/ActivityLog" class="text-indigo-600 hover:translate-x-1 transition-transform">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
             </div>

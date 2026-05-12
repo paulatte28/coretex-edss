@@ -20,15 +20,16 @@ namespace coretex_finalproj.Data
 
             await EnsureSchemaAsync(context, logger);
 
-            // PROACTIVE PATCH: Rename "Main Branch" to "Claveria HQ" if it exists
-            var existingMainBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Main Branch");
-            if (existingMainBranch != null)
+            // Branches table check
+            // --- CLEANUP: Explicitly delete Claveria data if it exists ---
+            var claveriaBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name.Contains("Claveria"));
+            if (claveriaBranch != null)
             {
-                existingMainBranch.Name = "Claveria HQ";
-                existingMainBranch.Address = "Claveria St., Corporate Plaza";
-                existingMainBranch.BranchCode = "CHQ-001";
+                logger?.LogInformation("Purging Claveria data as requested...");
+                context.Branches.Remove(claveriaBranch);
                 await context.SaveChangesAsync();
             }
+
 
             if (!await TableExistsAsync(context, "Branches"))
             {
@@ -36,52 +37,33 @@ namespace coretex_finalproj.Data
                 return;
             }
 
-            Branch? defaultBranch = null;
-
-            if (!await context.Branches.AnyAsync())
+            // --- ENTERPRISE SCALE SEEDING (5 BRANCHES) ---
+            var requiredBranches = new[]
             {
-                defaultBranch = new Branch
+                new { Name = "Sandawa Branch", Address = "Sandawa, Matina", Code = "SND-002" },
+                new { Name = "Toril", Address = "Toril, Davao City", Code = "TRL-003" },
+                new { Name = "Buhangin", Address = "Buhangin, Davao City", Code = "BHG-004" },
+                new { Name = "Matina", Address = "Matina Crossing, Davao City", Code = "MTN-005" }
+            };
+
+            foreach (var rb in requiredBranches)
+            {
+                if (!await context.Branches.AnyAsync(b => b.Name == rb.Name))
                 {
-                    Id = Guid.NewGuid(),
-                    Name = "Claveria HQ",
-                    Address = "Claveria St., Corporate Plaza",
-                    BranchCode = "CHQ-001",
-                    IsActive = true
-                };
-                context.Branches.Add(defaultBranch);
-
-                // Add ONLY the essential Sandawa Node
-                context.Branches.Add(new Branch { Name = "Sandawa Branch", Address = "Sandawa, Matina", BranchCode = "SND-002" });
-
-                await context.SaveChangesAsync();
-
-                // Seed a robust Enterprise Catalog
-                context.Products.AddRange(
-                    // Laptops
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex ZenBook Pro", Category = "Laptops", Price = 85000.00m, StockQuantity = 25, LowStockThreshold = 5 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "X-Series Workstation", Category = "Laptops", Price = 120000.00m, StockQuantity = 10, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "EliteBook Enterprise", Category = "Laptops", Price = 65000.00m, StockQuantity = 40, LowStockThreshold = 10 },
-                    
-                    // Components
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "NVIDIA RTX 4090 (Core Edition)", Category = "Components", Price = 110000.00m, StockQuantity = 15, LowStockThreshold = 3 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "64GB DDR5 Server RAM", Category = "Components", Price = 18000.00m, StockQuantity = 100, LowStockThreshold = 20 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "2TB NVMe Gen5 SSD", Category = "Components", Price = 12500.00m, StockQuantity = 200, LowStockThreshold = 30 },
-                    
-                    // Infrastructure
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Rack-Mount Storage Node", Category = "Infrastructure", Price = 250000.00m, StockQuantity = 5, LowStockThreshold = 1 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Enterprise Router AX9000", Category = "Infrastructure", Price = 45000.00m, StockQuantity = 12, LowStockThreshold = 2 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Firewall Hub", Category = "Infrastructure", Price = 32000.00m, StockQuantity = 8, LowStockThreshold = 2 },
-                    
-                    // Software
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Coretex Security Suite (1yr)", Category = "Software", Price = 5500.00m, StockQuantity = 1000, LowStockThreshold = 100 },
-                    new Product { Id = Guid.NewGuid(), BranchId = defaultBranch.Id, Name = "Cloud Backup Subscription", Category = "Software", Price = 1200.00m, StockQuantity = 1000, LowStockThreshold = 100 }
-                );
-
-                await context.SaveChangesAsync();
+                    context.Branches.Add(new Branch 
+                    { 
+                        Name = rb.Name, 
+                        Address = rb.Address, 
+                        BranchCode = rb.Code,
+                        IsActive = true 
+                    });
+                }
             }
+            await context.SaveChangesAsync();
 
-            // --- GRANULAR BRANCH REPLENISHMENT ---
             var allBranches = await context.Branches.ToListAsync();
+            
+            // Ensure every branch has a base inventory for the presentation
             foreach (var branch in allBranches)
             {
                 if (!await context.Products.AnyAsync(p => p.BranchId == branch.Id))
@@ -104,12 +86,9 @@ namespace coretex_finalproj.Data
             }
             await context.SaveChangesAsync();
 
-            defaultBranch ??= await context.Branches
-                .OrderByDescending(b => b.IsActive)
-                .ThenBy(b => b.Name)
-                .FirstAsync();
-
-            await SeedRolesAndUsersAsync(context, userManager, roleManager, defaultBranch.Id, logger);
+            var firstBranch = allBranches.First();
+            await SeedRolesAndUsersAsync(context, userManager, roleManager, firstBranch.Id, logger);
+            await SeedTransactionsAsync(context, logger);
         }
 
         private static async Task EnsureSchemaAsync(ApplicationDbContext context, ILogger? logger)
@@ -168,7 +147,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "admin@coretex.com",
                 fullName: "System Administrator",
-                password: "Admin12345!",
+                password: "AdminPassword123!",
                 role: "ADMIN",
                 branchId: null,
                 logger: logger);
@@ -177,7 +156,7 @@ namespace coretex_finalproj.Data
                 userManager,
                 email: "ceo@coretex.com",
                 fullName: "Chief Executive Officer",
-                password: "Ceo12345!",
+                password: "CeoPassword123!",
                 role: "CEO",
                 branchId: null,
                 logger: logger);
@@ -188,15 +167,17 @@ namespace coretex_finalproj.Data
             {
                 // Clean name for email (e.g., "Sandawa Branch" -> "sandawa")
                 var branchClean = branch.Name.ToLower().Replace(" branch", "").Replace(" ", "");
-                // Camel case for password (e.g., "Sandawa Branch" -> "Sandawa")
+                // Camel case for password (e.g., "Sandawa" -> "Sandawa")
                 var branchPascal = char.ToUpper(branchClean[0]) + branchClean.Substring(1);
                 
+                // --- NIST COMPLIANCE: Ensure Passwords are 12+ Characters ---
+                string passSuffix = "2026!@#"; 
                 // 1. Branch Manager
                 await EnsureUserAsync(
                     userManager,
                     email: $"manager.{branchClean}@coretex.com",
                     fullName: $"{branch.Name} Manager",
-                    password: $"Manager{branchPascal}123!",
+                    password: $"Manager{branchPascal}{passSuffix}",
                     role: "BRANCH_ADMIN",
                     branchId: branch.Id,
                     logger: logger);
@@ -206,20 +187,23 @@ namespace coretex_finalproj.Data
                     userManager,
                     email: $"finance.{branchClean}@coretex.com",
                     fullName: $"{branch.Name} Finance",
-                    password: $"Finance{branchPascal}123!",
+                    password: $"Finance{branchPascal}{passSuffix}",
                     role: "FINANCE",
                     branchId: branch.Id,
                     logger: logger);
 
-                // 3. Branch Cashier
-                await EnsureUserAsync(
-                    userManager,
-                    email: $"cashier.{branchClean}@coretex.com",
-                    fullName: $"{branch.Name} Cashier",
-                    password: $"Cashier{branchPascal}123!",
-                    role: "CASHIER",
-                    branchId: branch.Id,
-                    logger: logger);
+                // 3. 5 Branch Cashiers (Presentation Requirement)
+                for (int i = 1; i <= 5; i++)
+                {
+                    await EnsureUserAsync(
+                        userManager,
+                        email: $"cashier{i}.{branchClean}@coretex.com",
+                        fullName: $"{branch.Name} Cashier {i}",
+                        password: $"Cashier{branchPascal}{i}{passSuffix}",
+                        role: "CASHIER",
+                        branchId: branch.Id,
+                        logger: logger);
+                }
             }
         }
 
@@ -323,6 +307,107 @@ namespace coretex_finalproj.Data
                 }
             }
         }
+        private static async Task SeedTransactionsAsync(ApplicationDbContext context, ILogger? logger)
+        {
+            // Ensure current month has breakdown data for the presentation
+            var nowMonth = DateTime.Now.Month;
+            var nowYear = DateTime.Now.Year;
+            bool hasLiveBreakdown = await context.Expenses.AnyAsync(e => e.Date.Month == nowMonth && e.Date.Year == nowYear && e.Category == "COGS");
+
+            if (await context.Sales.CountAsync() > 100 && await context.BranchSubmissions.AnyAsync() && hasLiveBreakdown)
+            {
+                logger?.LogInformation("Sufficient Sales and Submissions already exist. Skipping transaction seed.");
+                return;
+            }
+
+            logger?.LogInformation("Generating high-fidelity transaction data and goals for presentation...");
+            var branches = await context.Branches.ToListAsync();
+            var random = new Random();
+
+            foreach (var branch in branches)
+            {
+                // 1. Seed Sales for the last 30 days (Real-time Dashboard simulation)
+                for (int i = 0; i < 60; i++)
+                {
+                    var sale = new Sale
+                    {
+                        Id = Guid.NewGuid(),
+                        BranchId = branch.Id,
+                        Amount = (decimal)(random.NextDouble() * 8000 + 500),
+                        Date = DateTime.UtcNow.AddDays(-random.Next(0, 30)).AddHours(-random.Next(0, 24)),
+                        CustomerName = "Corporate Client",
+                        OrderId = $"ORD-{random.Next(100000, 999999)}",
+                        ProductName = i % 2 == 0 ? "Enterprise Solution Bundle" : "Infrastructure Upgrade"
+                    };
+                    context.Sales.Add(sale);
+                }
+
+                // 2. Seed Expenses for the last 30 days (Ensuring categories match Analytics expectations: COGS, Rent, Salaries, Utilities)
+                var coreCategories = new[] { "COGS", "Rent", "Salaries", "Utilities", "Supplies", "Marketing" };
+                for (int i = 0; i < 20; i++)
+                {
+                    var cat = coreCategories[i % coreCategories.Length];
+                    var expense = new Expense
+                    {
+                        Id = Guid.NewGuid(),
+                        BranchId = branch.Id,
+                        // COGS should be higher, others lower
+                        Amount = cat == "COGS" ? (decimal)(random.NextDouble() * 15000 + 10000) : (decimal)(random.NextDouble() * 5000 + 1000),
+                        Date = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+                        Category = cat,
+                        Description = $"{cat} - Operational Expenditure"
+                    };
+                    context.Expenses.Add(expense);
+                }
+
+                // 3. Seed Submissions for the last 6 months (Historical MoM Analytics)
+                for (int m = 1; m <= 6; m++)
+                {
+                    var monthDate = DateTime.Now.AddMonths(-m);
+                    var variance = (decimal)(random.NextDouble() * 0.4 + 0.8); // 80% to 120%
+                    var salesTotal = 250000m * variance;
+                    var expensesTotal = 120000m * (decimal)(random.NextDouble() * 0.2 + 0.9);
+
+                    context.BranchSubmissions.Add(new BranchSubmission
+                    {
+                        Id = Guid.NewGuid(),
+                        BranchId = branch.Id,
+                        SubmissionYear = monthDate.Year,
+                        SubmissionMonth = monthDate.Month,
+                        SalesRevenue = salesTotal,
+                        Expenses = expensesTotal,
+                        Cogs = salesTotal * 0.45m,
+                        Rent = 25000,
+                        Salaries = 45000,
+                        Utilities = 8000,
+                        Status = "Approved",
+                        SubmittedAt = monthDate.AddDays(random.Next(1, 5)),
+                        Notes = "Historical data generated for executive review."
+                    });
+                }
+
+                // 4. Seed Goals for the current and surrounding months (Goal vs Actual Analytics)
+                var now = DateTime.Now;
+                for (int g = -1; g <= 2; g++)
+                {
+                    var goalDate = now.AddMonths(g);
+                    if (!await context.BranchGoals.AnyAsync(bg => bg.BranchId == branch.Id && bg.Month == goalDate.Month && bg.Year == goalDate.Year))
+                    {
+                        context.BranchGoals.Add(new BranchGoal
+                        {
+                            Id = Guid.NewGuid(),
+                            BranchId = branch.Id,
+                            TargetRevenue = 300000m,
+                            Month = goalDate.Month,
+                            Year = goalDate.Year
+                        });
+                    }
+                }
+            }
+            await context.SaveChangesAsync();
+            logger?.LogInformation("Transaction and Goal seeding completed successfully.");
+        }
+
 
         private static async Task<bool> TableExistsAsync(ApplicationDbContext context, string tableName)
         {

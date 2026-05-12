@@ -264,7 +264,7 @@ namespace coretex_finalproj.Controllers
                     BranchId = g.Key, 
                     Roles = g.Select(u => u.Role).ToList() 
                 })
-                .ToDictionaryAsync(x => x.BranchId.Value, x => x.Roles);
+                .ToDictionaryAsync(x => x.BranchId!.Value, x => x.Roles);
             
             ViewBag.BranchOccupancy = branchOccupancy;
 
@@ -560,6 +560,7 @@ namespace coretex_finalproj.Controllers
             return RedirectToAction(nameof(KPIThresholds));
         }
 
+        [Authorize(Roles = "CEO")]
         public async Task<IActionResult> KPIThresholds()
         {
             var goals = await _context.BranchGoals.Include(g => g.Branch).ToListAsync();
@@ -675,50 +676,115 @@ namespace coretex_finalproj.Controllers
 
         [Authorize(Roles = "CEO")]
         [HttpPost]
-        public async Task<IActionResult> SaveKpiThreshold([FromBody] KpiThreshold threshold)
+        public async Task<IActionResult> SaveKpiThreshold([FromBody] KpiThresholdRequest request)
         {
-            if (threshold == null) return BadRequest();
+            if (request == null) return BadRequest();
 
-            var existing = await _context.KpiThresholds
-                .FirstOrDefaultAsync(t => t.BranchId == threshold.BranchId && t.IsActive);
-
-            if (existing != null)
+            var branchesToUpdate = new List<Guid>();
+            if (request.BranchId == "global")
             {
-                existing.MinProfitMargin = threshold.MinProfitMargin;
-                existing.MaxExpenseRatio = threshold.MaxExpenseRatio;
-                existing.MinMonthlyProfit = threshold.MinMonthlyProfit;
-                existing.RiskAlertLevel = threshold.RiskAlertLevel;
-                _context.KpiThresholds.Update(existing);
+                branchesToUpdate = await _context.Branches.Where(b => !b.IsArchived).Select(b => b.Id).ToListAsync();
             }
-            else
+            else if (Guid.TryParse(request.BranchId, out Guid bId))
             {
-                _context.KpiThresholds.Add(threshold);
+                branchesToUpdate.Add(bId);
+            }
+
+            if (!branchesToUpdate.Any()) return BadRequest("No valid branch target selected.");
+
+            bool anyAlertTriggered = false;
+
+            foreach (var bId in branchesToUpdate)
+            {
+                var existing = await _context.KpiThresholds
+                    .FirstOrDefaultAsync(t => t.BranchId == bId && t.IsActive);
+
+                if (existing != null)
+                {
+                    existing.MinProfitMargin = request.MinProfitMargin;
+                    existing.MaxExpenseRatio = request.MaxExpenseRatio;
+                    existing.MinMonthlyProfit = request.MinMonthlyProfit;
+                    existing.RiskAlertLevel = request.RiskAlertLevel;
+                    existing.UpdatedAt = DateTime.Now;
+                    _context.KpiThresholds.Update(existing);
+                }
+                else
+                {
+                    _context.KpiThresholds.Add(new KpiThreshold
+                    {
+                        BranchId = bId,
+                        MinProfitMargin = request.MinProfitMargin,
+                        MaxExpenseRatio = request.MaxExpenseRatio,
+                        MinMonthlyProfit = request.MinMonthlyProfit,
+                        RiskAlertLevel = request.RiskAlertLevel,
+                        IsActive = true
+                    });
+                }
+
+                // Check for immediate strategic breach
+                var snapshot = await _analytics.GetDashboardSnapshotAsync(bId);
+                if (snapshot.ProfitMargin < request.MinProfitMargin)
+                {
+                    _context.SystemNotifications.Add(new SystemNotification
+                    {
+                        Title = "Strategic Breach Detected",
+                        Message = $"Branch operational health ({snapshot.ProfitMargin:F1}%) is below your new global target ({request.MinProfitMargin:F1}%).",
+                        Type = "KPI",
+                        Severity = "red",
+                        BranchId = bId,
+                        CreatedAt = DateTime.Now
+                    });
+                    anyAlertTriggered = true;
+                }
             }
 
             await _context.SaveChangesAsync();
-            await _auditLog.LogActivityAsync("KPI_CONFIG", "Updated strategic KPI safety thresholds for the branch.", threshold.BranchId);
-
-            // --- DIRECT RISK DETECTION ENGINE ---
-            var snapshot = await _analytics.GetDashboardSnapshotAsync(threshold.BranchId);
-            bool alertTriggered = false;
+            string logMsg = request.BranchId == "global" 
+                ? "Deployed global KPI safety thresholds across all active branches."
+                : $"Updated strategic KPI thresholds for a specific branch node.";
             
-            if (snapshot.ProfitMargin < threshold.MinProfitMargin)
+            await _auditLog.LogActivityAsync("KPI_CONFIG", logMsg);
+
+            return Json(new { success = true, alerted = anyAlertTriggered });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetKpiThreshold(string branchId)
+        {
+            if (string.IsNullOrEmpty(branchId)) return BadRequest();
+
+            KpiThreshold? threshold = null;
+
+            if (branchId == "global")
             {
-                var alert = new SystemNotification
+                threshold = await _context.KpiThresholds
+                    .OrderByDescending(t => t.UpdatedAt)
+                    .FirstOrDefaultAsync();
+            }
+            else if (Guid.TryParse(branchId, out Guid bId))
+            {
+                threshold = await _context.KpiThresholds
+                    .FirstOrDefaultAsync(t => t.BranchId == bId && t.IsActive);
+                
+                // Fallback: If this branch has no settings, show the latest global settings
+                if (threshold == null)
                 {
-                    Title = "Strategic Breach Detected",
-                    Message = $"Branch operational health ({snapshot.ProfitMargin:F1}%) is below your new executive target ({threshold.MinProfitMargin:F1}%).",
-                    Type = "KPI",
-                    Severity = "red",
-                    BranchId = threshold.BranchId,
-                    CreatedAt = DateTime.Now
-                };
-                _context.SystemNotifications.Add(alert);
-                await _context.SaveChangesAsync();
-                alertTriggered = true;
+                    threshold = await _context.KpiThresholds
+                        .OrderByDescending(t => t.UpdatedAt)
+                        .FirstOrDefaultAsync();
+                }
             }
 
-            return Json(new { success = true, alerted = alertTriggered });
+            return Json(threshold);
+        }
+
+        public class KpiThresholdRequest
+        {
+            public string BranchId { get; set; } = string.Empty;
+            public decimal MinProfitMargin { get; set; }
+            public decimal MaxExpenseRatio { get; set; }
+            public decimal MinMonthlyProfit { get; set; }
+            public string RiskAlertLevel { get; set; } = "Yellow";
         }
 
         [Authorize(Roles = "CEO")]
@@ -1063,15 +1129,12 @@ namespace coretex_finalproj.Controllers
         [HttpGet]
         public async Task<IActionResult> ClearDemoData()
         {
-            // 1. Wipe all historical submissions
             var submissions = await _context.BranchSubmissions.ToListAsync();
             _context.BranchSubmissions.RemoveRange(submissions);
 
-            // 2. Wipe all sales records (including the 3M from the snapshot)
             var sales = await _context.Sales.ToListAsync();
             _context.Sales.RemoveRange(sales);
 
-            // 3. Wipe all expense records
             var expenses = await _context.Expenses.ToListAsync();
             _context.Expenses.RemoveRange(expenses);
 
@@ -1119,6 +1182,149 @@ namespace coretex_finalproj.Controllers
 
             await _context.SaveChangesAsync();
             return Content($"Success! March and April data injected for {activeBranches.Count} branches. Refresh your CEO Dashboard to see the comparative data.");
+        }
+
+        private async Task CreateMasterAccount(string email, string role, string fullName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new AppUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FullName = fullName,
+                    EmailConfirmed = true,
+                    BranchId = null
+                };
+                await _userManager.CreateAsync(user, "CoretexAdmin123!");
+            }
+
+            // Ensure role is assigned
+            if (!await _userManager.IsInRoleAsync(user, user.Role ?? role))
+            {
+                await _userManager.AddToRoleAsync(user, role);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GlobalCorporateReset()
+        {
+            // 2. RE-CREATE EXECUTIVE & MASTER ADMIN (The Leaders)
+            await CreateMasterAccount("admin@coretex.com", "ADMIN", "Master Systems Admin");
+            await CreateMasterAccount("ceo@coretex.com", "CEO", "Chief Executive Officer");
+
+            var branchNames = new[] { "Sandawa", "Mintal", "Toril", "Matina", "Buhangin" };
+            
+            // 1. FORCE DETACH ALL FOREIGN KEYS (The Nuclear Option)
+            await _context.Database.ExecuteSqlRawAsync("UPDATE AspNetUsers SET BranchId = NULL");
+            await _context.Database.ExecuteSqlRawAsync("UPDATE DailySummaries SET BranchId = NULL");
+            await _context.Database.ExecuteSqlRawAsync("UPDATE GeneratedReports SET BranchId = NULL");
+
+            // 2. PURGE ALL STAFF (Except current CEO for safety)
+            var currentUserId = _userManager.GetUserId(User);
+            var allUsers = await _userManager.Users.ToListAsync();
+            foreach (var user in allUsers)
+            {
+                if (user.Id == currentUserId || user.Email == "ceo@coretex.com" || user.Email == "admin@coretex.com") continue;
+                await _userManager.DeleteAsync(user);
+            }
+
+            // 3. HARD DELETE DECOMMISSIONED BRANCHES
+            var allBranches = await _context.Branches.ToListAsync();
+            foreach (var b in allBranches) {
+                if (!branchNames.Contains(b.Name))
+                {
+                    _context.Branches.Remove(b);
+                }
+                else
+                {
+                    b.IsArchived = true; 
+                    b.IsActive = false;
+                    _context.Branches.Update(b);
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            // 3. SETUP 5 CORE BRANCHES (Exact Names)
+            var activeBranches = new List<Branch>();
+            foreach (var name in branchNames)
+            {
+                string code = "CORETEX-" + name.ToUpper();
+                // Match by exact name OR branch code to prevent duplicates
+                var b = allBranches.FirstOrDefault(x => x.Name.Trim() == name || x.BranchCode == code);
+                
+                if (b == null)
+                {
+                    b = new Branch { 
+                        Id = Guid.NewGuid(),
+                        Name = name, 
+                        BranchCode = code, 
+                        Address = name + ", Davao City",
+                        IsActive = true,
+                        IsArchived = false
+                    };
+                    _context.Branches.Add(b);
+                }
+                else
+                {
+                    b.Name = name.Trim(); // Force exact name (remove "Branch", "Hub", etc.)
+                    b.BranchCode = code;
+                    b.IsArchived = false;
+                    b.IsActive = true;
+                    _context.Branches.Update(b);
+                }
+                activeBranches.Add(b);
+            }
+            await _context.SaveChangesAsync();
+
+            // 4. DEPLOY FRESH WORKFORCE
+            int userCount = 0;
+            foreach (var branch in activeBranches)
+            {
+                string bName = branch.Name;
+                
+                // Roles to deploy per branch (1 Manager, 1 Finance, 2 Cashiers)
+                var pList = new List<dynamic> {
+                    new { Role = "BRANCH_ADMIN", Index = 1, Prefix = "manager", RoleName = "Manager" },
+                    new { Role = "FINANCE", Index = 1, Prefix = "finance", RoleName = "Finance" },
+                    new { Role = "CASHIER", Index = 1, Prefix = "cashier1", RoleName = "Cashier" },
+                    new { Role = "CASHIER", Index = 2, Prefix = "cashier2", RoleName = "Cashier" }
+                };
+
+                // Add 3 more cashiers for Sandawa only
+                if (bName == "Sandawa") {
+                    pList.Add(new { Role = "CASHIER", Index = 3, Prefix = "cashier3", RoleName = "Cashier" });
+                    pList.Add(new { Role = "CASHIER", Index = 4, Prefix = "cashier4", RoleName = "Cashier" });
+                    pList.Add(new { Role = "CASHIER", Index = 5, Prefix = "cashier5", RoleName = "Cashier" });
+                }
+
+                foreach (var p in pList)
+                {
+                    string email = $"{p.Prefix}.{bName.ToLower()}@coretex.com";
+                    // Password Pattern: [RoleName][BranchName][Index]2026!@#
+                    string password = p.RoleName == "Cashier" 
+                        ? $"{p.RoleName}{bName}{p.Index}2026!@#" 
+                        : $"{p.RoleName}{bName}2026!@#";
+                    
+                    var user = new AppUser
+                    {
+                        UserName = email,
+                        Email = email,
+                        FullName = $"{bName} {p.RoleName} {p.Index}",
+                        BranchId = branch.Id,
+                        Role = p.Role,
+                        IsActive = true,
+                        EmailConfirmed = true
+                    };
+                    
+                    var result = await _userManager.CreateAsync(user, password);
+                    if (result.Succeeded) userCount++;
+                }
+            }
+
+            await _auditLog.LogActivityAsync("GLOBAL_RESET", $"Corporate migration complete. Purged old data. 5 nodes active, {userCount} personnel deployed.");
+            return Content($"CORPORATE MIGRATION SUCCESS: Purged all old staff. 5 Branches ({string.Join(", ", branchNames)}) synchronized. {userCount} staff accounts deployed with exact patterns.");
         }
     }
 }

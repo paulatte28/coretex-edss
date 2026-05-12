@@ -16,23 +16,80 @@ namespace coretex_finalproj.Services
             _context = context;
         }
 
-        public async Task<DashboardSnapshot> GetDashboardSnapshotAsync(Guid? branchId = null)
+        public async Task<DashboardSnapshot> GetDashboardSnapshotAsync(Guid? branchId = null, int? month = null, int? year = null)
         {
-            var salesQuery = _context.Sales.Where(s => !s.IsArchived).AsQueryable();
-            var expensesQuery = _context.Expenses.Where(e => !e.IsArchived).AsQueryable();
+            decimal totalSales = 0;
+            decimal totalExpenses = 0;
 
-            if (branchId.HasValue)
+            // If a specific month/year is requested, check for an official submission first
+            if (month.HasValue && year.HasValue)
             {
-                salesQuery = salesQuery.Where(s => s.BranchId == branchId.Value);
-                expensesQuery = expensesQuery.Where(e => e.BranchId == branchId.Value);
-            }
+                var submissions = await _context.BranchSubmissions
+                    .Where(s => s.SubmissionYear == year.Value && s.SubmissionMonth == month.Value)
+                    .Where(s => !branchId.HasValue || s.BranchId == branchId.Value)
+                    .ToListAsync();
 
-            // Real data from DB
-            var realSales = await salesQuery.SumAsync(s => s.Amount);
-            var realExpenses = await expensesQuery.SumAsync(e => e.Amount);
+                if (submissions.Any())
+                {
+                    totalSales = submissions.Sum(s => s.SalesRevenue);
+                    totalExpenses = submissions.Sum(s => s.Expenses);
+                }
+                else
+                {
+                    // Fallback to raw data for that specific month
+                    var start = new DateTime(year.Value, month.Value, 1);
+                    var end = start.AddMonths(1);
+
+                    var salesQuery = _context.Sales.Where(s => !s.IsArchived && s.Date >= start && s.Date < end).AsQueryable();
+                    var expensesQuery = _context.Expenses.Where(e => !e.IsArchived && e.Date >= start && e.Date < end).AsQueryable();
+
+                    if (branchId.HasValue)
+                    {
+                        salesQuery = salesQuery.Where(s => s.BranchId == branchId.Value);
+                        expensesQuery = expensesQuery.Where(e => e.BranchId == branchId.Value);
+                    }
+
+                    totalSales = await salesQuery.SumAsync(s => s.Amount);
+                    totalExpenses = await expensesQuery.SumAsync(e => e.Amount);
+                }
+            }
+            else
+            {
+                // DEFAULT: ALL-TIME TOTAL (Live + Historical Reports)
+                // 1. Sum all approved submissions
+                var reportSales = await _context.BranchSubmissions
+                    .Where(s => !branchId.HasValue || s.BranchId == branchId.Value)
+                    .SumAsync(s => s.SalesRevenue);
+                var reportExpenses = await _context.BranchSubmissions
+                    .Where(s => !branchId.HasValue || s.BranchId == branchId.Value)
+                    .SumAsync(s => s.Expenses);
+
+                // 2. Sum live data for months that DON'T have submissions yet
+                var submissions = await _context.BranchSubmissions
+                    .Where(s => !branchId.HasValue || s.BranchId == branchId.Value)
+                    .Select(s => new { s.SubmissionYear, s.SubmissionMonth })
+                    .ToListAsync();
+
+                var liveSales = await _context.Sales
+                    .Where(s => !s.IsArchived && (!branchId.HasValue || s.BranchId == branchId.Value))
+                    .ToListAsync();
+                var liveExpenses = await _context.Expenses
+                    .Where(e => !e.IsArchived && (!branchId.HasValue || e.BranchId == branchId.Value))
+                    .ToListAsync();
+
+                foreach(var s in liveSales) {
+                    if (!submissions.Any(sub => sub.SubmissionYear == s.Date.Year && sub.SubmissionMonth == s.Date.Month))
+                        totalSales += s.Amount;
+                }
+                foreach(var e in liveExpenses) {
+                    if (!submissions.Any(sub => sub.SubmissionYear == e.Date.Year && sub.SubmissionMonth == e.Date.Month))
+                        totalExpenses += e.Amount;
+                }
+
+                totalSales += reportSales;
+                totalExpenses += reportExpenses;
+            }
             
-            var totalSales = realSales;
-            var totalExpenses = realExpenses;
             var profit = totalSales - totalExpenses;
             var margin = totalSales > 0 ? (profit / totalSales) * 100 : 0;
 
@@ -53,10 +110,12 @@ namespace coretex_finalproj.Services
             };
         }
 
-        public async Task<object> GetMonthlyProfitLossAsync(Guid? branchId = null)
+        public async Task<object> GetMonthlyProfitLossAsync(Guid? branchId = null, int? month = null, int? year = null)
         {
             var data = new List<object>();
-            var now = DateTime.Now;
+            var now = (month.HasValue && year.HasValue) 
+                ? new DateTime(year.Value, month.Value, 1).AddMonths(1).AddDays(-1)
+                : DateTime.Now;
 
             // FETCH DATA FOR THE LAST 6 MONTHS
             for (int i = 5; i >= 0; i--)
@@ -66,23 +125,29 @@ namespace coretex_finalproj.Services
                 var end = start.AddMonths(1);
 
                 // 1. CHECK FOR OFFICIAL SUBMISSIONS FIRST (Higher Priority/Confirmed Data)
-                var submission = await _context.BranchSubmissions
+                var submissions = await _context.BranchSubmissions
                     .Where(s => s.SubmissionYear == d.Year && s.SubmissionMonth == d.Month)
                     .Where(s => !branchId.HasValue || s.BranchId == branchId.Value)
-                    .FirstOrDefaultAsync();
+                    .ToListAsync();
 
                 decimal monthlySales = 0;
                 decimal monthlyExpenses = 0;
+                decimal monthlyCogs = 0;
+                decimal monthlyRent = 0;
+                decimal monthlySalaries = 0;
+                decimal monthlyUtilities = 0;
 
-                if (submission != null)
+                if (submissions.Any())
                 {
-                    // Use confirmed data from the report
-                    monthlySales = submission.SalesRevenue;
-                    monthlyExpenses = submission.Expenses;
+                    monthlySales = submissions.Sum(s => s.SalesRevenue);
+                    monthlyExpenses = submissions.Sum(s => s.Expenses);
+                    monthlyCogs = submissions.Sum(s => s.Cogs);
+                    monthlyRent = submissions.Sum(s => s.Rent);
+                    monthlySalaries = submissions.Sum(s => s.Salaries);
+                    monthlyUtilities = submissions.Sum(s => s.Utilities);
                 }
                 else
                 {
-                    // 2. FALLBACK TO RAW TRANSACTIONAL DATA (Real-time/In-progress)
                     var salesQuery = _context.Sales.Where(s => !s.IsArchived && s.Date >= start && s.Date < end).AsQueryable();
                     var expensesQuery = _context.Expenses.Where(e => !e.IsArchived && e.Date >= start && e.Date < end).AsQueryable();
 
@@ -94,54 +159,93 @@ namespace coretex_finalproj.Services
 
                     monthlySales = await salesQuery.SumAsync(s => s.Amount);
                     monthlyExpenses = await expensesQuery.SumAsync(e => e.Amount);
+
+                    var breakdown = await expensesQuery
+                        .GroupBy(e => e.Category)
+                        .Select(g => new { Category = g.Key, Amount = g.Sum(e => e.Amount) })
+                        .ToListAsync();
+
+                    monthlyCogs = breakdown.FirstOrDefault(b => b.Category == "COGS")?.Amount ?? 0;
+                    monthlyRent = breakdown.FirstOrDefault(b => b.Category == "Rent")?.Amount ?? 0;
+                    monthlySalaries = breakdown.FirstOrDefault(b => b.Category == "Salaries")?.Amount ?? 0;
+                    monthlyUtilities = breakdown.FirstOrDefault(b => b.Category == "Utilities")?.Amount ?? 0;
                 }
 
                 data.Add(new {
-                    month = d.ToString("MMM yyyy") + (i == 0 ? " (LIVE)" : ""),
+                    month = d.ToString("MMM yyyy") + (i == 0 && !submissions.Any() ? " (LIVE)" : ""),
+                    monthKey = $"{d.Year}-{d.Month:D2}",
                     sales = monthlySales,
-                    expenses = monthlyExpenses
+                    revenue = monthlySales, // Alias for consistency
+                    expenses = monthlyExpenses,
+                    netProfit = monthlySales - monthlyExpenses,
+                    cogs = monthlyCogs,
+                    rent = monthlyRent,
+                    salaries = monthlySalaries,
+                    utilities = monthlyUtilities
                 });
             }
 
             return data;
         }
 
-        public async Task<List<object>> GetBranchPerformanceAsync()
+        public async Task<List<object>> GetBranchPerformanceAsync(int? month = null, int? year = null)
         {
             var branches = await _context.Branches.Where(b => !b.IsArchived).ToListAsync();
             var results = new List<object>();
 
             foreach (var b in branches)
             {
-                // 1. SUM ALL OFFICIAL SUBMISSIONS
-                var submissionTotals = await _context.BranchSubmissions
-                    .Where(s => s.BranchId == b.Id)
-                    .Select(s => new { s.SalesRevenue, s.Expenses, s.SubmissionYear, s.SubmissionMonth })
-                    .ToListAsync();
+                decimal totalRevenue = 0;
+                decimal totalExpenses = 0;
 
-                decimal totalRevenue = submissionTotals.Sum(s => s.SalesRevenue);
-                decimal totalExpenses = submissionTotals.Sum(s => s.Expenses);
-
-                // 2. SUM LIVE DATA FOR MONTHS WITHOUT SUBMISSIONS
-                // We'll just look at Sales/Expenses for any date that isn't covered by a submission month.
-                // For simplicity in this demo, we'll sum all Sales and then subtract those that belong to submitted months.
-                var allLiveSales = await _context.Sales.Where(s => s.BranchId == b.Id && !s.IsArchived).ToListAsync();
-                var allLiveExpenses = await _context.Expenses.Where(e => e.BranchId == b.Id && !e.IsArchived).ToListAsync();
-
-                foreach (var s in allLiveSales)
+                if (month.HasValue && year.HasValue)
                 {
-                    // If this sale's month isn't in the submissions list, add it to the total
-                    if (!submissionTotals.Any(sub => sub.SubmissionYear == s.Date.Year && sub.SubmissionMonth == s.Date.Month))
+                    // Filtered Period: Check for submission first
+                    var submission = await _context.BranchSubmissions
+                        .FirstOrDefaultAsync(s => s.BranchId == b.Id && s.SubmissionYear == year.Value && s.SubmissionMonth == month.Value);
+
+                    if (submission != null)
                     {
-                        totalRevenue += s.Amount;
+                        totalRevenue = submission.SalesRevenue;
+                        totalExpenses = submission.Expenses;
+                    }
+                    else
+                    {
+                        // Use raw transactional data for this specific month
+                        var start = new DateTime(year.Value, month.Value, 1);
+                        var end = start.AddMonths(1);
+
+                        totalRevenue = await _context.Sales
+                            .Where(s => s.BranchId == b.Id && !s.IsArchived && s.Date >= start && s.Date < end)
+                            .SumAsync(s => s.Amount);
+                        totalExpenses = await _context.Expenses
+                            .Where(s => s.BranchId == b.Id && !s.IsArchived && s.Date >= start && s.Date < end)
+                            .SumAsync(s => s.Amount);
                     }
                 }
-
-                foreach (var e in allLiveExpenses)
+                else
                 {
-                    if (!submissionTotals.Any(sub => sub.SubmissionYear == e.Date.Year && sub.SubmissionMonth == e.Date.Month))
+                    // ALL-TIME HYBRID PERFORMANCE
+                    var submissionTotals = await _context.BranchSubmissions
+                        .Where(s => s.BranchId == b.Id)
+                        .Select(s => new { s.SalesRevenue, s.Expenses, s.SubmissionYear, s.SubmissionMonth })
+                        .ToListAsync();
+
+                    totalRevenue = submissionTotals.Sum(s => s.SalesRevenue);
+                    totalExpenses = submissionTotals.Sum(s => s.Expenses);
+
+                    var allLiveSales = await _context.Sales.Where(s => s.BranchId == b.Id && !s.IsArchived).ToListAsync();
+                    var allLiveExpenses = await _context.Expenses.Where(e => e.BranchId == b.Id && !e.IsArchived).ToListAsync();
+
+                    foreach (var s in allLiveSales)
                     {
-                        totalExpenses += e.Amount;
+                        if (!submissionTotals.Any(sub => sub.SubmissionYear == s.Date.Year && sub.SubmissionMonth == s.Date.Month))
+                            totalRevenue += s.Amount;
+                    }
+                    foreach (var e in allLiveExpenses)
+                    {
+                        if (!submissionTotals.Any(sub => sub.SubmissionYear == e.Date.Year && sub.SubmissionMonth == e.Date.Month))
+                            totalExpenses += e.Amount;
                     }
                 }
 
@@ -149,10 +253,11 @@ namespace coretex_finalproj.Services
                 var margin = totalRevenue > 0 ? (double)(profit / totalRevenue) * 100 : 0;
 
                 results.Add(new {
+                    Id = b.Id,
                     Name = b.Name,
-                    Revenue = totalRevenue,
-                    Expenses = totalExpenses,
-                    Profit = profit,
+                    Revenue = (decimal)totalRevenue,
+                    Expenses = (decimal)totalExpenses,
+                    Profit = (decimal)profit,
                     Margin = margin
                 });
             }

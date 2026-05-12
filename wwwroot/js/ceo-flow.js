@@ -79,10 +79,15 @@
     const charts = {};
     let cachedSeries = [];
 
-    async function initialize() {
+    async function initialize(branchId = null, month = null, year = null) {
         try {
             initializeDefaults();
-            const response = await fetch('/Ceo/GetAnalyticsSeries');
+            let url = `/Ceo/GetAnalyticsSeries?t=${Date.now()}`;
+            if (branchId) url += `&branchId=${branchId}`;
+            if (month) url += `&month=${month}`;
+            if (year) url += `&year=${year}`;
+
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Analytics fetch failed');
             cachedSeries = await response.json();
             return true;
@@ -690,9 +695,11 @@
                 articles
             };
         } catch (_error) {
+            console.error('News API Error:', _error);
             return {
-                source: 'fallback',
-                articles: getNewsFallback(category)
+                source: 'error',
+                articles: [],
+                message: _error.message
             };
         }
     }

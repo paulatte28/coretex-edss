@@ -71,10 +71,29 @@
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3">
-                    <!-- Quick Filter Pills -->
-                    <button onclick="filterByRole('')" class="filter-pill active px-5 py-2.5 bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all border border-slate-200/50">
-                        @(isManager ? "Entire Team" : "All Personnel")
-                    </button>
+                    <!-- Branch Filter -->
+                    @if (!isManager) {
+                        <div class="relative">
+                            <select id="branch-filter" onchange="filterUsers()" class="appearance-none pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-bold text-slate-600 cursor-pointer">
+                                <option value="">All Branches</option>
+                                @foreach(var b in branches.Where(x => !x.IsArchived)) {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            </select>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Role Filters -->
+                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="filterByRole('')" class="role-pill active px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all active-pill">All</button>
+                        <button onclick="filterByRole('BRANCH_ADMIN')" class="role-pill px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-400">Managers</button>
+                        <button onclick="filterByRole('FINANCE')" class="role-pill px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-400">Finance</button>
+                        <button onclick="filterByRole('CASHIER')" class="role-pill px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-400">Cashiers</button>
+                    </div>
+                    
                     <div class="relative group">
                         <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <input type="text" id="search-input" onkeyup="filterUsers()" placeholder="Search active..." class="pl-11 pr-6 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-48 font-medium">
@@ -437,13 +456,15 @@
             currentRoleFilter = role;
             filterUsers();
             
-            // Highlight active card
-            document.querySelectorAll('.cursor-pointer').forEach(card => {
-                card.classList.remove('ring-4', 'ring-indigo-500/20', 'border-indigo-500');
+            // Highlight active pill
+            document.querySelectorAll('.role-pill').forEach(btn => {
+                btn.classList.remove('active-pill', 'bg-white', 'shadow-sm', 'text-indigo-600');
+                btn.classList.add('text-slate-400');
             });
-            if(role) {
-                event.currentTarget.classList.add('ring-4', 'ring-indigo-500/20', 'border-indigo-500');
-            }
+            
+            const activeBtn = event.currentTarget;
+            activeBtn.classList.add('active-pill', 'bg-white', 'shadow-sm', 'text-indigo-600');
+            activeBtn.classList.remove('text-slate-400');
         }
 
         function filterUsers() {

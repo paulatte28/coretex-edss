@@ -216,10 +216,6 @@
                         <div class="pt-8 mb-10">
                             <p class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/60 pb-2">Configuration</p>
 
-                            <a href="/Admin/KPIThresholds" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/KPIThresholds" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/KPIThresholds" ? "scale-[1.02]" : "")">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span class="font-semibold tracking-tight text-sm">KPI Goals & Targets</span>
-                            </a>
 
                             @if (User.IsInRole("ADMIN")) {
                                 <a href="/Admin/ReportSchedule" class="group flex items-center space-x-3 p-4 @(Context.Request.Path == "/Admin/ReportSchedule" ? "bg-secondary active-glow" : "text-slate-400 hover:bg-white/5 hover:text-white") rounded-2xl transition-all duration-300 transform @(Context.Request.Path == "/Admin/ReportSchedule" ? "scale-[1.02]" : "")">

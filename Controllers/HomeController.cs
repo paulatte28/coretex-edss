@@ -56,7 +56,9 @@ namespace coretex_finalproj.Controllers
                 if (User.IsInRole("FINANCE")) return Redirect("/finance/dashboard");
                 if (User.IsInRole("CASHIER")) return Redirect("/cashier/pos");
                 if (User.IsInRole("CEO")) return Redirect("/ceo/dashboard");
-                return Redirect("/ceo/dashboard");
+                
+                // FALLBACK: If authenticated but no role found, log out to clear the stale session
+                return RedirectToAction("Logout", "Home");
             }
 
             ViewData["ReturnUrl"] = returnUrl ?? string.Empty;
@@ -223,7 +225,7 @@ namespace coretex_finalproj.Controllers
                 return Redirect(returnUrl);
             }
 
-            return Redirect("/ceo/dashboard");
+            return RedirectToAction("Logout", "Home");
         }
 
         private async Task ProcessSecurityAlerts(AppUser user, string ipAddress)

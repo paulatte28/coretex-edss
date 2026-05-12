@@ -72,7 +72,7 @@
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Target Operational Node</label>
                 @if (isCEO) {
                     <select id="branch-selector" class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-xl font-black text-slate-900 appearance-none">
-                        <option value="">-- Select Branch Node --</option>
+                        <option value="global" class="text-indigo-600 font-black italic">🌐 Global Network (All Branches)</option>
                         @foreach (var b in ViewBag.Branches) {
                             <option value="@b.Id">@b.Name</option>
                         }
@@ -210,36 +210,41 @@
 
 @section Scripts {
     <script>
-        // Load saved thresholds
-        function loadThresholds() {
-            const saved = JSON.parse(localStorage.getItem('coretex_kpi_thresholds') || '{}');
-            
-            // Professional Defaults if empty or extreme
-            const minProfit = (saved.minProfitMargin === undefined) ? 20.0 : saved.minProfitMargin;
-            const maxExpense = (saved.maxExpenseRatio === undefined) ? 35.0 : saved.maxExpenseRatio;
-            const profitFloor = (saved.minMonthlyProfit === undefined) ? 50000 : saved.minMonthlyProfit;
-            const alertLevel = saved.riskAlertLevel || 'yellow';
+        // Load saved thresholds from Server
+        async function loadThresholds() {
+            const branchId = document.getElementById('branch-selector').value;
+            if (!branchId) return;
 
-            document.getElementById('min-profit-margin').value = minProfit;
-            document.getElementById('max-expense-ratio').value = maxExpense;
-            document.getElementById('min-monthly-profit').value = formatNumber(profitFloor);
-            document.getElementById('risk-alert-level').value = alertLevel;
-            
-            updateSummary();
+            try {
+                const response = await fetch(`/Admin/GetKpiThreshold?branchId=${branchId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data) {
+                        document.getElementById('min-profit-margin').value = data.minProfitMargin;
+                        document.getElementById('max-expense-ratio').value = data.maxExpenseRatio;
+                        document.getElementById('min-monthly-profit').value = formatNumber(data.minMonthlyProfit);
+                        document.getElementById('risk-alert-level').value = data.riskAlertLevel.toLowerCase();
+                        updateSummary();
+                    } else {
+                        // Reset to standards if no data found for this branch
+                        resetToStandards(false);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to sync with server:", err);
+            }
         }
 
-        function resetToStandards() {
-            if (!confirm("Reset all thresholds to Professional Industry Standards (20% Margin, 35% Expense)?")) return;
+        function resetToStandards(ask = true) {
+            if (ask && !confirm("Reset all thresholds to Professional Industry Standards (25% Margin, 45% Expense)?")) return;
             
-            const defaults = {
-                minProfitMargin: 20.0,
-                maxExpenseRatio: 35.0,
-                minMonthlyProfit: 50000.0,
-                riskAlertLevel: 'yellow'
-            };
-            localStorage.setItem('coretex_kpi_thresholds', JSON.stringify(defaults));
-            loadThresholds();
-            showToast('Reset to Professional Standards. Don\'t forget to click "Commit Thresholds" to save.');
+            document.getElementById('min-profit-margin').value = 25.0;
+            document.getElementById('max-expense-ratio').value = 45.0;
+            document.getElementById('min-monthly-profit').value = formatNumber(1000000);
+            document.getElementById('risk-alert-level').value = 'yellow';
+            
+            updateSummary();
+            if (ask) showToast('Reset to Professional Standards. Click "Commit" to deploy.');
         }
 
         // Format currency input
@@ -422,6 +427,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('branch-selector').addEventListener('change', loadThresholds);
             loadThresholds();
             renderAlertHistory();
         });
