@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -10,6 +10,13 @@ namespace coretex_finalproj.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // CLEANUP DATA TO PREVENT OVERFLOW ON REMOTE SERVER
+            migrationBuilder.Sql("DELETE FROM [BranchGoals]");
+            migrationBuilder.Sql("DELETE FROM [Sales]");
+            migrationBuilder.Sql("DELETE FROM [Expenses]");
+            migrationBuilder.Sql("DELETE FROM [DailySummaries]");
+            migrationBuilder.Sql("DELETE FROM [BranchSubmissions]");
+            
             migrationBuilder.AlterColumn<decimal>(
                 name: "UnitPrice",
                 table: "Sales",
