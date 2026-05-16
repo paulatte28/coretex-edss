@@ -477,6 +477,30 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN,BRANCH_ADMIN,CEO")]
+        public async Task<IActionResult> UnlockUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            // SECURITY OVERRIDE: Clear the lockout and reset the strike counter
+            var result = await _userManager.SetLockoutEndDateAsync(user, null);
+            if (result.Succeeded)
+            {
+                await _userManager.ResetAccessFailedCountAsync(user);
+                await _auditLog.LogActivityAsync("SECURITY_UNLOCK", $"Admin manually overrode system lockout for: {user.Email}");
+                TempData["Message"] = $"SUCCESS: User {user.Email} has been manually unlocked.";
+            }
+            else
+            {
+                TempData["Error"] = "Manual unlock failed.";
+            }
+
+            return RedirectToAction(nameof(UserManagement));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUserRole(string userId, string newRole)
         {
             var user = await _userManager.FindByIdAsync(userId);

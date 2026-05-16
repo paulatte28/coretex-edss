@@ -113,25 +113,51 @@ namespace coretex_finalproj.Controllers
                 }
             }
 
+            // --- SECURITY ENFORCEMENT: Enforce 2FA for ALL users ---
+            if (!user.TwoFactorEnabled)
+            {
+                user.TwoFactorEnabled = true;
+                await _userManager.UpdateAsync(user);
+                await _auditLog.LogActivityAsync("SECURITY_ENFORCE", $"MFA automatically enforced for {loginId} during login.");
+            }
+
             var result = await _signInManager.PasswordSignInAsync(user, password, remember, lockoutOnFailure: true);
+            
             if (result.Succeeded)
             {
                 await ProcessSecurityAlerts(user, ipAddress);
-                await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User {loginId} logged in successfully.");
+                await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User {loginId} logged in.");
                 
-                // FORCE COOKIE REFRESH: Ensures roles are baked into the principal immediately
+                // FORCE COOKIE REFRESH
                 await _signInManager.RefreshSignInAsync(user);
                 return await RedirectUserByRole(user, returnUrl);
             }
 
             if (result.RequiresTwoFactor)
             {
+                // --- SECURITY UPGRADE: PIN UNIQUENESS ---
+                // Rotate the security stamp BEFORE generating the token.
+                // This forces the system to create a BRAND NEW, unique PIN every single time
+                // a user hits the login screen, regardless of the expiration window.
+                await _userManager.UpdateSecurityStampAsync(user);
+
+                // 1. Generate PIN
                 var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
-                await _emailSender.SendEmailAsync(user.Email!, "Your Security Code", 
-                    $"Your One-Time Password (OTP) is: <b>{token}</b>. This code will expire shortly.");
                 
-                await _auditLog.LogActivityAsync("LOGIN_2FA_REQUIRED", $"2FA challenge issued for {loginId}.");
-                return RedirectToAction("VerifyOTP", new { email = user.Email, rememberMe = remember, returnUrl });
+                // 2. Send via Email (Professional Template)
+                await _emailSender.SendEmailAsync(user.Email!, "Security Verification Code", 
+                    $"<div style='font-family:sans-serif; padding:30px; border:2px solid #e2e8f0; border-radius:24px; background-color:white;'>" +
+                    $"<h2 style='color:#001A4D; margin-top:0;'>Security Verification</h2>" +
+                    $"<p style='color:#64748b;'>Use the following code to complete your login to Coretex:</p>" +
+                    $"<div style='background:#f1f5f9; padding:20px; border-radius:16px; text-align:center; margin:20px 0;'>" +
+                    $"<span style='font-size:32px; font-weight:800; letter-spacing:8px; color:#006D68;'>{token}</span>" +
+                    $"</div>" +
+                    $"<p style='font-size:12px; color:#94a3b8;'>This code expires in 3 minutes. If you did not request this, please secure your account.</p>" +
+                    $"</div>");
+
+                await _auditLog.LogActivityAsync("LOGIN_2FA_CHALLENGE", $"PIN Challenge issued for {loginId}. OTP sent via email.");
+                
+                return RedirectToAction("VerifyOTP", new { email = loginId, rememberMe = remember, returnUrl });
             }
 
             ViewData["LoginError"] = result.IsLockedOut
@@ -189,20 +215,48 @@ namespace coretex_finalproj.Controllers
             var result = await _signInManager.TwoFactorSignInAsync("Email", code, rememberMe, rememberClient: false);
             if (result.Succeeded)
             {
+                // --- CRITICAL SECURITY FIX: PIN CONSUMPTION ---
+                // Rotate the security stamp to invalidate the used PIN immediately.
+                // This prevents "Replay Attacks" where the same code is used twice.
+                await _userManager.UpdateSecurityStampAsync(user);
+                
+                // RESET STRIKES: Clear the failed attempts count since they finally got it right
+                await _userManager.ResetAccessFailedCountAsync(user);
+                
                 await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User authenticated successfully: {email}");
                 
-                // ENSURE FRESH PRINCIPAL: Prevent stale role data in cookie
+                // ENSURE FRESH PRINCIPAL: Sync the new security stamp into the cookie
                 await _signInManager.RefreshSignInAsync(user);
                 return await RedirectUserByRole(user, returnUrl);
             }
 
             if (result.IsLockedOut)
             {
-                ViewData["Error"] = "Account locked due to too many failed attempts.";
+                ViewData["Email"] = email;
+                ViewData["RememberMe"] = rememberMe;
+                ViewData["ReturnUrl"] = returnUrl;
+                ViewData["Error"] = "Your account is temporarily locked due to too many failed attempts. Please try again in 30 minutes.";
                 return View();
             }
 
-            ViewData["Error"] = "Invalid security code. Please try again.";
+            // --- REALISTIC SECURITY: Failed PIN Attempt Tracking ---
+            // We manually increment the failed count because standard Identity doesn't 
+            // automatically lock out for 2FA failures (only password failures).
+            await _userManager.AccessFailedAsync(user);
+            int failedCount = await _userManager.GetAccessFailedCountAsync(user);
+            int maxAttempts = 5; // Matches your Program.cs settings
+
+            if (failedCount >= maxAttempts)
+            {
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddMinutes(30));
+                await _auditLog.LogActivityAsync("ACCOUNT_LOCKOUT", $"Account {email} locked out after {failedCount} failed PIN attempts.");
+                ViewData["Error"] = "Too many failed attempts. Your account has been locked for 30 minutes.";
+            }
+            else
+            {
+                ViewData["Error"] = $"Invalid security code. You have {maxAttempts - failedCount} attempts remaining.";
+            }
+
             ViewData["Email"] = email;
             ViewData["RememberMe"] = rememberMe;
             ViewData["ReturnUrl"] = returnUrl;
@@ -230,7 +284,7 @@ namespace coretex_finalproj.Controllers
             var geo = await _geo.GetLocationAsync(ipAddress);
             var currentLocation = $"{geo.City}, {geo.CountryName}";
 
-            // --- Suggestion 1: Geolocation Alert ---
+         
             if (!string.IsNullOrEmpty(user.LastLoginLocation) && user.LastLoginLocation != currentLocation)
             {
                 await _emailSender.SendEmailAsync(user.Email!, "SECURITY ALERT: New Login Location", 
