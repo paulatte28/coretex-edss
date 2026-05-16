@@ -100,18 +100,24 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 app.Use(async (context, next) =>
 {
-    // Content Security Policy (CSP) - "Real" industry security
-    // Prevents XSS by only allowing scripts from trusted sources
+    // --- ELITE INFRASTRUCTURE HARDENING ---
     context.Response.Headers["Content-Security-Policy"] = 
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.plot.ly https://cdn.tailwindcss.com; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com; " +
         "font-src 'self' https://fonts.gstatic.com; " +
         "img-src 'self' data: https:; " +
-        "frame-ancestors 'none';"; // Protects against Clickjacking
+        "frame-ancestors 'none';"; 
 
     context.Response.Headers["X-Frame-Options"] = "DENY";
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    
+    // Privacy & Leak Protection
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    
+    // Hardware Hijack Protection (Disabling unused browser features)
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), usb=()";
+    
     await next();
 });
 

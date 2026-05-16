@@ -17,6 +17,8 @@ namespace coretex_finalproj.Controllers
         private readonly IEmailSender _emailSender;
         private readonly SecurityService _security;
         private readonly GeolocationService _geo;
+        private readonly coretex_finalproj.Data.ApplicationDbContext _context;
+        private readonly NotificationService _notificationService;
 
         public HomeController(
             ILogger<HomeController> logger,
@@ -25,7 +27,9 @@ namespace coretex_finalproj.Controllers
             AuditLoggingService auditLog,
             IEmailSender emailSender,
             SecurityService security,
-            GeolocationService geo)
+            GeolocationService geo,
+            coretex_finalproj.Data.ApplicationDbContext context,
+            NotificationService notificationService)
         {
             _logger = logger;
             _signInManager = signInManager;
@@ -34,6 +38,8 @@ namespace coretex_finalproj.Controllers
             _emailSender = emailSender;
             _security = security;
             _geo = geo;
+            _context = context;
+            _notificationService = notificationService;
         }
 
         public IActionResult Index()
@@ -223,7 +229,38 @@ namespace coretex_finalproj.Controllers
                 // RESET STRIKES: Clear the failed attempts count since they finally got it right
                 await _userManager.ResetAccessFailedCountAsync(user);
                 
-                await _auditLog.LogActivityAsync("LOGIN_SUCCESS", $"User authenticated successfully: {email}");
+                // --- TACTICAL UPGRADE: Node-Lock Verification ---
+                var geo = await _geo.GetLocationAsync(HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1");
+                string loginStatus = "LOGIN_SUCCESS";
+                string loginDescription = $"User authenticated successfully: {email} from {geo.City}, {geo.CountryName}";
+
+                // If the user belongs to a branch, check if the login city matches the branch region
+                if (user.BranchId.HasValue)
+                {
+                    var branch = await _context.Branches.FindAsync(user.BranchId.Value);
+                    if (branch != null && !string.IsNullOrEmpty(geo.City) && geo.City != "Unknown")
+                    {
+                        // Check if the branch name or address contains the city name (fuzzy match)
+                        bool isMatch = branch.Name.Contains(geo.City, StringComparison.OrdinalIgnoreCase) || 
+                                      branch.Address.Contains(geo.City, StringComparison.OrdinalIgnoreCase);
+                        
+                        if (!isMatch)
+                        {
+                            loginStatus = "SECURITY_ALERT";
+                            loginDescription = $"UNUSUAL_LOCATION: {email} (Assigned: {branch.Name}) logged in from {geo.City}. Potential account compromise.";
+                            
+                            // Also trigger a system notification for the Admin
+                            await _notificationService.CreateNotificationAsync(
+                                user.BranchId.Value, 
+                                "SECURITY: Unusual Login Node", 
+                                $"Account {email} accessed from {geo.City} (Expected: {branch.Name}).", 
+                                "red"
+                            );
+                        }
+                    }
+                }
+
+                await _auditLog.LogActivityAsync(loginStatus, loginDescription);
                 
                 // ENSURE FRESH PRINCIPAL: Sync the new security stamp into the cookie
                 await _signInManager.RefreshSignInAsync(user);
@@ -240,11 +277,17 @@ namespace coretex_finalproj.Controllers
             }
 
             // --- REALISTIC SECURITY: Failed PIN Attempt Tracking ---
-            // We manually increment the failed count because standard Identity doesn't 
-            // automatically lock out for 2FA failures (only password failures).
             await _userManager.AccessFailedAsync(user);
             int failedCount = await _userManager.GetAccessFailedCountAsync(user);
-            int maxAttempts = 5; // Matches your Program.cs settings
+            int maxAttempts = 5; 
+
+            // --- TACTICAL UPGRADE: Response Throttling ---
+            // If the user has failed 3+ times, we intentionally slow down the response 
+            // to choke brute-force bots. 2 seconds for 3rd try, 4 seconds for 4th try.
+            if (failedCount >= 3)
+            {
+                await Task.Delay(2000 * (failedCount - 2));
+            }
 
             if (failedCount >= maxAttempts)
             {

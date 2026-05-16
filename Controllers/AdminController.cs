@@ -296,23 +296,10 @@ namespace coretex_finalproj.Controllers
                 }
             }
 
-            // ENHANCED: Professional Password Generation (Following Project Convention)
-            string tempPassword;
-            var branch = branchId.HasValue ? await _context.Branches.FindAsync(branchId.Value) : null;
-
-            if (branch != null)
-            {
-                var branchClean = branch.Name.ToLower().Replace(" branch", "").Replace(" ", "");
-                var branchPascal = char.ToUpper(branchClean[0]) + branchClean[1..];
-                var rolePascal = char.ToUpper(role[0]) + role[1..].ToLower().Split('_')[0];
-                tempPassword = $"{rolePascal}{branchPascal}123!";
-            }
-            else
-            {
-                var rolePascal = char.ToUpper(role[0]) + role[1..].ToLower().Split('_')[0];
-                tempPassword = $"{rolePascal}12345!";
-            }
-
+            // --- TACTICAL UPGRADE: High-Entropy Temporary Password ---
+            // Instead of predictable passwords, we generate a truly random 12-char string.
+            string tempPassword = GenerateRandomPassword(12);
+            
             var user = new AppUser
             {
                 UserName = email,
@@ -433,7 +420,7 @@ namespace coretex_finalproj.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetUserPassword(string userId, string newPassword)
+        public async Task<IActionResult> ResetUserPassword(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
@@ -445,12 +432,27 @@ namespace coretex_finalproj.Controllers
                 return RedirectToAction(nameof(UserManagement));
             }
 
+            // SECURITY: Generate a fresh reset token and apply a high-entropy random password
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            string newPassword = GenerateRandomPassword(12);
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
             if (result.Succeeded)
             {
+                // Notify user of their new temporary credentials
+                string emailBody = $@"
+                    <div style='font-family:sans-serif; padding:20px;'>
+                        <h2 style='color:#001A4D;'>Security Credentials Reset</h2>
+                        <p>Hello {user.FullName}, your password has been reset by an administrator.</p>
+                        <p style='background:#f1f5f9; padding:15px; border-radius:10px; font-family:monospace; font-size:18px; text-align:center;'>
+                            Temporary Password: <b>{newPassword}</b>
+                        </p>
+                        <p style='color:#64748b; font-size:12px;'>Please log in and change this immediately using the Strength Meter on your profile page.</p>
+                    </div>";
+
+                await _emailSender.SendEmailAsync(user.Email, "Security Reset - CORETEX Intelligence", emailBody);
+
                 await _auditLog.LogActivityAsync("USER_PASSWORD_RESET", $"Security credentials reset for: {user.Email}");
-                TempData["Message"] = $"Password for {user.Email} has been reset.";
+                TempData["Message"] = $"SUCCESS: Password for {user.Email} has been reset. New key sent via email.";
             }
             return RedirectToAction(nameof(UserManagement));
         }
@@ -723,12 +725,19 @@ namespace coretex_finalproj.Controllers
 
                 if (existing != null)
                 {
+                    // --- TACTICAL UPGRADE: Differential Logging ---
+                    string diffLog = $"STRATEGY_PIVOT: Branch {bId} thresholds adjusted. " +
+                                   $"Margin: {existing.MinProfitMargin}% -> {request.MinProfitMargin}%, " +
+                                   $"Expense: {existing.MaxExpenseRatio}% -> {request.MaxExpenseRatio}%";
+
                     existing.MinProfitMargin = request.MinProfitMargin;
                     existing.MaxExpenseRatio = request.MaxExpenseRatio;
                     existing.MinMonthlyProfit = request.MinMonthlyProfit;
                     existing.RiskAlertLevel = request.RiskAlertLevel;
                     existing.UpdatedAt = DateTime.Now;
                     _context.KpiThresholds.Update(existing);
+                    
+                    await _auditLog.LogActivityAsync("STRATEGY_ADJUST", diffLog);
                 }
                 else
                 {
@@ -741,6 +750,8 @@ namespace coretex_finalproj.Controllers
                         RiskAlertLevel = request.RiskAlertLevel,
                         IsActive = true
                     });
+                    
+                    await _auditLog.LogActivityAsync("STRATEGY_INIT", $"Initial thresholds deployed to Node {bId}.");
                 }
 
                 // Check for immediate strategic breach
@@ -1407,6 +1418,13 @@ namespace coretex_finalproj.Controllers
             }
 
             return Ok();
+        }
+        private string GenerateRandomPassword(int length)
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
